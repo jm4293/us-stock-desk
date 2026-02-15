@@ -9,24 +9,23 @@ graph TD
     A[Agent 1: Architect] --> B[Agent 2: Styles]
     A --> C[Agent 3: State]
     A --> D[Agent 4: Services]
-    B --> E[Agent 5: Components]
-    C --> E
-    D --> E
-    E --> F[Agent 6: Test]
+    B --> F[Agent 6: Test 1차]
     C --> F
     D --> F
+    F --> E[Agent 5: Components]
+    E --> G[Agent 6: Test 2차]
 ```
 
 ## 🎯 에이전트 역할
 
-| Agent             | 역할            | 주요 작업                       | 의존성                  |
-| ----------------- | --------------- | ------------------------------- | ----------------------- |
-| **1. Architect**  | 프로젝트 설계자 | 폴더 구조, 설정 파일, 타입 정의 | 없음 (시작점)           |
-| **2. Styles**     | 스타일 전문가   | Tailwind, CSS, 디자인 시스템    | Architect               |
-| **3. State**      | 상태 관리       | Zustand 스토어, 전역 상태       | Architect               |
-| **4. Services**   | 서비스 레이어   | API, WebSocket, Storage         | Architect               |
-| **5. Components** | UI 개발자       | React 컴포넌트, Atomic Design   | Styles, State, Services |
-| **6. Test**       | 테스트 전문가   | Vitest, Storybook, TDD          | 모든 단계               |
+| Agent             | 역할            | 주요 작업                       | 의존성                                       |
+| ----------------- | --------------- | ------------------------------- | -------------------------------------------- |
+| **1. Architect**  | 프로젝트 설계자 | 폴더 구조, 설정 파일, 타입 정의 | 없음 (시작점)                                |
+| **2. Styles**     | 스타일 전문가   | Tailwind, CSS, 디자인 시스템    | Architect                                    |
+| **3. State**      | 상태 관리       | Zustand 스토어, 전역 상태       | Architect                                    |
+| **4. Services**   | 서비스 레이어   | API, WebSocket, Storage         | Architect                                    |
+| **5. Components** | UI 개발자       | React 컴포넌트, Atomic Design   | Styles, State, Services, Test 1차            |
+| **6. Test**       | 테스트 전문가   | Vitest, Storybook, TDD          | 1차: Styles+State+Services / 2차: Components |
 
 ## 🔄 작업 흐름
 
@@ -45,12 +44,17 @@ graph TD
    (독립적으로 작업 가능)
 ```
 
-### Phase 3: UI 구축
+### Phase 3: TDD 사이클 (Test → Components → Test)
 
 ```
-5️⃣ Components (State + Services 완료 후)
+6️⃣ Test 1차 (State + Services 완료 후)
+   → 테스트 + Storybook 스토리 먼저 작성 (Red)
    ↓
-6️⃣ Test (각 단계마다 병렬 작업)
+5️⃣ Components (Test 1차 완료 후)
+   → 테스트를 통과하도록 구현 (Green)
+   ↓
+6️⃣ Test 2차 (Components 완료 후)
+   → 전체 통과 확인 + 커버리지 검증 (Refactor)
 ```
 
 ## 📂 결과물 구조
@@ -143,15 +147,18 @@ export function cn(...inputs: ClassValue[]): string;
 - [ ] **Services**: WebSocket 연결 완료
 - [ ] **Services**: LocalStorage 유틸 완료
 
-### Phase 3: UI 개발
+### Phase 3: TDD 사이클
 
-- [ ] **Components**: Atoms 완료
-- [ ] **Components**: Molecules 완료
-- [ ] **Components**: Organisms 완료
-- [ ] **Components**: Templates 완료
-- [ ] **Components**: Pages 완료
-- [ ] **Test**: 각 컴포넌트 테스트 완료
-- [ ] **Test**: Storybook 스토리 완료
+- [ ] **Test 1차**: Vitest 설정 + Storybook 설정 완료
+- [ ] **Test 1차**: Atoms/Molecules/Organisms 테스트 먼저 작성 (Red)
+- [ ] **Test 1차**: 각 컴포넌트 Storybook 스토리 먼저 작성
+- [ ] **Test 1차**: Hooks/Services 테스트 작성
+- [ ] **Components**: 테스트 읽고 Atoms 구현 + 통과 확인
+- [ ] **Components**: Molecules 구현 + 통과 확인
+- [ ] **Components**: Organisms 구현 + 통과 확인
+- [ ] **Components**: Templates, Pages, Hooks 구현
+- [ ] **Test 2차**: 전체 테스트 통과 확인 (Green)
+- [ ] **Test 2차**: 커버리지 80% 이상 확인 (Refactor)
 
 ## 🔒 협업 규칙
 
@@ -206,8 +213,9 @@ export function cn(...inputs: ClassValue[]): string;
 
 - Architect 완료 후 → Styles
 - Styles 완료 후 → State, Services (병렬 가능)
-- State + Services 완료 후 → Components
-- 각 단계마다 Test 에이전트가 병렬로 작업
+- State + Services 완료 후 → Test 1차 (테스트 + 스토리 먼저 작성)
+- Test 1차 완료 후 → Components (테스트를 통과하도록 구현)
+- Components 완료 후 → Test 2차 (전체 통과 확인 + 커버리지)
 
 ## ⚠️ 주의사항
 

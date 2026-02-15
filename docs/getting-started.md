@@ -285,13 +285,17 @@ VITE_APP_MODE=development
    → API 클라이언트
    → WebSocket
 
-4. Components 🎨
-   → Atomic Design 순서로 개발
-   → Atoms → Molecules → Organisms → Templates → Pages
+4. Test 1차 🧪 (구현 전 — Red)
+   → 테스트 먼저 작성 (실패 상태가 정상)
+   → Storybook 스토리 먼저 작성
 
-5. Test 🧪
-   → 각 컴포넌트마다 테스트
-   → Storybook 스토리
+5. Components 🎨 (구현 — Green)
+   → 테스트를 통과하도록 구현
+   → Atomic Design 순서: Atoms → Molecules → Organisms → Templates → Pages
+
+6. Test 2차 🧪 (검증 — Refactor)
+   → 전체 테스트 통과 확인
+   → 커버리지 80% 이상 확인
 ```
 
 ---

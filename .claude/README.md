@@ -29,14 +29,14 @@
 
 ## �🎯 Agent 구성
 
-| #   | Agent          | 역할            | 의존성                  | 병렬 가능       |
-| --- | -------------- | --------------- | ----------------------- | --------------- |
-| 1   | **Architect**  | 프로젝트 설계자 | 없음                    | ❌              |
-| 2   | **Styles**     | 스타일 전문가   | Architect               | ❌              |
-| 3   | **State**      | 상태 관리       | Architect               | ✅ (Services와) |
-| 4   | **Services**   | 서비스 레이어   | Architect               | ✅ (State와)    |
-| 5   | **Components** | UI 개발자       | Styles, State, Services | ❌              |
-| 6   | **Test**       | 테스트 전문가   | Components              | ❌              |
+| #   | Agent          | 역할            | 의존성                                       | 병렬 가능       |
+| --- | -------------- | --------------- | -------------------------------------------- | --------------- |
+| 1   | **Architect**  | 프로젝트 설계자 | 없음                                         | ❌              |
+| 2   | **Styles**     | 스타일 전문가   | Architect                                    | ❌              |
+| 3   | **State**      | 상태 관리       | Architect                                    | ✅ (Services와) |
+| 4   | **Services**   | 서비스 레이어   | Architect                                    | ✅ (State와)    |
+| 5   | **Components** | UI 개발자       | Styles, State, Services, Test 1차            | ❌              |
+| 6   | **Test**       | 테스트 전문가   | 1차: Styles+State+Services / 2차: Components | ❌              |
 
 ## 🚀 실행 방법
 
@@ -130,21 +130,45 @@ API 및 WebSocket 레이어를 구축해주세요:
 
 ---
 
-### Phase 3: UI 구축
+### Phase 3: TDD 사이클
 
-#### Step 4: Components 시작
+#### Step 4: Test 1차 시작 (구현 전 — Red)
 
 **Claude에게 전달할 메시지:**
 
 ```
-.agents/AGENT_COMPONENTS.md 파일을 읽고 작업을 시작해주세요.
+.claude/agents/test.md 를 읽고 TDD 1차 작업을 시작해주세요.
 
-Atomic Design 패턴으로 컴포넌트를 개발해주세요:
-1. Atoms (Button, Input, Icon)
-2. Molecules (SearchInput, PriceDisplay)
-3. Organisms (Header, StockBox)
-4. Templates & Pages
-5. Custom Hooks
+컴포넌트 구현 전에 테스트와 Storybook 스토리를 먼저 작성해주세요:
+1. Vitest 설정 + Storybook 설정
+2. Atoms 테스트 + 스토리 (Button, Input, Icon)
+3. Molecules 테스트 + 스토리 (SearchInput, PriceDisplay)
+4. Organisms 테스트 + 스토리 (Header, StockBox)
+5. Hooks 테스트 (useStockBox, useStockData)
+6. Services 테스트
+```
+
+**완료 확인:**
+
+- [ ] `vitest.config.ts`, `tests/setup.ts` 생성됨
+- [ ] `.storybook/` 설정 완료
+- [ ] `tests/` 테스트 파일 작성됨 (실패 상태가 정상)
+- [ ] `src/**/*.stories.tsx` 스토리 작성됨
+
+---
+
+#### Step 5: Components 시작 (구현 — Green)
+
+**Claude에게 전달할 메시지:**
+
+```
+.claude/agents/components.md 를 읽고 작업을 시작해주세요.
+
+tests/ 폴더의 테스트를 먼저 읽고, 테스트를 통과하도록 구현해주세요:
+1. Atoms 구현 → 테스트 통과 확인
+2. Molecules 구현 → 테스트 통과 확인
+3. Organisms 구현 → 테스트 통과 확인
+4. Templates, Pages, Custom Hooks 구현
 ```
 
 **완료 확인:**
@@ -154,33 +178,27 @@ Atomic Design 패턴으로 컴포넌트를 개발해주세요:
 - [ ] `src/components/organisms/` 완료
 - [ ] `src/components/pages/` 완료
 - [ ] `src/hooks/` Custom Hooks 완료
-- [ ] 화면에 UI가 렌더링됨
+- [ ] `npm run test` 통과
 
 ---
 
-### Phase 4: 테스트 & 문서화
-
-#### Step 5: Test 시작
+#### Step 6: Test 2차 (검증 — Refactor)
 
 **Claude에게 전달할 메시지:**
 
 ```
-.agents/AGENT_TEST.md 파일을 읽고 작업을 시작해주세요.
+.claude/agents/test.md 를 읽고 TDD 2차 검증을 진행해주세요.
 
-테스트와 Storybook을 작성해주세요:
-1. Vitest 설정
-2. 컴포넌트 테스트
-3. Hooks 테스트
-4. Storybook 설정
-5. 스토리 작성
+전체 테스트 통과 여부와 커버리지를 확인해주세요:
+1. npm run test 전체 실행
+2. 실패 테스트 원인 분석
+3. npm run coverage 확인 (80% 이상)
+4. 추가 엣지 케이스 테스트 작성
 ```
 
 **완료 확인:**
 
-- [ ] `vitest.config.ts` 생성됨
-- [ ] `tests/` 테스트 파일 작성됨
-- [ ] `.storybook/` 설정 완료
-- [ ] `npm run test` 성공
+- [ ] `npm run test` 전체 통과
 - [ ] `npm run storybook` 실행 가능
 - [ ] 커버리지 80% 이상
 
@@ -197,11 +215,10 @@ Atomic Design 패턴으로 컴포넌트를 개발해주세요:
     [ ] Step 3: State
     [ ] Step 3: Services
 
-[ ] Phase 3: UI 구축
-    [ ] Step 4: Components
-
-[ ] Phase 4: 테스트
-    [ ] Step 5: Test
+[ ] Phase 3: TDD 사이클
+    [ ] Step 4: Test 1차 (테스트 + 스토리 먼저 작성, Red)
+    [ ] Step 5: Components (테스트 통과하도록 구현, Green)
+    [ ] Step 6: Test 2차 (전체 통과 확인 + 커버리지, Refactor)
 
 [ ] 🎉 프로젝트 완료!
 ```
