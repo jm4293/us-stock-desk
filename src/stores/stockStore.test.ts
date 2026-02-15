@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { useStockStore } from "./stockStore";
+import { useStockStore, useStocks, useFocusedStockId, useStockActions } from "./stockStore";
+import { renderHook } from "@testing-library/react";
 
 describe("stockStore", () => {
   beforeEach(() => {
@@ -120,5 +121,36 @@ describe("stockStore", () => {
     useStockStore.getState().addStock("TSLA", "Tesla Inc.");
     const stocks = useStockStore.getState().stocks;
     expect(stocks[1].position.x).toBeGreaterThan(stocks[0].position.x);
+  });
+});
+
+describe("stockStore 셀렉터", () => {
+  beforeEach(() => {
+    useStockStore.setState({
+      stocks: [],
+      focusedStockId: null,
+      maxZIndex: 0,
+    });
+    localStorage.clear();
+  });
+
+  it("useStocks 셀렉터가 종목 목록을 반환한다", () => {
+    const { result } = renderHook(() => useStocks());
+    expect(result.current).toEqual([]);
+  });
+
+  it("useFocusedStockId 셀렉터가 포커스된 종목 ID를 반환한다", () => {
+    const { result } = renderHook(() => useFocusedStockId());
+    expect(result.current).toBeNull();
+  });
+
+  it("useStockActions 셀렉터가 액션들을 반환한다", () => {
+    const { result } = renderHook(() => useStockActions());
+    expect(typeof result.current.addStock).toBe("function");
+    expect(typeof result.current.removeStock).toBe("function");
+    expect(typeof result.current.updatePosition).toBe("function");
+    expect(typeof result.current.updateSize).toBe("function");
+    expect(typeof result.current.setFocused).toBe("function");
+    expect(typeof result.current.bringToFront).toBe("function");
   });
 });

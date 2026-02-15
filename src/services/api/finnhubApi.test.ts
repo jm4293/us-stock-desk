@@ -1,8 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-
-// mapQuoteToStockPrice, mapCandleToChartData 함수를 테스트
-// (구현 완료 후 import 경로가 연결됨)
-import { mapQuoteToStockPrice, mapCandleToChartData } from "./finnhubApi";
+import { mapQuoteToStockPrice, mapCandleToChartData, getQuote, finnhubApi } from "./finnhubApi";
 
 describe("finnhubApi 유틸 함수", () => {
   describe("mapQuoteToStockPrice", () => {
@@ -100,7 +97,7 @@ describe("finnhubApi 유틸 함수", () => {
       expect(result[0].volume).toBe(1000000);
     });
 
-    it("첫 번째 캔들의 time이 올바르다", () => {
+    it("첫 번째 캔들의 time이 올바르다 (ms 단위로 변환)", () => {
       const candle = {
         s: "ok",
         t: [1700000000, 1700086400],
@@ -111,7 +108,8 @@ describe("finnhubApi 유틸 함수", () => {
         v: [1000000, 1200000],
       };
       const result = mapCandleToChartData(candle);
-      expect(result[0].time).toBe(1700000000);
+      // 구현은 Unix 초를 밀리초(* 1000)로 변환함
+      expect(result[0].time).toBe(1700000000 * 1000);
     });
 
     it("status가 ok가 아니면 빈 배열을 반환한다", () => {
@@ -164,9 +162,8 @@ describe("finnhubApi HTTP 요청", () => {
           t: 1700000000,
         }),
     });
-    global.fetch = mockFetch;
+    global.fetch = mockFetch as unknown as typeof fetch;
 
-    const { getQuote } = await import("./finnhubApi");
     const result = await getQuote("AAPL");
 
     expect(result.symbol).toBe("AAPL");
@@ -178,9 +175,70 @@ describe("finnhubApi HTTP 요청", () => {
       ok: false,
       status: 429,
     });
-    global.fetch = mockFetch;
+    global.fetch = mockFetch as unknown as typeof fetch;
 
-    const { getQuote } = await import("./finnhubApi");
     await expect(getQuote("AAPL")).rejects.toThrow();
+  });
+
+  it("finnhubApi.getQuote가 ApiResponse<StockPrice>를 반환한다", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          c: 182.5,
+          h: 184.0,
+          l: 179.5,
+          o: 180.0,
+          pc: 180.0,
+          t: 1700000000,
+        }),
+    });
+    global.fetch = mockFetch as unknown as typeof fetch;
+
+    const result = await finnhubApi.getQuote("AAPL");
+
+    expect(result.success).toBe(true);
+    expect(result.data.symbol).toBe("AAPL");
+    expect(result.data.current).toBe(182.5);
+  });
+
+  it("finnhubApi.getQuote API 실패 시 success=false를 반환한다", async () => {
+    const mockFetch = vi.fn().mockRejectedValue(new Error("Network error"));
+    global.fetch = mockFetch as unknown as typeof fetch;
+
+    const result = await finnhubApi.getQuote("AAPL");
+    expect(result.success).toBe(false);
+  });
+
+  it("finnhubApi.getCandles가 캔들 데이터를 반환한다", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          s: "ok",
+          t: [1700000000, 1700086400],
+          o: [180, 182],
+          h: [185, 186],
+          l: [179, 181],
+          c: [182, 184],
+          v: [1000000, 1200000],
+        }),
+    });
+    global.fetch = mockFetch as unknown as typeof fetch;
+
+    const result = await finnhubApi.getCandles("AAPL", "1D");
+    expect(result.success).toBe(true);
+    expect(result.data).toHaveLength(2);
+  });
+
+  it("finnhubApi.searchSymbol이 검색 결과를 반환한다", async () => {
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve([{ symbol: "AAPL", description: "Apple Inc." }]),
+    });
+    global.fetch = mockFetch as unknown as typeof fetch;
+
+    const result = await finnhubApi.searchSymbol("AAPL");
+    expect(result.success).toBe(true);
   });
 });

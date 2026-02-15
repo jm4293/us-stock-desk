@@ -1,5 +1,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { useSettingsStore } from "./settingsStore";
+import {
+  useSettingsStore,
+  useTheme,
+  useLanguage,
+  useColorScheme,
+  useCurrency,
+  useSettingsActions,
+} from "./settingsStore";
+import { renderHook } from "@testing-library/react";
 
 describe("settingsStore", () => {
   beforeEach(() => {
@@ -69,5 +77,44 @@ describe("settingsStore", () => {
     useSettingsStore.getState().setCurrency("KRW");
     useSettingsStore.getState().setCurrency("USD");
     expect(useSettingsStore.getState().currency).toBe("USD");
+  });
+});
+
+describe("settingsStore 셀렉터", () => {
+  beforeEach(() => {
+    useSettingsStore.setState({
+      theme: "dark",
+      language: "ko",
+      colorScheme: "kr",
+      currency: "USD",
+    });
+  });
+
+  it("useTheme 셀렉터가 테마를 반환한다", () => {
+    const { result } = renderHook(() => useTheme());
+    expect(result.current).toBe("dark");
+  });
+
+  it("useLanguage 셀렉터가 언어를 반환한다", () => {
+    const { result } = renderHook(() => useLanguage());
+    expect(result.current).toBe("ko");
+  });
+
+  it("useColorScheme 셀렉터가 색상 체계를 반환한다", () => {
+    const { result } = renderHook(() => useColorScheme());
+    expect(result.current).toBe("kr");
+  });
+
+  it("useCurrency 셀렉터가 통화를 반환한다", () => {
+    const { result } = renderHook(() => useCurrency());
+    expect(result.current).toBe("USD");
+  });
+
+  it("useSettingsActions 셀렉터가 액션들을 반환한다", () => {
+    const { result } = renderHook(() => useSettingsActions());
+    expect(typeof result.current.setTheme).toBe("function");
+    expect(typeof result.current.setLanguage).toBe("function");
+    expect(typeof result.current.setColorScheme).toBe("function");
+    expect(typeof result.current.setCurrency).toBe("function");
   });
 });

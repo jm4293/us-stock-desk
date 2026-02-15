@@ -11,6 +11,19 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
+      exclude: [
+        "node_modules/",
+        "**/*.stories.tsx",
+        "**/*.stories.ts",
+        "**/index.ts",
+        "**/*.d.ts",
+        "src/main.tsx",
+        "src/App.tsx",
+        "src/vite-env.d.ts",
+        "src/types/**",
+        "api/**",
+        ".storybook/**",
+      ],
       thresholds: {
         global: { branches: 80, functions: 80, lines: 80, statements: 80 },
       },

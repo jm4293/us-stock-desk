@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { storage } from "./localStorage";
+import { STORAGE_KEYS } from "@/constants/app";
 
 describe("storage", () => {
   beforeEach(() => {
@@ -41,12 +42,13 @@ describe("storage", () => {
     expect(result).toBe("fallback");
   });
 
-  it("clear로 모든 항목을 삭제한다", () => {
-    storage.set("key1", "value1");
-    storage.set("key2", "value2");
+  it("clear로 STORAGE_KEYS에 정의된 항목을 삭제한다", () => {
+    // storage.clear()는 STORAGE_KEYS에 정의된 키만 삭제함
+    storage.set(STORAGE_KEYS.STOCKS, { stocks: [] });
+    storage.set(STORAGE_KEYS.SETTINGS, { theme: "dark" });
     storage.clear();
-    expect(storage.get("key1", null)).toBeNull();
-    expect(storage.get("key2", null)).toBeNull();
+    expect(storage.get(STORAGE_KEYS.STOCKS, null)).toBeNull();
+    expect(storage.get(STORAGE_KEYS.SETTINGS, null)).toBeNull();
   });
 
   it("손상된 데이터는 defaultValue를 반환한다", () => {
