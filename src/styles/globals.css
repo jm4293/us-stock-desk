@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #root {
+    @apply m-0 h-full w-full p-0;
+  }
+
+  body {
+    @apply font-sans antialiased;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply bg-gradient-to-br from-blue-50 to-indigo-100;
+    @apply dark:from-gray-900 dark:to-gray-800;
+    overflow: hidden;
+  }
+
+  #root {
+    @apply relative overflow-hidden;
+  }
+
+  ::-webkit-scrollbar {
+    @apply h-2 w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-gray-300 dark:bg-gray-600;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply border border-white/20 bg-white/10 backdrop-blur-lg;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  }
+
+  .glass-dark {
+    @apply border border-white/10 bg-black/20 backdrop-blur-xl;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  }
+
+  .glass-strong {
+    @apply border border-white/30 bg-white/20 backdrop-blur-xl;
+  }
+
+  .glass-hover {
+    @apply transition-all duration-200 hover:border-white/30 hover:bg-white/20;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800;
+    @apply rounded-xl shadow-card;
+    @apply border border-gray-200 dark:border-gray-700;
+  }
+
+  .card-gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  }
+
+  .btn {
+    @apply rounded-lg px-4 py-2 font-medium;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply dark:focus:ring-offset-gray-900;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-500 text-white;
+    @apply hover:bg-primary-600;
+    @apply active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply btn bg-gray-200 text-gray-900;
+    @apply dark:bg-gray-700 dark:text-gray-100;
+    @apply hover:bg-gray-300 dark:hover:bg-gray-600;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent;
+    @apply hover:bg-gray-100 dark:hover:bg-gray-800;
+  }
+
+  .btn-glass {
+    @apply btn glass;
+    @apply hover:bg-white/20 active:scale-95;
+  }
+
+  .input {
+    @apply rounded-lg px-4 py-2;
+    @apply bg-white dark:bg-gray-800;
+    @apply border border-gray-300 dark:border-gray-600;
+    @apply text-gray-900 dark:text-gray-100;
+    @apply placeholder:text-gray-400 dark:placeholder:text-gray-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply dark:focus:ring-offset-gray-900;
+    @apply transition-colors duration-200;
+  }
+
+  .modal-overlay {
+    @apply fixed inset-0 z-50;
+    @apply bg-black/50 backdrop-blur-sm;
+    @apply flex items-center justify-center;
+    @apply animate-fade-in;
+  }
+
+  .modal-content {
+    @apply glass rounded-2xl p-6;
+    @apply mx-4 w-full max-w-lg;
+    @apply animate-scale-in;
+  }
+}
+
+@layer utilities {
+  .price-up {
+    @apply text-up-us;
+    animation: priceUp 0.5s ease-in-out;
+  }
+
+  .price-down {
+    @apply text-down-us;
+    animation: priceDown 0.5s ease-in-out;
+  }
+
+  .price-up-kr {
+    @apply text-up-kr;
+  }
+
+  .price-down-kr {
+    @apply text-down-kr;
+  }
+
+  .blur-unfocused {
+    @apply opacity-70 blur-sm transition-all duration-200;
+  }
+
+  .focused {
+    @apply opacity-100 transition-all duration-200;
+    filter: blur(0);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600;
+    @apply dark:from-blue-400 dark:to-indigo-400;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .animate-in {
+    @apply animate-fade-in;
+  }
+
+  .slide-in-up {
+    @apply animate-slide-up;
+  }
+
+  .slide-in-down {
+    @apply animate-slide-down;
+  }
+
+  .scale-in {
+    @apply animate-scale-in;
+  }
+}

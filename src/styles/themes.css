@@ -1,0 +1,60 @@
+:root {
+  /* Light Mode - Background */
+  --color-bg-primary: #f9fafb;
+  --color-bg-secondary: #f3f4f6;
+  --color-bg-tertiary: #e5e7eb;
+
+  /* Light Mode - Text */
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
+
+  /* Light Mode - Border & Glass */
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-glass: rgba(255, 255, 255, 0.6);
+  --color-glass-border: rgba(0, 0, 0, 0.1);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+
+  /* Light Mode - Card */
+  --color-card: #ffffff;
+  --color-card-foreground: #111827;
+
+  /* Light Mode - Primary */
+  --color-primary: 59 130 246;
+  --color-primary-foreground: 255 255 255;
+
+  /* Stock Colors (same for both modes) */
+  --color-up-kr: #ff0000;
+  --color-down-kr: #0000ff;
+  --color-up-us: #22c55e;
+  --color-down-us: #ef4444;
+
+  /* Color scheme preference */
+  --color-scheme: "kr";
+}
+
+.dark {
+  /* Dark Mode - Background */
+  --color-bg-primary: #030712;
+  --color-bg-secondary: #111827;
+  --color-bg-tertiary: #1f2937;
+
+  /* Dark Mode - Text */
+  --color-text-primary: #f9fafb;
+  --color-text-secondary: #9ca3af;
+  --color-text-muted: #6b7280;
+
+  /* Dark Mode - Border & Glass */
+  --color-border: rgba(255, 255, 255, 0.1);
+  --color-glass: rgba(255, 255, 255, 0.1);
+  --color-glass-border: rgba(255, 255, 255, 0.2);
+  --shadow-glass: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+
+  /* Dark Mode - Card */
+  --color-card: #1f2937;
+  --color-card-foreground: #f9fafb;
+
+  /* Dark Mode - Primary */
+  --color-primary: 59 130 246;
+  --color-primary-foreground: 255 255 255;
+}
