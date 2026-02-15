@@ -1,0 +1,2 @@
+# 커밋 전 lint-staged 실행
+npx lint-staged

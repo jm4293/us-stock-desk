@@ -1,0 +1,20 @@
+# Stock Desk - Claude 규칙
+
+## 자동 적용 가이드
+- CLAUDE.md는 항상 참조됨 (자동 로드)
+- Skills는 자동으로 활용 가능
+- Agent 작업 시: .claude/AGENT_*.md를 명시적으로 요청
+
+## 개발 원칙
+- Tailwind CSS 우선 사용 (cn() 유틸리티)
+- Custom Hooks 패턴 (비즈니스 로직 분리)
+- TDD + Storybook (테스트 우선)
+- TypeScript 엄격 모드
+
+## AGENT 작업 순서
+1. Architect → 2. Styles → 3. State/Services (병렬) → 4. Components → 5. Test
+
+## 참조 문서
+- 전체 가이드: CLAUDE.md
+- Agent Teams: .claude/AGENT_TEAMS.md
+- 실행 가이드: .claude/README.md

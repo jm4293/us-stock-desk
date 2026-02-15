@@ -1,0 +1,37 @@
+# Conventional Commits 가이드
+# https://www.conventionalcommits.org/
+
+# 형식: <type>(<scope>): <subject>
+# <type>: 커밋의 타입 (필수)
+# <scope>: 변경 범위 (선택)
+# <subject>: 짧은 요약 (필수)
+
+# 예시:
+# feat: 주식 검색 기능 추가
+# fix(chart): 차트 렌더링 버그 수정
+# docs: README에 설치 가이드 추가
+# style: 코드 포맷팅 적용
+# refactor(api): API 호출 로직 개선
+# perf: 불필요한 리렌더링 최적화
+# test: StockBox 컴포넌트 테스트 추가
+# chore: 패키지 의존성 업데이트
+
+# Type 목록:
+# feat:     새로운 기능 추가
+# fix:      버그 수정
+# docs:     문서 변경
+# style:    코드 포맷팅 (기능 변경 없음)
+# refactor: 코드 리팩토링
+# perf:     성능 개선
+# test:     테스트 추가/수정
+# chore:    빌드, 패키지 관리 등
+# ci:       CI 설정
+# build:    빌드 시스템 변경
+# revert:   이전 커밋 되돌리기
+
+# 규칙:
+# - type은 소문자로
+# - subject는 명령형으로 (예: "추가한다" X, "추가" O)
+# - subject는 마침표로 끝내지 않음
+# - 한글 또는 영문 가능
+# - header는 100자 이내

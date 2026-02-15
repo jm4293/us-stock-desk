@@ -1,0 +1,13 @@
+# 푸시 전 테스트 및 타입 체크
+echo "🔍 Running type check..."
+npm run type-check
+
+echo "🧪 Running tests..."
+TEST_FILES=$(find src -name "*.test.*" -o -name "*.spec.*" 2>/dev/null | head -1)
+if [ -z "$TEST_FILES" ]; then
+  echo "⚠️  No test files found, skipping tests..."
+else
+  npm run test:run
+fi
+
+echo "✅ All checks passed! Pushing..."
