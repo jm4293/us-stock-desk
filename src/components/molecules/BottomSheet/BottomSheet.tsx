@@ -27,7 +27,20 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   const isMobile = useIsMobile();
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const animFrameRef = useRef<number | null>(null);
+
+  // visualViewport로 키보드가 올라올 때 실제 뷰포트 높이 추적 (Android 대응)
+  useEffect(() => {
+    if (!isMobile) return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const update = () => setViewportHeight(vv.height);
+    update();
+    vv.addEventListener("resize", update);
+    return () => vv.removeEventListener("resize", update);
+  }, [isMobile]);
 
   useEffect(() => {
     if (open) {
@@ -72,13 +85,19 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             isDark ? "glass border-t border-white/10" : "border-t border-slate-200 bg-white",
             visible ? "translate-y-0" : "translate-y-full"
           )}
-          style={mobileMinHeight ? { minHeight: mobileMinHeight } : undefined}
+          style={{
+            // visualViewport 높이 기준으로 패널 최대 높이 제한 (Android 키보드 대응)
+            maxHeight: viewportHeight ? `${viewportHeight * 0.92}px` : "92dvh",
+            ...(mobileMinHeight ? { minHeight: mobileMinHeight } : {}),
+          }}
         >
           {/* 드래그 핸들 바 */}
           <div className="flex justify-center pb-1 pt-3">
             <div className={cn("h-1 w-10 rounded-full", isDark ? "bg-white/20" : "bg-slate-300")} />
           </div>
-          <div className="max-h-[85vh] overflow-y-auto px-6 pb-8 pt-2">{children}</div>
+          <div className="overflow-y-auto px-6 pb-8 pt-2" style={{ maxHeight: "inherit" }}>
+            {children}
+          </div>
         </div>
       </>
     );
