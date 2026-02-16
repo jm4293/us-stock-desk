@@ -3,6 +3,7 @@ import { SearchInput } from "@/components/molecules/SearchInput";
 import { useTheme } from "@/stores/settingsStore";
 import { useStockStore } from "@/stores/stockStore";
 import { useUIActions, useUIStore } from "@/stores/uiStore";
+import { useShowToast } from "@/stores/toastStore";
 import { cn } from "@/utils/cn";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -14,10 +15,12 @@ export const SearchModal: React.FC = () => {
   const addStock = useStockStore((state) => state.addStock);
   const theme = useTheme();
   const isDark = theme === "dark";
+  const showToast = useShowToast();
 
   const handleSearch = (symbol: string, companyName: string) => {
     addStock(symbol.toUpperCase(), companyName);
     closeSearch();
+    showToast(t("toast.stockAdded", { symbol: symbol.toUpperCase() }), "success");
   };
 
   return (

@@ -37,6 +37,15 @@
     "noData": "No Data",
     "noDataHint": "1D chart is only available during market hours on weekdays"
   },
+  "toast": {
+    "stockAdded": "{{symbol}} added",
+    "stockRemoved": "{{symbol}} removed",
+    "themeChanged": "Switched to {{value}} mode",
+    "languageChanged": "Language changed to {{value}}",
+    "currencyChanged": "Currency changed to {{value}}",
+    "colorSchemeChanged": "{{value}} candle colors applied",
+    "chartChanged": "Chart {{value}}"
+  },
   "settings": {
     "title": "Settings",
     "candleColor": "Candle Colors",

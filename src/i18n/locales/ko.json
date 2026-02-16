@@ -37,6 +37,15 @@
     "noData": "데이터 없음",
     "noDataHint": "주중 장중에만 1D 차트가 표시됩니다"
   },
+  "toast": {
+    "stockAdded": "{{symbol}} 종목이 추가되었습니다",
+    "stockRemoved": "{{symbol}} 종목이 삭제되었습니다",
+    "themeChanged": "{{value}} 모드로 변경되었습니다",
+    "languageChanged": "언어가 {{value}}로 변경되었습니다",
+    "currencyChanged": "통화가 {{value}}로 변경되었습니다",
+    "colorSchemeChanged": "{{value}} 캔들 색상으로 변경되었습니다",
+    "chartChanged": "차트가 {{value}}"
+  },
   "settings": {
     "title": "설정",
     "candleColor": "캔들 색상",

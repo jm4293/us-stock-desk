@@ -4,6 +4,7 @@ import { SearchModal } from "@/components/organisms/SearchModal/SearchModal";
 import { SettingsModal } from "@/components/organisms/SettingsModal/SettingsModal";
 import { StockBox } from "@/components/organisms/StockBox";
 import { NetworkOfflineBanner } from "@/components/molecules/NetworkOfflineBanner/NetworkOfflineBanner";
+import { ToastContainer } from "@/components/molecules/Toast/Toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
@@ -12,6 +13,7 @@ import { stockSocket } from "@/services/websocket/stockSocket";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useStockStore } from "@/stores/stockStore";
 import { useUIStore } from "@/stores/uiStore";
+import { useShowToast } from "@/stores/toastStore";
 import { cn } from "@/utils/cn";
 import {
   DndContext,
@@ -36,6 +38,13 @@ function App() {
   const updateSize = useStockStore((state) => state.updateSize);
   const bringToFront = useStockStore((state) => state.bringToFront);
   const reorderStocks = useStockStore((state) => state.reorderStocks);
+  const showToast = useShowToast();
+
+  const handleRemoveStock = (id: string) => {
+    const stock = stocks.find((s) => s.id === id);
+    removeStock(id);
+    if (stock) showToast(t("toast.stockRemoved", { symbol: stock.symbol }), "info");
+  };
 
   const openSearch = useUIStore((state) => state.openSearch);
   const openSettings = useUIStore((state) => state.openSettings);
@@ -136,7 +145,7 @@ function App() {
                       id={stock.id}
                       symbol={stock.symbol}
                       companyName={stock.companyName}
-                      onClose={removeStock}
+                      onClose={handleRemoveStock}
                     />
                   ))}
                 </div>
@@ -171,7 +180,7 @@ function App() {
                 zIndex={stock.zIndex}
                 focused={focusedStockId === stock.id}
                 onFocus={bringToFront}
-                onClose={removeStock}
+                onClose={handleRemoveStock}
                 onPositionChange={updatePosition}
                 onSizeChange={updateSize}
               />
@@ -185,6 +194,9 @@ function App() {
 
       {/* 설정 모달 — 항상 최상단 */}
       <SettingsModal />
+
+      {/* 토스트 알림 */}
+      <ToastContainer />
     </div>
   );
 }
