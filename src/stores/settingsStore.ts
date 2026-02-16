@@ -3,6 +3,7 @@ import { persist, devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { SettingsState, SettingsActions } from "@/types/store";
 import { STORAGE_KEYS, DEFAULT_SETTINGS } from "@/constants/app";
+import i18n from "@/i18n";
 
 type SettingsStore = SettingsState & SettingsActions;
 
@@ -29,6 +30,7 @@ export const useSettingsStore = create<SettingsStore>()(
           set((state) => {
             state.language = lang;
           });
+          i18n.changeLanguage(lang);
         },
 
         setColorScheme: (scheme: "kr" | "us") => {
@@ -40,6 +42,12 @@ export const useSettingsStore = create<SettingsStore>()(
         setCurrency: (currency: "USD" | "KRW") => {
           set((state) => {
             state.currency = currency;
+          });
+        },
+
+        setShowChart: (show: boolean) => {
+          set((state) => {
+            state.showChart = show;
           });
         },
       })),
@@ -60,10 +68,12 @@ export const useTheme = () => useSettingsStore((state) => state.theme);
 export const useLanguage = () => useSettingsStore((state) => state.language);
 export const useColorScheme = () => useSettingsStore((state) => state.colorScheme);
 export const useCurrency = () => useSettingsStore((state) => state.currency);
+export const useShowChart = () => useSettingsStore((state) => state.showChart);
 export const useSettingsActions = () =>
   useSettingsStore((state) => ({
     setTheme: state.setTheme,
     setLanguage: state.setLanguage,
     setColorScheme: state.setColorScheme,
     setCurrency: state.setCurrency,
+    setShowChart: state.setShowChart,
   }));

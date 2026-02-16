@@ -135,6 +135,39 @@
   }
 }
 
+/* ===================== 라이트 모드 오버라이드 ===================== */
+html.light .glass {
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  color: rgb(15, 23, 42);
+}
+
+html.light .glass h1,
+html.light .glass h2,
+html.light .glass h3,
+html.light .glass h4,
+html.light .glass p,
+html.light .glass span,
+html.light .glass button {
+  color: inherit;
+}
+
+html.light .text-white {
+  color: rgb(15, 23, 42);
+}
+
+html.light .text-gray-300,
+html.light .text-gray-400 {
+  color: rgb(100, 116, 139);
+}
+
+html.light .text-gray-500,
+html.light .text-gray-600 {
+  color: rgb(71, 85, 105);
+}
+/* ===================== 라이트 모드 오버라이드 끝 ===================== */
+
 @layer utilities {
   .price-up {
     @apply text-up-us;

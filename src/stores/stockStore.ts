@@ -84,6 +84,13 @@ export const useStockStore = create<StockStore>()(
             }
           });
         },
+
+        reorderStocks: (fromIndex: number, toIndex: number) => {
+          set((state) => {
+            const moved = state.stocks.splice(fromIndex, 1)[0];
+            state.stocks.splice(toIndex, 0, moved);
+          });
+        },
       })),
       {
         name: STORAGE_KEYS.STOCKS,

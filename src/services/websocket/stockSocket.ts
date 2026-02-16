@@ -2,6 +2,7 @@ import type { WebSocketMessage, TradeData } from "@/types/api";
 import { WEBSOCKET_URL, RECONNECT_DELAY, MAX_RECONNECT_ATTEMPTS } from "@/constants/api";
 
 type TradeCallback = (data: TradeData) => void;
+type ErrorCallback = () => void;
 
 class StockSocket {
   private ws: WebSocket | null = null;
@@ -10,9 +11,23 @@ class StockSocket {
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private isConnecting = false;
   private apiKey = "";
+  private onErrorCallbacks = new Set<ErrorCallback>();
+  private _connectionFailed = false;
 
   init(apiKey: string) {
     this.apiKey = apiKey;
+    this._connectionFailed = false;
+  }
+
+  /** WebSocket 연결 실패 시 호출될 콜백 등록 */
+  onConnectionFailed(cb: ErrorCallback): () => void {
+    this.onErrorCallbacks.add(cb);
+    return () => this.onErrorCallbacks.delete(cb);
+  }
+
+  /** 현재 연결이 완전히 실패한 상태인지 (재연결 한도 초과) */
+  get connectionFailed(): boolean {
+    return this._connectionFailed;
   }
 
   private connect() {
@@ -24,6 +39,7 @@ class StockSocket {
     this.ws.onopen = () => {
       this.isConnecting = false;
       this.reconnectAttempts = 0;
+      this._connectionFailed = false;
       this.resubscribeAll();
     };
 
@@ -52,7 +68,11 @@ class StockSocket {
   }
 
   private scheduleReconnect() {
-    if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) return;
+    if (this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+      this._connectionFailed = true;
+      this.onErrorCallbacks.forEach((cb) => cb());
+      return;
+    }
     this.reconnectTimer = setTimeout(
       () => {
         this.reconnectAttempts++;

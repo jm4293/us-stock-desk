@@ -38,10 +38,13 @@
 
 ### APIs
 
-- **Stock Data**: Finnhub (주식 데이터 + 환율)
-  - WebSocket (실시간 우선)
-  - REST API (Polling fallback, 10초 간격)
-- **Rate Limiting**: Serverless Function에서 구현
+- **Price Data**: Finnhub (실시간 주식 가격, 서버 측 프록시)
+  - REST API Polling (5초 / 10초 / 30초 간격, 설정 가능)
+  - API 키는 서버 환경변수로 관리, 클라이언트에 노출 없음
+- **Chart Data**: Yahoo Finance (차트 OHLCV 데이터, 무료)
+  - REST API (`https://query1.finance.yahoo.com/v8/finance/chart/{symbol}`)
+  - API 키 불필요
+- **Rate Limiting**: Serverless Function에서 구현 (Finnhub 프록시)
 
 ### Storage
 
@@ -210,9 +213,8 @@
 
 #### 점검 항목
 
-- Finnhub API 연결
-- WebSocket 연결
-- 환율 API 연결
+- Finnhub API 연결 (서버 프록시)
+- Yahoo Finance API 연결
 - LocalStorage 접근 가능 여부
 
 ### 7. 에러 처리
@@ -225,9 +227,8 @@
 
 #### 에러 케이스
 
-- API 호출 실패
+- API 호출 실패 (Finnhub 프록시 또는 Yahoo Finance)
 - 네트워크 오프라인
-- WebSocket 연결 실패
 - LocalStorage 접근 불가
 
 ### 8. 오프라인 감지
@@ -272,13 +273,13 @@
 ### 실시간 업데이트 전략
 
 ```
-1차: WebSocket 연결 시도
-  ↓ 성공
-  → WebSocket으로 실시간 데이터 수신
+실시간 가격 (Finnhub, 서버 프록시 경유):
+  → REST API Polling (설정에 따라 5초 / 10초 / 30초 간격)
+  → 현재가, 등락률, 거래량 갱신
 
-  ↓ 실패
-2차: Polling (10초 간격)
-  → REST API로 주기적 요청
+차트 데이터 (Yahoo Finance):
+  → REST API Polling
+  → 기간별 OHLCV 데이터 (1일, 1주, 1개월, 3개월, 1년)
 ```
 
 ### LocalStorage 구조
@@ -331,9 +332,10 @@
 
 ### API 키 관리
 
-- Vercel Serverless Functions에서 API 호출 프록시
-- 환경변수로 API 키 관리
-- 클라이언트에 API 키 노출 방지
+- Finnhub API 키는 Vercel Serverless Functions 환경변수로 관리
+- 클라이언트에 API 키 노출 없음
+- Yahoo Finance는 API 키 불필요 (무료 공개 API)
+- 사용자가 별도로 API 키를 발급하거나 관리할 필요 없음
 
 ### Rate Limiting
 
@@ -457,9 +459,10 @@ stock-desk/
 ### Phase 2: 핵심 기능
 
 - [ ] StockBox 컴포넌트 (드래그 & 리사이징)
-- [ ] Finnhub API 연동 (Serverless Functions)
+- [ ] Finnhub API 연동 (Serverless Functions 프록시, 실시간 가격)
+- [ ] Yahoo Finance API 연동 (차트 OHLCV 데이터)
 - [ ] LocalStorage 관리 시스템
-- [ ] 실시간 데이터 업데이트 (WebSocket + Polling)
+- [ ] 실시간 데이터 업데이트 (REST API Polling)
 
 ### Phase 3: UI/UX
 
@@ -489,8 +492,9 @@ stock-desk/
 
 ### 확인 필요
 
-1. **API 선택 최종 확정**
-   - Finnhub vs Yahoo Finance API
+1. **API 확정**
+   - 실시간 가격: Finnhub (서버 측 프록시)
+   - 차트 데이터: Yahoo Finance (무료 REST API)
 2. **설정 모달 추가 항목**
    - 언어 설정 필요 여부
    - 통화 표시 옵션

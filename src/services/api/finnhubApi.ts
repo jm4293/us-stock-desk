@@ -83,7 +83,7 @@ export const finnhubApi = {
   getQuote: async (symbol: string): Promise<ApiResponse<StockPrice>> => {
     const result = await fetchFromProxy<FinnhubQuote>(`/stock-proxy?symbol=${symbol}&type=quote`);
     if (!result.success || !result.data) {
-      return result as ApiResponse<StockPrice>;
+      return result as unknown as ApiResponse<StockPrice>;
     }
     return {
       data: mapQuoteToStockPrice(symbol, result.data),
@@ -103,7 +103,7 @@ export const finnhubApi = {
       `/stock-proxy?symbol=${symbol}&type=candle&resolution=${resolution}&from=${from}&to=${to}`
     );
     if (!result.success || !result.data) {
-      return result as ApiResponse<StockChartData[]>;
+      return result as unknown as ApiResponse<StockChartData[]>;
     }
     return {
       data: mapCandleToChartData(result.data),

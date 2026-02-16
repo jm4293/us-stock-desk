@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
+import "@/i18n";
 
 // 각 테스트 후 정리
 afterEach(() => {
@@ -54,3 +55,18 @@ if (typeof global.btoa === "undefined") {
 if (typeof global.atob === "undefined") {
   global.atob = (str: string) => Buffer.from(str, "base64").toString("binary");
 }
+
+// window.matchMedia 모킹 (jsdom에서 미지원)
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});

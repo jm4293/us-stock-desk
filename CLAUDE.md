@@ -91,8 +91,9 @@ Backend:
   - Vercel Serverless Functions (API Proxy)
 
 APIs:
-  - Finnhub (주식 데이터 + 환율)
-  - WebSocket (실시간) + REST API (Polling)
+  - Finnhub (실시간 가격, 서버 측 프록시 /api/stock-proxy)
+  - Yahoo Finance (차트 OHLCV 데이터, 무료 API)
+  - REST API Polling
 
 Storage:
   - LocalStorage (암호화/Base64)
@@ -459,8 +460,9 @@ export default {
 - [ ] Custom Hooks 패턴 적용
 - [ ] react-rnd로 드래그 & 리사이징
 - [ ] Lightweight Charts 통합
-- [ ] Finnhub API 연동 (Serverless)
-- [ ] WebSocket + Polling 실시간 업데이트
+- [ ] Finnhub API 연동 (Serverless 프록시, 실시간 가격)
+- [ ] Yahoo Finance API 연동 (차트 데이터)
+- [ ] REST API Polling 실시간 업데이트
 - [ ] LocalStorage 암호화 저장
 - [ ] 다크/라이트 모드
 - [ ] Glassmorphism 디자인

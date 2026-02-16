@@ -1,6 +1,11 @@
-import React from "react";
 import { cn } from "@/utils/cn";
-import { Button } from "@/components/atoms/Button";
+import { memo } from "react";
+import { useTranslation } from "react-i18next";
+import { useMarketStatus } from "@/hooks/useMarketStatus";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useFullscreen } from "@/hooks/useFullscreen";
+import { KSTClock } from "@/components/molecules/KSTClock/KSTClock";
+import type { MarketStatus } from "@/types/stock";
 
 interface HeaderProps {
   exchangeRate: number;
@@ -9,32 +14,152 @@ interface HeaderProps {
   className?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({
+const STATUS_COLORS: Record<MarketStatus, string> = {
+  open: "bg-green-500",
+  pre: "bg-yellow-400",
+  post: "bg-blue-400",
+  closed: "bg-gray-500",
+};
+
+export const Header = memo(function Header({
   exchangeRate,
   onAddStock,
   onOpenSettings,
   className,
-}) => {
+}: HeaderProps) {
+  const { t } = useTranslation();
+  const isMobile = useIsMobile();
+  const { status, labelKey, dstKey } = useMarketStatus();
+  const { isFullscreen, toggleFullscreen } = useFullscreen();
+
   const formattedRate = new Intl.NumberFormat("ko-KR", {
-    maximumFractionDigits: 1,
+    maximumFractionDigits: 0,
   }).format(exchangeRate);
 
   return (
-    <header className={cn("glass flex items-center justify-between px-6 py-3", className)}>
-      <div className="flex items-center gap-4">
-        <h1 className="text-lg font-bold text-white">Stock Desk</h1>
-        <span className="text-sm text-gray-300">USD/KRW {formattedRate}</span>
+    <header className={cn("glass flex items-center justify-between px-4 py-3", className)}>
+      {/* 왼쪽: 로고 + 정보 */}
+      <div className="flex min-w-0 items-center gap-3">
+        <h1 className="shrink-0 text-base font-bold text-white">Stock Desk</h1>
+
+        {isMobile ? (
+          /* 모바일: 상태 도트 + KST 시각 */
+          <div className="flex items-center gap-2">
+            <span className={cn("h-2 w-2 shrink-0 rounded-full", STATUS_COLORS[status])} />
+            {/* KSTClock만 초마다 리렌더링 */}
+            <span className="text-xs font-medium tabular-nums text-gray-300">
+              <KSTClock mobileOnly />
+            </span>
+          </div>
+        ) : (
+          /* 데스크톱: 환율 + 거래시간 + 한국시각 */
+          <>
+            {/* 환율 */}
+            <div className="flex items-center gap-1.5 text-sm text-gray-400">
+              <span className="text-gray-500">{t("header.exchangeRateLabel")}</span>
+              <span className="font-medium text-gray-300">₩{formattedRate}</span>
+            </div>
+
+            {/* 거래시간 + 한국시각 */}
+            <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-1.5">
+                <span className={cn("h-2 w-2 shrink-0 rounded-full", STATUS_COLORS[status])} />
+                <span className="text-gray-300">
+                  {t(labelKey)} · {t(dstKey)}
+                </span>
+              </div>
+
+              <span className="text-gray-600">|</span>
+
+              {/* KSTClock만 초마다 리렌더링 */}
+              <KSTClock />
+            </div>
+          </>
+        )}
       </div>
-      <div className="flex items-center gap-2">
-        <Button variant="primary" size="sm" onClick={onAddStock} aria-label="종목 추가">
-          + 종목 추가
-        </Button>
-        <Button variant="ghost" size="sm" onClick={onOpenSettings} aria-label="설정">
-          설정
-        </Button>
+
+      {/* 오른쪽: 버튼 */}
+      <div className="flex shrink-0 items-center gap-1">
+        {/* 종목 추가 */}
+        <button
+          onClick={onAddStock}
+          aria-label={t("header.addStock")}
+          className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          {!isMobile && t("header.addStock")}
+        </button>
+
+        {/* 전체화면 토글 */}
+        <button
+          onClick={toggleFullscreen}
+          aria-label={isFullscreen ? t("header.exitFullscreen") : t("header.fullscreen")}
+          className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          {isFullscreen ? (
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25"
+              />
+            </svg>
+          ) : (
+            <svg
+              className="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+              />
+            </svg>
+          )}
+          {!isMobile && (isFullscreen ? t("header.exitFullscreen") : t("header.fullscreen"))}
+        </button>
+
+        {/* 설정 */}
+        <button
+          onClick={onOpenSettings}
+          aria-label={t("header.settings")}
+          className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+            />
+          </svg>
+          {!isMobile && t("header.settings")}
+        </button>
       </div>
     </header>
   );
-};
+});
 
 Header.displayName = "Header";

@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Rnd } from "react-rnd";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/atoms/Button";
-import type { Position, Size } from "@/types/stock";
+import { PriceDisplay } from "@/components/molecules/PriceDisplay";
+import { StockChart } from "@/components/molecules/StockChart/StockChart";
+import { useStockData } from "@/hooks/useStockData";
+import { useChartData } from "@/hooks/useChartData";
+import { useShowChart } from "@/stores/settingsStore";
+import type { Position, Size, ChartTimeRange } from "@/types/stock";
+
+// 차트 표시 여부에 따른 최소/기본 높이
+const HEIGHT_WITH_CHART = 300;
+const HEIGHT_WITHOUT_CHART = 160;
+
+const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];
 
 interface StockBoxProps {
   id: string;
@@ -35,6 +47,22 @@ export const StockBox: React.FC<StockBoxProps> = ({
   onPositionChange,
   onSizeChange,
 }) => {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<ChartTimeRange>("1W");
+  const { state: priceState } = useStockData(symbol);
+  const { state: chartState } = useChartData(symbol, range);
+  const showChart = useShowChart();
+
+  // 차트 표시 여부 변경 시 박스 높이 자동 조정
+  useEffect(() => {
+    if (!showChart && size.height > HEIGHT_WITHOUT_CHART) {
+      onSizeChange(id, { ...size, height: HEIGHT_WITHOUT_CHART });
+    } else if (showChart && size.height < HEIGHT_WITH_CHART) {
+      onSizeChange(id, { ...size, height: HEIGHT_WITH_CHART });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showChart]);
+
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onFocus(id);
@@ -69,6 +97,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
 
   return (
     <Rnd
+      bounds="parent"
       position={position}
       size={size}
       onDragStop={(_, d) => onPositionChange(id, { x: d.x, y: d.y })}
@@ -81,14 +110,14 @@ export const StockBox: React.FC<StockBoxProps> = ({
       }}
       style={{ zIndex }}
       minWidth={300}
-      minHeight={200}
+      minHeight={showChart ? HEIGHT_WITH_CHART : HEIGHT_WITHOUT_CHART}
     >
       <div
         data-testid="stock-box"
         role="button"
         tabIndex={0}
         className={cn(
-          "glass h-full w-full rounded-xl p-4 transition-all duration-200",
+          "glass flex h-full w-full cursor-grab flex-col rounded-xl transition-all duration-200 active:cursor-grabbing",
           focused && "z-50 shadow-2xl ring-1 ring-white/30"
         )}
         onClick={handleClick}
@@ -96,16 +125,72 @@ export const StockBox: React.FC<StockBoxProps> = ({
           if (e.key === "Enter" || e.key === " ") handleClick(e as unknown as React.MouseEvent);
         }}
       >
-        <div className="mb-3 flex items-start justify-between">
+        {/* 헤더 (드래그 핸들) */}
+        <div className="flex items-start justify-between p-4 pb-2">
           <div>
             <h3 className="text-lg font-bold text-white">{symbol}</h3>
             <p className="text-xs text-gray-400">{companyName}</p>
           </div>
-          <Button variant="ghost" size="sm" aria-label="닫기" onClick={handleClose}>
+          <Button
+            variant="ghost"
+            size="sm"
+            aria-label={t("common.close")}
+            onClick={handleClose}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
             ✕
           </Button>
         </div>
-        {error ? <p className="text-sm text-red-400">{error}</p> : null}
+
+        {/* 가격 */}
+        <div className="px-4 pb-2">
+          {error ? (
+            <p className="text-sm text-red-400">{error}</p>
+          ) : (
+            <PriceDisplay
+              price={priceState.status === "success" ? priceState.data : null}
+              loading={priceState.status === "loading" || priceState.status === "idle"}
+            />
+          )}
+        </div>
+
+        {/* 시간 범위 선택 + 차트 — showChart가 true일 때만 표시 */}
+        {showChart && (
+          <>
+            <div className="flex gap-1 px-4 pb-2">
+              {TIME_RANGES.map((r) => (
+                <button
+                  key={r}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setRange(r);
+                  }}
+                  className={cn(
+                    "rounded px-2 py-0.5 text-xs transition-colors",
+                    range === r ? "bg-white/20 text-white" : "text-gray-400 hover:text-white"
+                  )}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+
+            <div className="min-h-0 flex-1 px-2 pb-2">
+              {chartState.status === "success" && chartState.data.length > 0 ? (
+                <StockChart data={chartState.data} />
+              ) : chartState.status === "loading" || chartState.status === "idle" ? (
+                <div className="flex h-full items-center justify-center">
+                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                </div>
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center gap-1 text-center">
+                  <p className="text-xs text-gray-500">{t("stockBox.noData")}</p>
+                  <p className="text-xs text-gray-600">{t("stockBox.noDataHint")}</p>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </Rnd>
   );

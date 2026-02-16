@@ -25,8 +25,9 @@ export const CHART_RANGES = {
 } as const;
 
 export const DEFAULT_SETTINGS = {
-  theme: "dark" as const,
+  theme: "light" as const,
   language: "ko" as const,
-  colorScheme: "kr" as const,
+  colorScheme: "us" as const,
   currency: "USD" as const,
+  showChart: true,
 };

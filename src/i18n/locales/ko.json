@@ -1,0 +1,56 @@
+{
+  "common": {
+    "close": "닫기",
+    "cancel": "취소",
+    "done": "완료"
+  },
+  "header": {
+    "addStock": "종목 추가",
+    "settings": "설정",
+    "exchangeRateLabel": "달러/원",
+    "kstLabel": "한국",
+    "fullscreen": "전체화면",
+    "exitFullscreen": "전체화면 종료"
+  },
+  "network": {
+    "offline": "인터넷 연결이 끊겼습니다",
+    "reconnected": "인터넷에 연결되었습니다"
+  },
+  "market": {
+    "weekend": "주말 — 장 휴장",
+    "pre": "프리마켓 (04:00~09:30 미국 동부시간)",
+    "open": "정규장 (09:30~16:00 미국 동부시간)",
+    "post": "애프터마켓 (16:00~20:00 미국 동부시간)",
+    "closed": "장 마감 (20:00~04:00 미국 동부시간)",
+    "dstOn": "서머타임 적용 중",
+    "dstOff": "서머타임 미적용"
+  },
+  "search": {
+    "title": "종목 추가",
+    "placeholder": "종목 검색 (예: AAPL)",
+    "button": "검색",
+    "empty": "상단의 \"+ 종목 추가\" 버튼으로 주식을 추가하세요"
+  },
+  "stockBox": {
+    "high": "고가",
+    "low": "저가",
+    "noData": "데이터 없음",
+    "noDataHint": "주중 장중에만 1D 차트가 표시됩니다"
+  },
+  "settings": {
+    "title": "설정",
+    "candleColor": "캔들 색상",
+    "kr": "한국식",
+    "krDesc": "상승 빨강 / 하락 파랑",
+    "us": "미국식",
+    "usDesc": "상승 초록 / 하락 빨강",
+    "theme": "테마",
+    "dark": "다크 모드",
+    "light": "라이트 모드",
+    "language": "언어",
+    "currency": "통화 표시",
+    "chart": "차트 표시",
+    "chartOn": "켜기",
+    "chartOff": "끄기"
+  }
+}

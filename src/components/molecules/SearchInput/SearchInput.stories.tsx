@@ -15,13 +15,6 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    onSearch: (symbol: string) => console.log("검색:", symbol),
-  },
-};
-
-export const WithPlaceholder: Story = {
-  args: {
-    onSearch: (symbol: string) => console.log("검색:", symbol),
-    placeholder: "종목 코드를 입력하세요",
+    onSearch: (symbol: string, companyName: string) => console.log("검색:", symbol, companyName),
   },
 };

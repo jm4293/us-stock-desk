@@ -1,0 +1,56 @@
+{
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "done": "Done"
+  },
+  "header": {
+    "addStock": "Add Stock",
+    "settings": "Settings",
+    "exchangeRateLabel": "USD/KRW",
+    "kstLabel": "Korea",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit Fullscreen"
+  },
+  "network": {
+    "offline": "No internet connection",
+    "reconnected": "Back online"
+  },
+  "market": {
+    "weekend": "Weekend — Market Closed",
+    "pre": "Pre-Market (04:00–09:30 ET)",
+    "open": "Regular Hours (09:30–16:00 ET)",
+    "post": "After-Hours (16:00–20:00 ET)",
+    "closed": "Market Closed (20:00–04:00 ET)",
+    "dstOn": "DST Active",
+    "dstOff": "Standard Time"
+  },
+  "search": {
+    "title": "Add Stock",
+    "placeholder": "Search symbol (e.g. AAPL)",
+    "button": "Search",
+    "empty": "Click \"+ Add Stock\" to add your first stock"
+  },
+  "stockBox": {
+    "high": "High",
+    "low": "Low",
+    "noData": "No Data",
+    "noDataHint": "1D chart is only available during market hours on weekdays"
+  },
+  "settings": {
+    "title": "Settings",
+    "candleColor": "Candle Colors",
+    "kr": "Korean",
+    "krDesc": "Up Red / Down Blue",
+    "us": "US Style",
+    "usDesc": "Up Green / Down Red",
+    "theme": "Theme",
+    "dark": "Dark Mode",
+    "light": "Light Mode",
+    "language": "Language",
+    "currency": "Currency",
+    "chart": "Chart",
+    "chartOn": "On",
+    "chartOff": "Off"
+  }
+}

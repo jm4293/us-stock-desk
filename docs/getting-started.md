@@ -143,16 +143,21 @@ feature/project-setup 브랜치 생성 후
 
 ```bash
 □ .env.example 생성
-□ .env.local 생성 (gitignore됨)
+□ .env.local 생성 (gitignore됨, 개발자 전용)
 ```
 
 **내용**:
 
 ```env
-# .env.example
-VITE_FINNHUB_API_KEY=your_api_key_here
-VITE_APP_MODE=development
+# .env.local (개발자 전용 — 일반 사용자는 불필요)
+# Finnhub API 키: 서버 측 프록시에서만 사용, 클라이언트에 노출 없음
+# Vercel 배포 시 Vercel 대시보드 환경변수에서 설정
+FINNHUB_API_KEY=your_api_key_here
 ```
+
+> **참고**: 일반 사용자는 API 키를 발급하거나 설정할 필요가 없습니다.
+> 차트 데이터(Yahoo Finance)는 API 키 없이 무료로 사용됩니다.
+> 실시간 가격(Finnhub)은 서버에서 처리되므로 사용자가 직접 관리하지 않아도 됩니다.
 
 ---
 

@@ -13,6 +13,7 @@ export interface StockActions {
   updateSize: (id: string, size: Size) => void;
   setFocused: (id: string | null) => void;
   bringToFront: (id: string) => void;
+  reorderStocks: (fromIndex: number, toIndex: number) => void;
 }
 
 export interface SettingsState {
@@ -20,6 +21,7 @@ export interface SettingsState {
   language: "ko" | "en";
   colorScheme: "kr" | "us";
   currency: "USD" | "KRW";
+  showChart: boolean;
 }
 
 export interface SettingsActions {
@@ -27,6 +29,7 @@ export interface SettingsActions {
   setLanguage: (lang: "ko" | "en") => void;
   setColorScheme: (scheme: "kr" | "us") => void;
   setCurrency: (currency: "USD" | "KRW") => void;
+  setShowChart: (show: boolean) => void;
 }
 
 export interface UIState {

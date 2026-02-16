@@ -6,8 +6,8 @@ export default {
     extend: {
       colors: {
         // 한국식 색상 (상승: 빨강, 하락: 파랑)
-        "up-kr": "#ff0000",
-        "down-kr": "#0000ff",
+        "up-kr": "#ef4444",
+        "down-kr": "#3b82f6",
         // 미국식 색상 (상승: 초록, 하락: 빨강)
         "up-us": "#22c55e",
         "down-us": "#ef4444",

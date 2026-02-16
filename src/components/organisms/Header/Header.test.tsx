@@ -17,13 +17,13 @@ describe("Header", () => {
 
   it("환율을 표시한다", () => {
     render(<Header {...defaultProps} />);
-    expect(screen.getByText(/1,325/)).toBeInTheDocument();
+    expect(screen.getByText(/1,32[56]/)).toBeInTheDocument();
   });
 
   it("소수점 환율을 올바르게 표시한다", () => {
     render(<Header {...defaultProps} exchangeRate={1325.5} />);
-    // 환율이 소수점 포함 표시 여부 확인
-    expect(screen.getByText(/1,325/)).toBeInTheDocument();
+    // 환율이 반올림되어 표시됨 (1325.5 → 1,326)
+    expect(screen.getByText(/1,326/)).toBeInTheDocument();
   });
 
   it("종목 추가 버튼을 렌더링한다", () => {

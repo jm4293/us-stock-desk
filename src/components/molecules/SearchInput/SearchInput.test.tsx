@@ -13,7 +13,7 @@ describe("SearchInput", () => {
     const handleSearch = vi.fn();
     render(<SearchInput onSearch={handleSearch} />);
     await userEvent.type(screen.getByRole("textbox"), "AAPL{enter}");
-    expect(handleSearch).toHaveBeenCalledWith("AAPL");
+    expect(handleSearch).toHaveBeenCalledWith("AAPL", "AAPL");
   });
 
   it("검색 버튼 클릭으로 검색을 실행한다", async () => {
@@ -21,7 +21,7 @@ describe("SearchInput", () => {
     render(<SearchInput onSearch={handleSearch} />);
     await userEvent.type(screen.getByRole("textbox"), "TSLA");
     await userEvent.click(screen.getByRole("button", { name: /검색/i }));
-    expect(handleSearch).toHaveBeenCalledWith("TSLA");
+    expect(handleSearch).toHaveBeenCalledWith("TSLA", "TSLA");
   });
 
   it("입력이 비어있으면 검색을 실행하지 않는다", async () => {
@@ -50,6 +50,6 @@ describe("SearchInput", () => {
     const handleSearch = vi.fn();
     render(<SearchInput onSearch={handleSearch} />);
     await userEvent.type(screen.getByRole("textbox"), "aapl{enter}");
-    expect(handleSearch).toHaveBeenCalledWith("AAPL");
+    expect(handleSearch).toHaveBeenCalledWith("AAPL", "AAPL");
   });
 });
