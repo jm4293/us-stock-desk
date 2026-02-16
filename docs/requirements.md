@@ -41,9 +41,9 @@
 - **Price Data**: Finnhub (실시간 주식 가격, 서버 측 프록시)
   - REST API Polling (5초 / 10초 / 30초 간격, 설정 가능)
   - API 키는 서버 환경변수로 관리, 클라이언트에 노출 없음
-- **Chart Data**: Yahoo Finance (차트 OHLCV 데이터, 무료)
-  - REST API (`https://query1.finance.yahoo.com/v8/finance/chart/{symbol}`)
-  - API 키 불필요
+- **Chart Data**: Finnhub Candle API (차트 OHLCV 데이터, 서버 측 프록시)
+  - REST API (`/api/stock-proxy?type=candle`)
+  - Yahoo Finance 대신 Finnhub 단일 소스로 통합
 - **Rate Limiting**: Serverless Function에서 구현 (Finnhub 프록시)
 
 ### Storage
@@ -273,13 +273,14 @@
 ### 실시간 업데이트 전략
 
 ```
-실시간 가격 (Finnhub, 서버 프록시 경유):
-  → REST API Polling (설정에 따라 5초 / 10초 / 30초 간격)
+실시간 가격 (Finnhub):
+  → WebSocket (finnhub.io/api/v1/ws) - 1차
+  → REST API Polling Fallback (설정에 따라 5초 / 10초 / 30초 간격)
   → 현재가, 등락률, 거래량 갱신
 
-차트 데이터 (Yahoo Finance):
+차트 데이터 (Finnhub Candle API, 서버 프록시 경유):
   → REST API Polling
-  → 기간별 OHLCV 데이터 (1일, 1주, 1개월, 3개월, 1년)
+  → 기간별 OHLCV 데이터 (1일, 1주, 1개월, 3개월, 6개월, 1년)
 ```
 
 ### LocalStorage 구조
@@ -365,76 +366,66 @@ stock-desk/
 │   │   │   ├── Button/
 │   │   │   │   ├── Button.tsx
 │   │   │   │   ├── Button.stories.tsx
-│   │   │   │   ├── Button.test.tsx
-│   │   │   │   └── Button.module.css
+│   │   │   │   └── Button.test.tsx
 │   │   │   ├── Input/
-│   │   │   ├── Badge/
-│   │   │   └── Icon/
+│   │   │   └── Badge/
 │   │   ├── molecules/           # 원자 조합 컴포넌트
 │   │   │   ├── SearchInput/
 │   │   │   ├── PriceDisplay/
-│   │   │   ├── TimeDisplay/
-│   │   │   └── ExchangeRateItem/
-│   │   ├── organisms/           # 분자 조합 복잡한 컴포넌트
-│   │   │   ├── Header/
-│   │   │   │   ├── Header.tsx
-│   │   │   │   ├── Header.stories.tsx
-│   │   │   │   └── Header.test.tsx
-│   │   │   ├── StockBox/
-│   │   │   ├── SearchModal/
-│   │   │   ├── SettingsModal/
-│   │   │   └── ErrorModal/
-│   │   ├── templates/           # 페이지 레이아웃
-│   │   │   ├── MainLayout/
-│   │   │   └── LandingLayout/
-│   │   └── pages/               # 완성된 페이지
-│   │       ├── MainPage/
-│   │       └── LandingPage/
+│   │   │   ├── StockChart/      # Lightweight Charts 캔들스틱
+│   │   │   ├── KSTClock/        # 한국 시간 디지털 시계
+│   │   │   ├── BottomSheet/     # 모바일 바텀시트
+│   │   │   └── NetworkOfflineBanner/
+│   │   └── organisms/           # 분자 조합 복잡한 컴포넌트
+│   │       ├── Header/
+│   │       │   ├── Header.tsx
+│   │       │   ├── Header.stories.tsx
+│   │       │   └── Header.test.tsx
+│   │       ├── StockBox/
+│   │       ├── MobileStockCard/ # 모바일 전용 카드
+│   │       ├── SearchModal/
+│   │       └── SettingsModal/
 │   ├── hooks/                   # 비즈니스 로직 (Custom Hooks)
-│   │   ├── useStockBox.ts               # StockBox 전체 로직
-│   │   ├── useStockData.ts              # 데이터 fetching
-│   │   ├── useStockWebSocket.ts         # WebSocket 연결
-│   │   ├── useDragAndResize.ts          # 드래그/리사이징
-│   │   ├── useLocalStorage.ts           # Storage 관리
-│   │   ├── useTheme.ts                  # 테마 관리
-│   │   ├── useExchangeRate.ts           # 환율 데이터
-│   │   ├── useMarketTime.ts             # 시장 시간
-│   │   └── useOnlineStatus.ts           # 온라인 상태
+│   │   ├── useStockData.ts      # 주식 데이터 fetching
+│   │   ├── useChartData.ts      # 차트 데이터 fetching
+│   │   ├── useExchangeRate.ts   # 환율 데이터
+│   │   ├── useMarketStatus.ts   # 시장 개장/휴장 상태
+│   │   ├── useNetworkStatus.ts  # 온라인/오프라인 상태
+│   │   ├── useIsMobile.ts       # 모바일 여부
+│   │   ├── useFullscreen.ts     # 전체화면
+│   │   └── useWakeLock.ts       # 화면 잠금 방지
 │   ├── services/                # API 호출 및 외부 서비스
 │   │   ├── api/
-│   │   │   ├── stockApi.ts              # 주식 API 호출
-│   │   │   ├── exchangeRateApi.ts       # 환율 API
-│   │   │   └── searchApi.ts             # 검색 API
+│   │   │   └── finnhubApi.ts    # Finnhub REST API (Quote + Candle + Search)
 │   │   ├── websocket/
-│   │   │   └── stockWebSocket.ts        # WebSocket 서비스
+│   │   │   └── stockSocket.ts   # Finnhub WebSocket 서비스
 │   │   └── storage/
-│   │       └── storageService.ts        # LocalStorage 서비스
-│   ├── store/                   # 전역 상태 관리 (선택적)
-│   │   ├── useStockStore.ts             # Zustand/Jotai
-│   │   └── useSettingsStore.ts
+│   │       └── localStorage.ts  # LocalStorage 서비스
+│   ├── stores/                  # 전역 상태 관리 (Zustand)
+│   │   ├── stockStore.ts        # 종목 목록 + 위치/크기
+│   │   ├── settingsStore.ts     # 사용자 설정
+│   │   └── uiStore.ts           # UI 상태 (모달 등)
+│   ├── i18n/                    # 다국어 (react-i18next)
+│   │   ├── index.ts
+│   │   └── locales/
+│   │       ├── ko.json
+│   │       └── en.json
 │   ├── utils/                   # 유틸리티 함수
-│   │   ├── cn.ts                        # tailwind-merge + clsx
-│   │   ├── timezone.ts
-│   │   ├── currency.ts
-│   │   ├── encryption.ts                # 암호화
-│   │   ├── formatters.ts                # 포맷팅
-│   │   └── validators.ts                # 유효성 검사
+│   │   └── cn.ts                # tailwind-merge + clsx
 │   ├── types/                   # TypeScript 타입
 │   │   ├── stock.ts
-│   │   ├── settings.ts
-│   │   └── layout.ts
+│   │   ├── api.ts
+│   │   ├── store.ts
+│   │   └── common.ts
 │   ├── constants/               # 상수
 │   │   ├── api.ts
-│   │   └── config.ts
+│   │   └── app.ts
 │   ├── styles/                  # 글로벌 스타일
-│   │   ├── globals.css                  # Tailwind directives + 글로벌
-│   │   └── themes.css                   # 다크/라이트 테마 변수
+│   │   └── globals.css          # Tailwind directives + 글로벌
 │   ├── App.tsx
 │   └── main.tsx
-├── api/                         # Vercel Serverless Functions
-│   ├── stock-proxy.ts
-│   ├── exchange-rate.ts
-│   └── search-stock.ts
+├── api/                         # Vercel Serverless Functions (예정)
+│   └── .gitkeep
 ├── public/
 ├── .env.example
 ├── .env.local
@@ -452,36 +443,36 @@ stock-desk/
 
 ### Phase 1: 기본 구조
 
-- [ ] Vite + React + TypeScript 프로젝트 설정
-- [ ] 기본 컴포넌트 구조 생성
-- [ ] Glassmorphism 스타일 시스템 구축
+- [x] Vite + React + TypeScript 프로젝트 설정
+- [x] 기본 컴포넌트 구조 생성
+- [x] Glassmorphism 스타일 시스템 구축
 
 ### Phase 2: 핵심 기능
 
-- [ ] StockBox 컴포넌트 (드래그 & 리사이징)
-- [ ] Finnhub API 연동 (Serverless Functions 프록시, 실시간 가격)
-- [ ] Yahoo Finance API 연동 (차트 OHLCV 데이터)
-- [ ] LocalStorage 관리 시스템
-- [ ] 실시간 데이터 업데이트 (REST API Polling)
+- [x] StockBox 컴포넌트 (드래그 & 리사이징)
+- [x] Finnhub API 연동 (Serverless Functions 프록시, 실시간 가격)
+- [x] Finnhub Candle API 연동 (차트 OHLCV 데이터, Yahoo Finance 대신 사용)
+- [x] LocalStorage 관리 시스템
+- [x] 실시간 데이터 업데이트 (REST API Polling + WebSocket)
 
 ### Phase 3: UI/UX
 
-- [ ] Header (환율, 시간, 테마)
-- [ ] SearchModal (종목 검색)
-- [ ] SettingsModal (설정)
+- [x] Header (환율, 시간, 테마)
+- [x] SearchModal (종목 검색)
+- [x] SettingsModal (설정)
 - [ ] LandingPage (로딩 화면)
 - [ ] ErrorModal (에러 처리)
 
 ### Phase 4: 차트
 
-- [ ] Lightweight Charts 통합
-- [ ] 차트 인터랙션 (드래그, 줌)
-- [ ] 기간 선택 기능
+- [x] Lightweight Charts 통합
+- [x] 차트 인터랙션 (드래그, 줌)
+- [x] 기간 선택 기능
 
 ### Phase 5: 최적화 & 배포
 
 - [ ] 성능 최적화
-- [ ] 반응형 디자인 (모바일)
+- [x] 반응형 디자인 (모바일 — MobileStockCard, BottomSheet)
 - [ ] Google Analytics 연동
 - [ ] Sentry 연동
 - [ ] Vercel 배포

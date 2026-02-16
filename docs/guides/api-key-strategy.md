@@ -13,27 +13,20 @@ Stock Desk는 두 가지 외부 데이터 소스를 사용합니다:
 
 ## 📡 데이터 소스별 역할
 
-### 1. Finnhub - 실시간 주식 가격
+### 1. Finnhub - 실시간 주식 가격 + 차트 데이터
 
-- **용도**: 현재가, 등락률, 거래량 등 실시간 Quote 데이터
+- **용도**: 현재가, 등락률, 거래량 등 실시간 Quote 데이터 및 차트 OHLCV 데이터
 - **엔드포인트**: `/api/stock-proxy` (Vercel Serverless Function)
 - **API 키 관리**: 서버 환경변수(`FINNHUB_API_KEY`)로 관리, 클라이언트에 노출 없음
 - **사용자 조작 필요 없음**: 배포된 서비스에서 자동으로 처리됨
+- **데이터 방식**: WebSocket (실시간) + REST API Polling (Fallback) + Candle API (차트)
 
 ```
 사용자 → /api/stock-proxy → Finnhub API (서버에서 키 사용)
+사용자 → Finnhub WebSocket (실시간 가격)
 ```
 
-### 2. Yahoo Finance - 차트 데이터
-
-- **용도**: 차트 표시용 OHLCV (시가/고가/저가/종가/거래량) 데이터
-- **엔드포인트**: `https://query1.finance.yahoo.com/v8/finance/chart/{symbol}`
-- **API 키**: 불필요 (완전 무료 공개 API)
-- **데이터 방식**: REST API Polling
-
-```
-사용자 → Yahoo Finance API (직접 호출, 키 불필요)
-```
+> **참고**: 초기 계획의 Yahoo Finance 차트 데이터는 Finnhub Candle API로 통합되었습니다.
 
 ---
 
@@ -74,17 +67,21 @@ Vercel 배포 환경에서는 Vercel 대시보드에서 환경변수를 관리�
 ### 실시간 가격 (Finnhub)
 
 ```
-Polling 방식 (설정에 따라 5초 / 10초 / 30초 간격)
-  → /api/stock-proxy?symbol=AAPL
+WebSocket (1차)
+  → wss://ws.finnhub.io?token=...
+  → 실시간 가격 push
+
+REST API Polling Fallback (설정에 따라 5초 / 10초 / 30초 간격)
+  → /api/stock-proxy?symbol=AAPL&type=quote
   → 현재가, 등락률, 거래량 갱신
 ```
 
-### 차트 데이터 (Yahoo Finance)
+### 차트 데이터 (Finnhub Candle API)
 
 ```
 REST API Polling
-  → Yahoo Finance chart API
-  → 기간별 OHLCV 데이터 (1일, 1주, 1개월, 3개월, 1년)
+  → /api/stock-proxy?symbol=AAPL&type=candle&resolution=D&from=...&to=...
+  → 기간별 OHLCV 데이터 (1일, 1주, 1개월, 3개월, 6개월, 1년)
 ```
 
 ---
