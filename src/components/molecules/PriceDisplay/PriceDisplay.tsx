@@ -31,7 +31,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-700 dark:text-blue-600" : "text-down-us";
 
-  if (loading || !price) {
+  if (loading || !price || !price.current) {
     return (
       <div data-testid="price-skeleton" className={cn("animate-pulse space-y-2", className)}>
         <div className="h-8 w-32 rounded bg-black/10 dark:bg-white/10" />

@@ -39,8 +39,9 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
     zIndex: isDragging ? 999 : undefined,
   };
 
-  const price = priceState.status === "success" ? priceState.data : null;
-  const isLoading = priceState.status === "loading" || priceState.status === "idle";
+  const rawPrice = priceState.status === "success" ? priceState.data : null;
+  const price = rawPrice?.current ? rawPrice : null;
+  const isLoading = priceState.status === "loading" || priceState.status === "idle" || !price;
 
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-600" : "text-down-us";

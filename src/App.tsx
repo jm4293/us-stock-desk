@@ -4,18 +4,21 @@ import {
   DesktopCanvas,
   SearchModal,
   SettingsModal,
+  SplashScreen,
 } from "@/components/organisms";
 import { NetworkOfflineBanner, ToastContainer } from "@/components/molecules";
 import { useExchangeRate, useIsMobile, useNetworkStatus, useWakeLock } from "@/hooks";
 import { stockSocket } from "@/services/websocket/stockSocket";
 import { useSettingsStore, useStockStore, useUIStore, useShowToast } from "@/stores";
 import { cn } from "@/utils/cn";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
 
 function App() {
   const { t } = useTranslation();
+
+  const [splashDone, setSplashDone] = useState(false);
 
   const stocks = useStockStore((state) => state.stocks);
   const removeStock = useStockStore((state) => state.removeStock);
@@ -64,6 +67,11 @@ function App() {
         isDark ? "bg-gray-950" : "bg-slate-100"
       )}
     >
+      {/* 스플래시 화면 — key 고정으로 리마운트 방지 */}
+      {!splashDone && (
+        <SplashScreen key="splash" isDark={isDark} onComplete={() => setSplashDone(true)} />
+      )}
+
       {/* 배경 그라디언트 */}
       <div
         className={cn(

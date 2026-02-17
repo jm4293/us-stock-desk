@@ -5,3 +5,4 @@ export { SettingsModal } from "./SettingsModal";
 export { DesktopCanvas } from "./DesktopCanvas";
 export { MobileLayout } from "./MobileLayout";
 export { MobileStockCard } from "./MobileStockCard";
+export { SplashScreen } from "./SplashScreen";
