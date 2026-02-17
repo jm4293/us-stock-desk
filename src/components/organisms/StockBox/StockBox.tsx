@@ -1,10 +1,11 @@
 import { Button } from "@/components/atoms";
 import { PriceDisplay, StockChart } from "@/components/molecules";
+import { STOCK_BOX } from "@/constants/app";
 import { useChartData, useMarketStatus, useStockData } from "@/hooks";
-import { useShowChart } from "@/stores";
+import { useShowChart, useTheme } from "@/stores";
 import type { ChartTimeRange, Position, Size } from "@/types/stock";
 import { cn } from "@/utils/cn";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Rnd } from "react-rnd";
 
@@ -51,23 +52,23 @@ export const StockBox: React.FC<StockBoxProps> = ({
   const { state: priceState } = useStockData(symbol);
   const { state: chartState } = useChartData(symbol, range);
   const showChart = useShowChart();
+  const theme = useTheme();
+  const isDark = theme === "dark";
   const { status: marketStatus } = useMarketStatus();
+  const isMounted = useRef(false);
 
   useEffect(() => {
-    if (!showChart && size.height > HEIGHT_WITHOUT_CHART) {
-      onSizeChange(id, { ...size, height: HEIGHT_WITHOUT_CHART });
-    } else if (showChart && size.height < HEIGHT_WITH_CHART) {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+    if (showChart && size.height < HEIGHT_WITH_CHART) {
       onSizeChange(id, { ...size, height: HEIGHT_WITH_CHART });
+    } else if (!showChart) {
+      onSizeChange(id, { width: STOCK_BOX.DEFAULT_WIDTH, height: STOCK_BOX.DEFAULT_HEIGHT });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showChart]);
-
-  // useEffect(() => {
-  //   const minH = showChart ? HEIGHT_WITH_CHART : HEIGHT_WITHOUT_CHART;
-  //   if (sizeHeight < minH) {
-  //     onSizeChange(id, { ...size, height: minH });
-  //   }
-  // }, [showChart, sizeHeight, id, onSizeChange, size]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -88,7 +89,13 @@ export const StockBox: React.FC<StockBoxProps> = ({
 
   if (loading) {
     return (
-      <Rnd position={position} size={size} style={{ zIndex }} minWidth={300} minHeight={200}>
+      <Rnd
+        position={position}
+        size={size}
+        style={{ zIndex }}
+        minWidth={300}
+        minHeight={HEIGHT_WITHOUT_CHART}
+      >
         <div
           data-testid="stock-box-skeleton"
           className="glass h-full w-full animate-pulse rounded-xl p-4"
@@ -112,7 +119,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
     <Rnd
       bounds="parent"
       position={position}
-      size={size}
+      size={showChart ? size : { width: size.width, height: "auto" }}
       onDragStop={(_, d) => onPositionChange(id, { x: d.x, y: d.y })}
       onResizeStop={(_, __, ref, ___, pos) => {
         onSizeChange(id, {
@@ -123,14 +130,16 @@ export const StockBox: React.FC<StockBoxProps> = ({
       }}
       style={{ zIndex }}
       minWidth={300}
-      minHeight={showChart ? HEIGHT_WITH_CHART : HEIGHT_WITHOUT_CHART}
+      minHeight={showChart ? HEIGHT_WITH_CHART : undefined}
+      enableResizing={showChart}
     >
       <div
         data-testid="stock-box"
         role="button"
         tabIndex={0}
         className={cn(
-          "glass flex h-full w-full cursor-grab flex-col rounded-xl transition-all duration-200 active:cursor-grabbing",
+          "glass w-full cursor-grab rounded-xl transition-all duration-200 active:cursor-grabbing",
+          showChart && "flex h-full flex-col",
           focused && "z-50 shadow-2xl ring-1 ring-white/30"
         )}
         onClick={handleClick}
@@ -154,7 +163,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
         </div>
 
         {/* 가격 */}
-        <div className="px-4 pb-2">
+        <div className={cn("px-4", showChart ? "pb-2" : "pb-4")}>
           {error ? (
             <p className="text-sm text-red-400">{error}</p>
           ) : (
@@ -179,7 +188,11 @@ export const StockBox: React.FC<StockBoxProps> = ({
                   }}
                   className={cn(
                     "rounded px-2 py-0.5 text-xs transition-colors",
-                    range === r ? "bg-white/20 text-white" : "text-gray-400 hover:text-white"
+                    range === r
+                      ? isDark
+                        ? "bg-white/20 font-medium text-white ring-1 ring-white/40"
+                        : "bg-slate-100 font-semibold text-slate-900 ring-1 ring-slate-300"
+                      : "text-gray-400 hover:text-white"
                   )}
                 >
                   {r}

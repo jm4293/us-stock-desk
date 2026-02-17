@@ -108,7 +108,7 @@ class StockSocket {
     callbacks.delete(callback);
     if (callbacks.size === 0) {
       this.subscribers.delete(symbol);
-      if (this.ws?.readyState === WebSocket.OPEN) {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
         this.ws.send(JSON.stringify({ type: "unsubscribe", symbol }));
       }
     }

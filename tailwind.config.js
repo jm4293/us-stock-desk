@@ -9,7 +9,7 @@ export default {
         "up-kr": "#ef4444",
         "down-kr": "#3b82f6",
         // 미국식 색상 (상승: 초록, 하락: 빨강)
-        "up-us": "#22c55e",
+        "up-us": "#089981",
         "down-us": "#ef4444",
         // 브랜드 색상
         primary: {
@@ -43,7 +43,7 @@ export default {
       },
       keyframes: {
         priceUp: {
-          "0%": { backgroundColor: "rgba(34, 197, 94, 0.3)" },
+          "0%": { backgroundColor: "rgba(8, 153, 129, 0.3)" },
           "100%": { backgroundColor: "transparent" },
         },
         priceDown: {

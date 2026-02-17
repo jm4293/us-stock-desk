@@ -1,7 +1,31 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { StockBox } from "./StockBox";
+
+vi.mock("@/hooks", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks")>();
+  return {
+    ...actual,
+    useStockData: () => ({ state: { status: "idle" }, refetch: vi.fn(), isWebSocket: false }),
+    useChartData: () => ({ state: { status: "idle" } }),
+    useMarketStatus: () => ({ status: "open", isRegularHours: true }),
+  };
+});
+
+vi.mock("@/stores", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/stores")>();
+  return {
+    ...actual,
+    useShowChart: () => true,
+    useTheme: () => "dark",
+    useColorScheme: () => "kr",
+  };
+});
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("StockBox", () => {
   const defaultProps = {

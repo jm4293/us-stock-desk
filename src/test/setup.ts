@@ -36,7 +36,7 @@ global.WebSocket = vi.fn().mockImplementation(() => ({
   close: vi.fn(),
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
-  readyState: 1,
+  readyState: 0, // CONNECTING — OPEN(1)이면 subscribe 시 즉시 send() 호출되어 오류 발생
 })) as unknown as typeof WebSocket;
 
 // crypto.randomUUID 모킹

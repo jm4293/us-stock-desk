@@ -96,7 +96,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
       : null;
 
   return (
-    <div className={cn("space-y-1.5", className)}>
+    <div className={cn("space-y-1", className)}>
       {/* 현재가 + 세션 레이블 */}
       <div className="flex items-baseline gap-2">
         <div className={cn("text-2xl font-bold", priceColorClass)}>{displayPrice}</div>

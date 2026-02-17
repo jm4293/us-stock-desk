@@ -96,7 +96,7 @@ export const useStockStore = create<StockStore>()(
       })),
       {
         name: STORAGE_KEYS.STOCKS,
-        version: 1,
+        version: 2,
         partialize: (state) => ({
           stocks: state.stocks,
           maxZIndex: state.maxZIndex,

@@ -6,6 +6,7 @@ import {
   createChart,
   type IChartApi,
   type ISeriesApi,
+  TickMarkType,
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
 
@@ -24,7 +25,7 @@ export function StockChart({ data }: StockChartProps) {
   const theme = useTheme();
   const isDark = theme === "dark";
 
-  const upColor = colorScheme === "kr" ? "#ef4444" : "#22c55e";
+  const upColor = colorScheme === "kr" ? "#ef4444" : "#089981";
   const downColor = colorScheme === "kr" ? "#2563eb" : "#ef4444";
 
   const chartTextColor = isDark ? "#9ca3af" : "#475569";
@@ -57,6 +58,31 @@ export function StockChart({ data }: StockChartProps) {
       timeScale: {
         borderColor,
         timeVisible: true,
+        tickMarkFormatter: (timestamp: number, tickType: TickMarkType) => {
+          // KST = UTC+9
+          const kstDate = new Date((timestamp + 9 * 60 * 60) * 1000);
+          const yyyy = String(kstDate.getUTCFullYear());
+          const mm = String(kstDate.getUTCMonth() + 1).padStart(2, "0");
+          const dd = String(kstDate.getUTCDate()).padStart(2, "0");
+          const hh = String(kstDate.getUTCHours()).padStart(2, "0");
+          const min = String(kstDate.getUTCMinutes()).padStart(2, "0");
+          if (tickType === TickMarkType.Year) return yyyy;
+          if (tickType === TickMarkType.Month) return `${mm}/${dd}`;
+          if (tickType === TickMarkType.DayOfMonth) return `${mm}/${dd}`;
+          return `${hh}:${min}`;
+        },
+      },
+      localization: {
+        timeFormatter: (timestamp: number) => {
+          // 크로스헤어 툴팁용 KST 포맷
+          const kstDate = new Date((timestamp + 9 * 60 * 60) * 1000);
+          const mm = String(kstDate.getUTCMonth() + 1).padStart(2, "0");
+          const dd = String(kstDate.getUTCDate()).padStart(2, "0");
+          const hh = String(kstDate.getUTCHours()).padStart(2, "0");
+          const min = String(kstDate.getUTCMinutes()).padStart(2, "0");
+          if (hh === "00" && min === "00") return `${mm}/${dd}`;
+          return `${mm}/${dd} ${hh}:${min}`;
+        },
       },
     });
 

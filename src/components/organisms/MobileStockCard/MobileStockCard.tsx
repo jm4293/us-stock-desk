@@ -62,6 +62,12 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
       : formatUSD(price.current)
     : null;
 
+  const displayChange = price
+    ? currency === "KRW"
+      ? formatChangeKRW(price.change * exchangeRate)
+      : formatChangeUSD(price.change)
+    : null;
+
   const displayPercent = price ? formatPercent(price.changePercent) : null;
 
   const displayHigh = price
@@ -167,7 +173,10 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
                   </span>
                 )}
               </div>
-              <span className={cn("text-xs", priceColorClass)}>{displayPercent}</span>
+              <div className={cn("flex items-center gap-1 text-xs", priceColorClass)}>
+                {displayChange && <span>{displayChange}</span>}
+                <span>{displayPercent}</span>
+              </div>
             </>
           ) : null}
         </div>
@@ -250,8 +259,8 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
                   "rounded px-2 py-0.5 text-xs transition-colors",
                   range === r
                     ? isDark
-                      ? "bg-white/20 text-white"
-                      : "bg-blue-100 font-medium text-blue-700"
+                      ? "bg-white/20 font-medium text-white ring-1 ring-white/40"
+                      : "bg-slate-100 font-semibold text-slate-900 ring-1 ring-slate-300"
                     : isDark
                       ? "text-gray-400 hover:text-white"
                       : "text-slate-400 hover:text-slate-700"
