@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type { StockChartData, ChartTimeRange } from "@/types/stock";
 import type { AsyncState } from "@/types/common";
+import { fetchChartWithDedup } from "@/services/api/chartCache";
 
 interface YahooChartResult {
   meta: { regularMarketPrice: number };
@@ -46,7 +47,7 @@ export function useChartData(symbol: string, range: ChartTimeRange) {
   const fetchCandles = useCallback(async () => {
     setState({ status: "loading" });
     try {
-      const response = await fetch(`/api/chart?symbol=${symbol}&range=${range}`);
+      const response = await fetchChartWithDedup(symbol, range);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       const data: YahooChartResponse = await response.json();

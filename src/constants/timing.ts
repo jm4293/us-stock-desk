@@ -1,0 +1,5 @@
+export const TIMING = {
+  SEARCH_DEBOUNCE: 300,
+  TOAST_DURATION: 3000,
+  IOS_FOCUS_DELAY: 300,
+} as const;

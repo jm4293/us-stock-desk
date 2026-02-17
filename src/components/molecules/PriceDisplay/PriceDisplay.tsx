@@ -2,6 +2,13 @@ import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { useColorScheme, useCurrency } from "@/stores/settingsStore";
 import type { StockPrice } from "@/types/stock";
 import { cn } from "@/utils/cn";
+import {
+  formatUSD,
+  formatKRW,
+  formatChangeUSD,
+  formatChangeKRW,
+  formatPercent,
+} from "@/utils/formatters";
 import React from "react";
 import { useTranslation } from "react-i18next";
 
@@ -9,34 +16,6 @@ interface PriceDisplayProps {
   price: StockPrice | null;
   loading?: boolean;
   className?: string;
-}
-
-function formatUSD(value: number): string {
-  if (value == null || isNaN(value)) return "$—";
-  return `$${value.toFixed(2)}`;
-}
-
-function formatKRW(value: number): string {
-  if (value == null || isNaN(value)) return "₩—";
-  return `₩${Math.round(value).toLocaleString("ko-KR")}`;
-}
-
-function formatChangeUSD(value: number): string {
-  if (value == null || isNaN(value)) return "—";
-  return value >= 0 ? `+$${value.toFixed(2)}` : `-$${Math.abs(value).toFixed(2)}`;
-}
-
-function formatChangeKRW(value: number): string {
-  if (value == null || isNaN(value)) return "—";
-  const rounded = Math.round(value);
-  return rounded >= 0
-    ? `+₩${rounded.toLocaleString("ko-KR")}`
-    : `-₩${Math.abs(rounded).toLocaleString("ko-KR")}`;
-}
-
-function formatPercent(value: number): string {
-  if (value == null || isNaN(value)) return "—";
-  return value >= 0 ? `+${value.toFixed(2)}%` : `-${Math.abs(value).toFixed(2)}%`;
 }
 
 export const PriceDisplay: React.FC<PriceDisplayProps> = ({
@@ -52,18 +31,14 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-700 dark:text-blue-600" : "text-down-us";
 
-  if (loading) {
+  if (loading || !price) {
     return (
       <div data-testid="price-skeleton" className={cn("animate-pulse space-y-2", className)}>
-        <div className="h-8 w-32 rounded bg-white/10" />
-        <div className="h-4 w-24 rounded bg-white/10" />
-        <div className="h-3 w-40 rounded bg-white/10" />
+        <div className="h-8 w-32 rounded bg-black/10 dark:bg-white/10" />
+        <div className="h-4 w-24 rounded bg-black/10 dark:bg-white/10" />
+        <div className="h-3 w-40 rounded bg-black/10 dark:bg-white/10" />
       </div>
     );
-  }
-
-  if (!price) {
-    return null;
   }
 
   const isPositive = price.change >= 0;

@@ -31,7 +31,8 @@ export function useExchangeRate() {
         setRate(data.rate);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("[useExchangeRate] Failed to fetch exchange rate:", error);
         setLoading(false);
       });
   }, []);

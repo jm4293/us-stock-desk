@@ -68,6 +68,13 @@ export const StockBox: React.FC<StockBoxProps> = ({
     onFocus(id);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.stopPropagation();
+      onFocus(id);
+    }
+  };
+
   const handleClose = (e: React.MouseEvent) => {
     e.stopPropagation();
     onClose(id);
@@ -121,9 +128,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
           focused && "z-50 shadow-2xl ring-1 ring-white/30"
         )}
         onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") handleClick(e as unknown as React.MouseEvent);
-        }}
+        onKeyDown={handleKeyDown}
       >
         {/* 헤더 (드래그 핸들) */}
         <div className="flex items-start justify-between p-4 pb-2">

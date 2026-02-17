@@ -1,8 +1,8 @@
 import { Header } from "@/components/organisms/Header";
-import { MobileStockCard } from "@/components/organisms/MobileStockCard/MobileStockCard";
+import { MobileLayout } from "@/components/organisms/MobileLayout/MobileLayout";
+import { DesktopCanvas } from "@/components/organisms/DesktopCanvas/DesktopCanvas";
 import { SearchModal } from "@/components/organisms/SearchModal/SearchModal";
 import { SettingsModal } from "@/components/organisms/SettingsModal/SettingsModal";
-import { StockBox } from "@/components/organisms/StockBox";
 import { NetworkOfflineBanner } from "@/components/molecules/NetworkOfflineBanner/NetworkOfflineBanner";
 import { ToastContainer } from "@/components/molecules/Toast/Toast";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
@@ -15,29 +15,15 @@ import { useStockStore } from "@/stores/stockStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useShowToast } from "@/stores/toastStore";
 import { cn } from "@/utils/cn";
-import {
-  DndContext,
-  PointerSensor,
-  TouchSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 function App() {
   const { t } = useTranslation();
 
   const stocks = useStockStore((state) => state.stocks);
-  const focusedStockId = useStockStore((state) => state.focusedStockId);
   const removeStock = useStockStore((state) => state.removeStock);
-  const updatePosition = useStockStore((state) => state.updatePosition);
-  const updateSize = useStockStore((state) => state.updateSize);
-  const bringToFront = useStockStore((state) => state.bringToFront);
-  const reorderStocks = useStockStore((state) => state.reorderStocks);
   const showToast = useShowToast();
 
   const handleRemoveStock = (id: string) => {
@@ -50,6 +36,7 @@ function App() {
   const openSettings = useUIStore((state) => state.openSettings);
 
   const theme = useSettingsStore((state) => state.theme);
+  const language = useSettingsStore((state) => state.language);
   const { rate: exchangeRate } = useExchangeRate();
   const isMobile = useIsMobile();
   const { isOnline } = useNetworkStatus();
@@ -64,32 +51,16 @@ function App() {
   // 테마 클래스 적용
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-      root.classList.remove("light");
-    } else {
-      root.classList.add("light");
-      root.classList.remove("dark");
-    }
+    root.classList.toggle("dark", theme === "dark");
+    root.classList.toggle("light", theme === "light");
   }, [theme]);
 
+  // 언어 동기화
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [language]);
+
   const isDark = theme === "dark";
-
-  // dnd-kit 센서 (터치 + 포인터 모두 지원)
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const fromIndex = stocks.findIndex((s) => s.id === active.id);
-    const toIndex = stocks.findIndex((s) => s.id === over.id);
-    if (fromIndex !== -1 && toIndex !== -1) {
-      reorderStocks(fromIndex, toIndex);
-    }
-  };
 
   return (
     <div
@@ -116,77 +87,11 @@ function App() {
         <Header exchangeRate={exchangeRate} onAddStock={openSearch} onOpenSettings={openSettings} />
       </div>
 
-      {/* ── 모바일 레이아웃 ── */}
+      {/* 레이아웃 (모바일 / 데스크톱) */}
       {isMobile ? (
-        <div className="absolute bottom-0 left-0 right-0 top-[52px] overflow-y-auto">
-          {stocks.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-              <p className={cn("text-xl font-bold", isDark ? "text-white" : "text-slate-900")}>
-                Stock Desk
-              </p>
-              <p className={cn("text-sm", isDark ? "text-gray-400" : "text-slate-500")}>
-                {t("search.empty")}
-              </p>
-            </div>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={stocks.map((s) => s.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="flex flex-col gap-3 p-4 pb-8">
-                  {stocks.map((stock) => (
-                    <MobileStockCard
-                      key={stock.id}
-                      id={stock.id}
-                      symbol={stock.symbol}
-                      companyName={stock.companyName}
-                      onClose={handleRemoveStock}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )}
-        </div>
+        <MobileLayout onRemoveStock={handleRemoveStock} />
       ) : (
-        /* ── 데스크톱 레이아웃 ── */
-        <div
-          id="stock-canvas"
-          className="absolute bottom-0 left-0 right-0 top-[52px] overflow-hidden"
-        >
-          {stocks.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-              <p className={cn("text-xl font-bold", isDark ? "text-white" : "text-slate-900")}>
-                Stock Desk
-              </p>
-              <p className={cn("text-sm", isDark ? "text-gray-400" : "text-slate-500")}>
-                {t("search.empty")}
-              </p>
-            </div>
-          ) : (
-            stocks.map((stock) => (
-              <StockBox
-                key={stock.id}
-                id={stock.id}
-                symbol={stock.symbol}
-                companyName={stock.companyName}
-                position={stock.position}
-                size={stock.size}
-                zIndex={stock.zIndex}
-                focused={focusedStockId === stock.id}
-                onFocus={bringToFront}
-                onClose={handleRemoveStock}
-                onPositionChange={updatePosition}
-                onSizeChange={updateSize}
-              />
-            ))
-          )}
-        </div>
+        <DesktopCanvas onRemoveStock={handleRemoveStock} />
       )}
 
       {/* 검색 모달 — 항상 최상단 */}

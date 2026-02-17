@@ -1,4 +1,5 @@
 import { finnhubApi } from "@/services/api/finnhubApi";
+import { TIMING } from "@/constants/timing";
 import { useTheme } from "@/stores/settingsStore";
 import { cn } from "@/utils/cn";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -8,6 +9,11 @@ import { useTranslation } from "react-i18next";
 interface SearchResult {
   symbol: string;
   description: string;
+}
+
+interface FinnhubSearchResponse {
+  result?: SearchResult[];
+  count?: number;
 }
 
 interface SearchInputProps {
@@ -39,7 +45,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
     // iOS에서 자동 줌을 피하기 위해 약간 지연 후 포커스
     const timer = setTimeout(() => {
       inputRef.current?.focus();
-    }, 300);
+    }, TIMING.IOS_FOCUS_DELAY);
     return () => clearTimeout(timer);
   }, []);
 
@@ -75,7 +81,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
     try {
       const res = await finnhubApi.searchSymbol(query);
       if (res.success && res.data) {
-        const data = res.data as { result?: { symbol: string; description: string }[] };
+        const data = res.data as FinnhubSearchResponse;
         const items = (data.result ?? [])
           .filter((r) => r.symbol && !r.symbol.includes("."))
           .slice(0, 8);
@@ -92,7 +98,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
     setValue(v);
     setActiveIndex(-1);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => search(v), 300);
+    debounceRef.current = setTimeout(() => search(v), TIMING.SEARCH_DEBOUNCE);
   };
 
   const handleSelect = (item: SearchResult) => {

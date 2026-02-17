@@ -32,6 +32,7 @@ export function StockChart({ data }: StockChartProps) {
   const borderColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
   const crosshairColor = isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)";
 
+  // 차트 최초 생성 (마운트 시 1회)
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -88,8 +89,38 @@ export function StockChart({ data }: StockChartProps) {
       chartRef.current = null;
       seriesRef.current = null;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 테마/색상 변경 시 차트 재생성 없이 옵션만 업데이트
+  useEffect(() => {
+    if (!chartRef.current || !seriesRef.current) return;
+
+    chartRef.current.applyOptions({
+      layout: { textColor: chartTextColor },
+      grid: {
+        vertLines: { color: gridColor },
+        horzLines: { color: gridColor },
+      },
+      crosshair: {
+        vertLine: { color: crosshairColor },
+        horzLine: { color: crosshairColor },
+      },
+      rightPriceScale: { borderColor, textColor: chartTextColor },
+      timeScale: { borderColor },
+    });
+
+    seriesRef.current.applyOptions({
+      upColor,
+      downColor,
+      borderUpColor: upColor,
+      borderDownColor: downColor,
+      wickUpColor: upColor,
+      wickDownColor: downColor,
+    });
   }, [upColor, downColor, chartTextColor, gridColor, borderColor, crosshairColor]);
 
+  // 데이터 변경 시 시리즈 업데이트
   useEffect(() => {
     if (!seriesRef.current || data.length === 0) return;
 

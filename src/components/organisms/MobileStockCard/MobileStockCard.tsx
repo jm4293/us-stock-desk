@@ -3,31 +3,12 @@ import { useTranslation } from "react-i18next";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/utils/cn";
+import { formatUSD, formatKRW, formatPercent } from "@/utils/formatters";
 import { StockChart } from "@/components/molecules/StockChart/StockChart";
-import { useStockData } from "@/hooks/useStockData";
-import { useChartData } from "@/hooks/useChartData";
-import { useShowChart } from "@/stores/settingsStore";
-import { useSettingsStore } from "@/stores/settingsStore";
-import { useColorScheme, useCurrency } from "@/stores/settingsStore";
-import { useExchangeRate } from "@/hooks/useExchangeRate";
+import { useMobileStockCard } from "@/hooks/useMobileStockCard";
 import type { ChartTimeRange } from "@/types/stock";
 
 const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];
-
-function formatUSD(value: number): string {
-  if (value == null || isNaN(value)) return "$—";
-  return `$${value.toFixed(2)}`;
-}
-
-function formatKRW(value: number): string {
-  if (value == null || isNaN(value)) return "₩—";
-  return `₩${Math.round(value).toLocaleString("ko-KR")}`;
-}
-
-function formatPercent(value: number): string {
-  if (value == null || isNaN(value)) return "—";
-  return value >= 0 ? `+${value.toFixed(2)}%` : `${value.toFixed(2)}%`;
-}
 
 interface MobileStockCardProps {
   id: string;
@@ -43,15 +24,9 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const theme = useSettingsStore((s) => s.theme);
-  const isDark = theme === "dark";
   const [range, setRange] = useState<ChartTimeRange>("1W");
-  const { state: priceState } = useStockData(symbol);
-  const { state: chartState } = useChartData(symbol, range);
-  const showChart = useShowChart();
-  const colorScheme = useColorScheme();
-  const currency = useCurrency();
-  const { rate: exchangeRate } = useExchangeRate();
+  const { isDark, priceState, chartState, showChart, colorScheme, currency, exchangeRate } =
+    useMobileStockCard(symbol, range);
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
@@ -132,10 +107,10 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
 
         {/* 가격 + 변동률 (인라인) */}
         <div className="flex shrink-0 flex-col items-end">
-          {isLoading ? (
+          {isLoading || !displayPrice ? (
             <div className="animate-pulse space-y-1">
-              <div className="h-4 w-16 rounded bg-white/10" />
-              <div className="h-3 w-12 rounded bg-white/10" />
+              <div className={cn("h-4 w-16 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+              <div className={cn("h-3 w-12 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
             </div>
           ) : displayPrice ? (
             <>
@@ -161,7 +136,12 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
       </div>
 
       {/* 고가 / 저가 */}
-      {price && (
+      {isLoading || !price ? (
+        <div className="mt-2 flex animate-pulse gap-3">
+          <div className={cn("h-3 w-20 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+          <div className={cn("h-3 w-20 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+        </div>
+      ) : (
         <div className={cn("mt-2 flex gap-3 text-xs", isDark ? "text-gray-400" : "text-slate-400")}>
           <span>
             <span className="mr-1 opacity-60">{t("stockBox.high")}</span>
@@ -201,7 +181,7 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
 
           {/* 차트 영역 */}
           <div className="mt-2 h-40">
-            {chartState.status === "success" && chartState.data.length > 0 ? (
+            {chartState.status === "success" && chartState.data && chartState.data.length > 0 ? (
               <StockChart data={chartState.data} />
             ) : chartState.status === "loading" || chartState.status === "idle" ? (
               <div className="flex h-full items-center justify-center">

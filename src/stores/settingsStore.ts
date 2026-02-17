@@ -3,7 +3,6 @@ import { persist, devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { SettingsState, SettingsActions } from "@/types/store";
 import { STORAGE_KEYS, DEFAULT_SETTINGS } from "@/constants/app";
-import i18n from "@/i18n";
 
 type SettingsStore = SettingsState & SettingsActions;
 
@@ -17,20 +16,12 @@ export const useSettingsStore = create<SettingsStore>()(
           set((state) => {
             state.theme = theme;
           });
-          if (theme === "dark") {
-            document.documentElement.classList.add("dark");
-            document.documentElement.classList.remove("light");
-          } else {
-            document.documentElement.classList.remove("dark");
-            document.documentElement.classList.add("light");
-          }
         },
 
         setLanguage: (lang: "ko" | "en") => {
           set((state) => {
             state.language = lang;
           });
-          i18n.changeLanguage(lang);
         },
 
         setColorScheme: (scheme: "kr" | "us") => {

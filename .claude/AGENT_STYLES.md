@@ -189,7 +189,7 @@ export default {
   /* Card Styles */
   .card {
     @apply bg-white dark:bg-gray-800;
-    @apply shadow-card rounded-xl;
+    @apply rounded-xl shadow-card;
     @apply border border-gray-200 dark:border-gray-700;
   }
 
@@ -201,7 +201,7 @@ export default {
 
   /* Focus States */
   .focus-ring {
-    @apply focus:ring-primary-500 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
     @apply dark:focus:ring-offset-gray-900;
   }
 

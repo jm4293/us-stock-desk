@@ -198,8 +198,8 @@ describe("finnhubApi HTTP 요청", () => {
     const result = await finnhubApi.getQuote("AAPL");
 
     expect(result.success).toBe(true);
-    expect(result.data.symbol).toBe("AAPL");
-    expect(result.data.current).toBe(182.5);
+    expect(result.data!.symbol).toBe("AAPL");
+    expect(result.data!.current).toBe(182.5);
   });
 
   it("finnhubApi.getQuote API 실패 시 success=false를 반환한다", async () => {

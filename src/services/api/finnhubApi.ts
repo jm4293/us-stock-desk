@@ -31,7 +31,7 @@ async function fetchFromProxy<T>(endpoint: string): Promise<ApiResponse<T>> {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return {
-      data: null as unknown as T,
+      data: null,
       success: false,
       error: message,
       timestamp: Date.now(),
@@ -83,7 +83,12 @@ export const finnhubApi = {
   getQuote: async (symbol: string): Promise<ApiResponse<StockPrice>> => {
     const result = await fetchFromProxy<FinnhubQuote>(`/stock-proxy?symbol=${symbol}&type=quote`);
     if (!result.success || !result.data) {
-      return result as unknown as ApiResponse<StockPrice>;
+      return {
+        data: null,
+        success: false,
+        error: result.error ?? "Failed to fetch quote",
+        timestamp: result.timestamp,
+      };
     }
     return {
       data: mapQuoteToStockPrice(symbol, result.data),
@@ -103,7 +108,12 @@ export const finnhubApi = {
       `/stock-proxy?symbol=${symbol}&type=candle&resolution=${resolution}&from=${from}&to=${to}`
     );
     if (!result.success || !result.data) {
-      return result as unknown as ApiResponse<StockChartData[]>;
+      return {
+        data: null,
+        success: false,
+        error: result.error ?? "Failed to fetch candles",
+        timestamp: result.timestamp,
+      };
     }
     return {
       data: mapCandleToChartData(result.data),
