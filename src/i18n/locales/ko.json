@@ -46,6 +46,10 @@
     "colorSchemeChanged": "{{value}} 캔들 색상으로 변경되었습니다",
     "chartChanged": "차트가 {{value}}"
   },
+  "splash": {
+    "subtitle": "해외주식 대시보드",
+    "loading": "불러오는 중..."
+  },
   "settings": {
     "title": "설정",
     "candleColor": "캔들 색상",

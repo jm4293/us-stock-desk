@@ -1,6 +1,7 @@
 import { cn } from "@/utils/cn";
 import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 interface SplashScreenProps {
   isDark: boolean;
@@ -8,6 +9,7 @@ interface SplashScreenProps {
 }
 
 export const SplashScreen = ({ isDark, onComplete }: SplashScreenProps) => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
@@ -130,7 +132,7 @@ export const SplashScreen = ({ isDark, onComplete }: SplashScreenProps) => {
             ref={subtitleRef}
             className={cn("text-sm", isDark ? "text-gray-400" : "text-gray-500")}
           >
-            해외주식 대시보드
+            {t("splash.subtitle")}
           </p>
         </div>
 
@@ -153,7 +155,7 @@ export const SplashScreen = ({ isDark, onComplete }: SplashScreenProps) => {
             />
           </div>
           <span className={cn("text-xs", isDark ? "text-gray-500" : "text-gray-400")}>
-            불러오는 중...
+            {t("splash.loading")}
           </span>
         </div>
       </div>

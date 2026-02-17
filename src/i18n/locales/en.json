@@ -46,6 +46,10 @@
     "colorSchemeChanged": "{{value}} candle colors applied",
     "chartChanged": "Chart {{value}}"
   },
+  "splash": {
+    "subtitle": "Global Stock Dashboard",
+    "loading": "Loading..."
+  },
   "settings": {
     "title": "Settings",
     "candleColor": "Candle Colors",
