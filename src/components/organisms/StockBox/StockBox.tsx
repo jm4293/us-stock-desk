@@ -82,8 +82,8 @@ export const StockBox: React.FC<StockBoxProps> = ({
         >
           <div className="mb-3 flex items-start justify-between">
             <div className="space-y-2">
-              <div className="h-5 w-16 rounded bg-white/10" />
-              <div className="h-3 w-24 rounded bg-white/10" />
+              <div className="h-5 w-24 rounded bg-white/10" />
+              <div className="h-3 w-16 rounded bg-white/10" />
             </div>
           </div>
           <div className="space-y-2">
@@ -128,8 +128,8 @@ export const StockBox: React.FC<StockBoxProps> = ({
         {/* 헤더 (드래그 핸들) */}
         <div className="flex items-start justify-between p-4 pb-2">
           <div>
-            <h3 className="text-lg font-bold text-white">{symbol}</h3>
-            <p className="text-xs text-gray-400">{companyName}</p>
+            <h3 className="text-lg font-bold text-white">{companyName}</h3>
+            <p className="text-xs text-gray-400">{symbol}</p>
           </div>
           <Button
             variant="ghost"

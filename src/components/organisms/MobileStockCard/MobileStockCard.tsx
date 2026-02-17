@@ -3,15 +3,31 @@ import { useTranslation } from "react-i18next";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/utils/cn";
-import { PriceDisplay } from "@/components/molecules/PriceDisplay";
 import { StockChart } from "@/components/molecules/StockChart/StockChart";
 import { useStockData } from "@/hooks/useStockData";
 import { useChartData } from "@/hooks/useChartData";
 import { useShowChart } from "@/stores/settingsStore";
 import { useSettingsStore } from "@/stores/settingsStore";
+import { useColorScheme, useCurrency } from "@/stores/settingsStore";
+import { useExchangeRate } from "@/hooks/useExchangeRate";
 import type { ChartTimeRange } from "@/types/stock";
 
 const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];
+
+function formatUSD(value: number): string {
+  if (value == null || isNaN(value)) return "$—";
+  return `$${value.toFixed(2)}`;
+}
+
+function formatKRW(value: number): string {
+  if (value == null || isNaN(value)) return "₩—";
+  return `₩${Math.round(value).toLocaleString("ko-KR")}`;
+}
+
+function formatPercent(value: number): string {
+  if (value == null || isNaN(value)) return "—";
+  return value >= 0 ? `+${value.toFixed(2)}%` : `${value.toFixed(2)}%`;
+}
 
 interface MobileStockCardProps {
   id: string;
@@ -33,6 +49,9 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
   const { state: priceState } = useStockData(symbol);
   const { state: chartState } = useChartData(symbol, range);
   const showChart = useShowChart();
+  const colorScheme = useColorScheme();
+  const currency = useCurrency();
+  const { rate: exchangeRate } = useExchangeRate();
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
@@ -45,6 +64,35 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
     zIndex: isDragging ? 999 : undefined,
   };
 
+  const price = priceState.status === "success" ? priceState.data : null;
+  const isLoading = priceState.status === "loading" || priceState.status === "idle";
+
+  const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
+  const downClass = colorScheme === "kr" ? "text-blue-600" : "text-down-us";
+
+  const isPositive = price ? price.change >= 0 : true;
+  const priceColorClass = isPositive ? upClass : downClass;
+
+  const displayPrice = price
+    ? currency === "KRW"
+      ? formatKRW(price.current * exchangeRate)
+      : formatUSD(price.current)
+    : null;
+
+  const displayPercent = price ? formatPercent(price.changePercent) : null;
+
+  const displayHigh = price
+    ? currency === "KRW"
+      ? formatKRW(price.high * exchangeRate)
+      : formatUSD(price.high)
+    : null;
+
+  const displayLow = price
+    ? currency === "KRW"
+      ? formatKRW(price.low * exchangeRate)
+      : formatUSD(price.low)
+    : null;
+
   return (
     <div
       ref={setNodeRef}
@@ -56,31 +104,45 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
       )}
     >
       {/* 카드 헤더 */}
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
-          {/* 드래그 핸들 */}
-          <button
-            {...attributes}
-            {...listeners}
-            aria-label="드래그하여 순서 변경"
-            className={cn(
-              "flex shrink-0 touch-none flex-col gap-0.5 rounded p-1",
-              isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-300 hover:text-slate-500"
-            )}
-          >
-            <span className="block h-0.5 w-4 rounded-full bg-current" />
-            <span className="block h-0.5 w-4 rounded-full bg-current" />
-            <span className="block h-0.5 w-4 rounded-full bg-current" />
-          </button>
+      <div className="flex items-center gap-2">
+        {/* 드래그 핸들 */}
+        <button
+          {...attributes}
+          {...listeners}
+          aria-label="드래그하여 순서 변경"
+          className={cn(
+            "flex shrink-0 touch-none flex-col gap-0.5 rounded p-1",
+            isDark ? "text-gray-500 hover:text-gray-300" : "text-slate-300 hover:text-slate-500"
+          )}
+        >
+          <span className="block h-0.5 w-4 rounded-full bg-current" />
+          <span className="block h-0.5 w-4 rounded-full bg-current" />
+          <span className="block h-0.5 w-4 rounded-full bg-current" />
+        </button>
 
-          <div className="min-w-0">
-            <h3 className={cn("text-base font-bold", isDark ? "text-white" : "text-slate-900")}>
-              {symbol}
-            </h3>
-            <p className={cn("truncate text-xs", isDark ? "text-gray-400" : "text-slate-500")}>
-              {companyName}
-            </p>
-          </div>
+        {/* 종목명 + 티커 */}
+        <div className="min-w-0 flex-1">
+          <p className={cn("truncate text-sm font-bold", isDark ? "text-white" : "text-slate-900")}>
+            {companyName}
+          </p>
+          <p className={cn("text-xs font-medium", isDark ? "text-gray-400" : "text-slate-400")}>
+            {symbol}
+          </p>
+        </div>
+
+        {/* 가격 + 변동률 (인라인) */}
+        <div className="flex shrink-0 flex-col items-end">
+          {isLoading ? (
+            <div className="animate-pulse space-y-1">
+              <div className="h-4 w-16 rounded bg-white/10" />
+              <div className="h-3 w-12 rounded bg-white/10" />
+            </div>
+          ) : displayPrice ? (
+            <>
+              <span className={cn("text-sm font-bold", priceColorClass)}>{displayPrice}</span>
+              <span className={cn("text-xs", priceColorClass)}>{displayPercent}</span>
+            </>
+          ) : null}
         </div>
 
         {/* 닫기 버튼 */}
@@ -98,11 +160,19 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
         </button>
       </div>
 
-      {/* 가격 정보 */}
-      <PriceDisplay
-        price={priceState.status === "success" ? priceState.data : null}
-        loading={priceState.status === "loading" || priceState.status === "idle"}
-      />
+      {/* 고가 / 저가 */}
+      {price && (
+        <div className={cn("mt-2 flex gap-3 text-xs", isDark ? "text-gray-400" : "text-slate-400")}>
+          <span>
+            <span className="mr-1 opacity-60">{t("stockBox.high")}</span>
+            <span className={upClass}>{displayHigh}</span>
+          </span>
+          <span>
+            <span className="mr-1 opacity-60">{t("stockBox.low")}</span>
+            <span className={downClass}>{displayLow}</span>
+          </span>
+        </div>
+      )}
 
       {/* 차트 */}
       {showChart && (
