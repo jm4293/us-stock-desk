@@ -53,15 +53,21 @@ export const StockBox: React.FC<StockBoxProps> = ({
   const showChart = useShowChart();
   const { status: marketStatus } = useMarketStatus();
 
-  // 차트 표시 여부 변경 및 마운트 시 최소 높이 보장
-  // size.height만 구독해 size 객체 참조 변경에 의한 무한 루프 방지
-  const sizeHeight = size.height;
   useEffect(() => {
-    const minH = showChart ? HEIGHT_WITH_CHART : HEIGHT_WITHOUT_CHART;
-    if (sizeHeight < minH) {
-      onSizeChange(id, { ...size, height: minH });
+    if (!showChart && size.height > HEIGHT_WITHOUT_CHART) {
+      onSizeChange(id, { ...size, height: HEIGHT_WITHOUT_CHART });
+    } else if (showChart && size.height < HEIGHT_WITH_CHART) {
+      onSizeChange(id, { ...size, height: HEIGHT_WITH_CHART });
     }
-  }, [showChart, sizeHeight, id, onSizeChange, size]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showChart]);
+
+  // useEffect(() => {
+  //   const minH = showChart ? HEIGHT_WITH_CHART : HEIGHT_WITHOUT_CHART;
+  //   if (sizeHeight < minH) {
+  //     onSizeChange(id, { ...size, height: minH });
+  //   }
+  // }, [showChart, sizeHeight, id, onSizeChange, size]);
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();

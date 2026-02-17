@@ -1,14 +1,14 @@
-import { BottomSheet } from "@/components/molecules";
+import { Modal } from "@/components/molecules";
 import {
   useColorScheme,
   useCurrency,
   useLanguage,
   useSettingsActions,
   useShowChart,
+  useShowToast,
   useTheme,
   useUIActions,
   useUIStore,
-  useShowToast,
 } from "@/stores";
 import { cn } from "@/utils/cn";
 import React from "react";
@@ -24,8 +24,9 @@ export const SettingsModal: React.FC = () => {
   const language = useLanguage();
   const currency = useCurrency();
   const showChart = useShowChart();
-  const isDark = theme === "dark";
   const showToast = useShowToast();
+
+  const isDark = theme === "dark";
 
   const handleSetting = (fn: () => void, message: string) => {
     fn();
@@ -42,7 +43,7 @@ export const SettingsModal: React.FC = () => {
     : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100";
 
   return (
-    <BottomSheet open={isSettingsOpen} onClose={closeSettings} isDark={isDark}>
+    <Modal open={isSettingsOpen} onClose={closeSettings}>
       <div className="mb-4">
         <h2 className={cn("text-lg font-bold", headingColor)}>{t("settings.title")}</h2>
       </div>
@@ -223,7 +224,7 @@ export const SettingsModal: React.FC = () => {
       >
         {t("common.done")}
       </button>
-    </BottomSheet>
+    </Modal>
   );
 };
 

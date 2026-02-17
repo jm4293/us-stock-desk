@@ -374,7 +374,7 @@ stock-desk/
 │   │   │   ├── PriceDisplay/
 │   │   │   ├── StockChart/      # Lightweight Charts 캔들스틱
 │   │   │   ├── KSTClock/        # 한국 시간 디지털 시계
-│   │   │   ├── BottomSheet/     # 모바일 바텀시트
+│   │   │   ├── Modal/           # 모달
 │   │   │   └── NetworkOfflineBanner/
 │   │   └── organisms/           # 분자 조합 복잡한 컴포넌트
 │   │       ├── Header/
@@ -472,7 +472,7 @@ stock-desk/
 ### Phase 5: 최적화 & 배포
 
 - [ ] 성능 최적화
-- [x] 반응형 디자인 (모바일 — MobileStockCard, BottomSheet)
+- [x] 반응형 디자인 (모바일 — MobileStockCard, Modal)
 - [ ] Google Analytics 연동
 - [ ] Sentry 연동
 - [ ] Vercel 배포

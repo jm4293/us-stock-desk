@@ -74,7 +74,7 @@
     "languageChanged": "언어가 {{value}}로 변경되었습니다",
     "currencyChanged": "통화가 {{value}}로 변경되었습니다",
     "colorSchemeChanged": "{{value}} 캔들 색상으로 변경되었습니다",
-    "chartChanged": "차트가 {{value}}"
+    "chartChanged": "차트 표시가 {{value}}로 변경되었습니다"
   },
   "splash": {
     "subtitle": "해외주식 대시보드",

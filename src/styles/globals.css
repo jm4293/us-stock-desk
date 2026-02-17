@@ -26,6 +26,10 @@
     overflow: hidden;
   }
 
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
   #root {
     @apply relative overflow-hidden;
   }

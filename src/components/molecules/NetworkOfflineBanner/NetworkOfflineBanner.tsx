@@ -1,13 +1,13 @@
+import { useNetworkStatus } from "@/hooks";
 import { cn } from "@/utils/cn";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-interface NetworkOfflineBannerProps {
-  isOnline: boolean;
-}
-
-export function NetworkOfflineBanner({ isOnline }: NetworkOfflineBannerProps) {
+export function NetworkOfflineBanner() {
   const { t } = useTranslation();
+
+  const { isOnline } = useNetworkStatus();
+
   // 다시 온라인이 됐을 때 잠깐 "연결됨" 메시지를 보여주기 위한 상태
   const [showReconnected, setShowReconnected] = useState(false);
   const [prevOnline, setPrevOnline] = useState(isOnline);
@@ -24,16 +24,18 @@ export function NetworkOfflineBanner({ isOnline }: NetworkOfflineBannerProps) {
 
   if (isOnline && !showReconnected) return null;
 
+  const isReconnecting = showReconnected && isOnline;
+
   return (
     <div
       role="alert"
       aria-live="assertive"
       className={cn(
         "relative z-[200] flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-colors",
-        showReconnected && isOnline ? "bg-green-600 text-white" : "bg-red-600 text-white"
+        isReconnecting ? "bg-green-600 text-white" : "bg-red-600 text-white"
       )}
     >
-      {showReconnected && isOnline ? (
+      {isReconnecting ? (
         <>
           <svg
             className="h-4 w-4 shrink-0"

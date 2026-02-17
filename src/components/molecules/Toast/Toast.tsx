@@ -1,4 +1,4 @@
-import { useToastStore, useTheme } from "@/stores";
+import { useTheme, useToastStore } from "@/stores";
 import { cn } from "@/utils/cn";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -62,8 +62,10 @@ const TYPE_COLORS = {
 };
 
 const ToastItem: React.FC<ToastItemProps> = ({ id, message, type, onRemove }) => {
-  const isDark = useTheme() === "dark";
+  const theme = useTheme();
   const [visible, setVisible] = useState(false);
+
+  const isDark = theme === "dark";
 
   useEffect(() => {
     // 마운트 직후 visible true → 슬라이드 인

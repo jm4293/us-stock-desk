@@ -1,13 +1,13 @@
-import { useEffect, useRef } from "react";
+import { useColorScheme, useTheme } from "@/stores";
+import type { StockChartData } from "@/types/stock";
 import {
+  type CandlestickData,
+  ColorType,
   createChart,
   type IChartApi,
   type ISeriesApi,
-  type CandlestickData,
-  ColorType,
 } from "lightweight-charts";
-import type { StockChartData } from "@/types/stock";
-import { useColorScheme, useTheme } from "@/stores";
+import { useEffect, useRef } from "react";
 
 interface StockChartProps {
   data: StockChartData[];
@@ -25,7 +25,7 @@ export function StockChart({ data }: StockChartProps) {
   const isDark = theme === "dark";
 
   const upColor = colorScheme === "kr" ? "#ef4444" : "#22c55e";
-  const downColor = colorScheme === "kr" ? "#60a5fa" : "#ef4444";
+  const downColor = colorScheme === "kr" ? "#2563eb" : "#ef4444";
 
   const chartTextColor = isDark ? "#9ca3af" : "#475569";
   const gridColor = isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)";

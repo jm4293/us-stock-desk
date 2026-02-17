@@ -1,34 +1,26 @@
 import { useIsMobile } from "@/hooks";
+import { useTheme } from "@/stores";
 import { cn } from "@/utils/cn";
 import React, { useEffect, useRef, useState } from "react";
 
-interface BottomSheetProps {
+interface ModalProps {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  /** 데스크톱 모달 max-width (기본 max-w-sm) */
-  maxWidth?: string;
-  isDark?: boolean;
+  // isDark: boolean;
   /** 자동완성 드롭다운 등 overflow가 필요할 때 true */
   allowOverflow?: boolean;
-  /** 모바일 패널 최소 높이 (기본값 없음). 예: "50vh" */
-  mobileMinHeight?: string;
 }
 
-export const BottomSheet: React.FC<BottomSheetProps> = ({
-  open,
-  onClose,
-  children,
-  maxWidth = "max-w-sm",
-  isDark = false,
-  allowOverflow = false,
-  mobileMinHeight,
-}) => {
+export const Modal: React.FC<ModalProps> = ({ open, onClose, children, allowOverflow = false }) => {
   const isMobile = useIsMobile();
+  const theme = useTheme();
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const animFrameRef = useRef<number | null>(null);
+
+  const isDark = theme === "dark";
 
   // visualViewport로 키보드가 올라올 때 실제 뷰포트 높이 추적 (Android 대응)
   useEffect(() => {
@@ -60,11 +52,9 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
   if (!mounted) return null;
 
-  // ── 모바일: Bottom Sheet ──
   if (isMobile) {
     return (
       <>
-        {/* 백드롭: fixed로 화면 전체 덮기 */}
         <div
           role="presentation"
           className={cn(
@@ -81,14 +71,13 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         {/* 패널 — fixed로 하단에서 위로 슬라이드 */}
         <div
           className={cn(
-            "fixed bottom-0 left-0 right-0 z-[1001] rounded-t-3xl transition-transform duration-700 ease-in-out will-change-transform",
+            "fixed bottom-0 left-0 right-0 z-[1001] min-h-[80vh] rounded-t-3xl transition-transform duration-700 ease-in-out will-change-transform",
             isDark ? "glass border-t border-white/10" : "border-t border-slate-200 bg-white",
             visible ? "translate-y-0" : "translate-y-full"
           )}
           style={{
             // visualViewport 높이 기준으로 패널 최대 높이 제한 (Android 키보드 대응)
             maxHeight: viewportHeight ? `${viewportHeight * 0.92}px` : "92dvh",
-            ...(mobileMinHeight ? { minHeight: mobileMinHeight } : {}),
           }}
         >
           {/* 드래그 핸들 바 */}
@@ -103,7 +92,6 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     );
   }
 
-  // ── 데스크톱: 중앙 모달 ──
   return (
     <div
       role="presentation"
@@ -121,8 +109,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     >
       <div
         className={cn(
-          "w-full rounded-2xl p-6 shadow-2xl transition-all duration-300",
-          maxWidth,
+          "w-full max-w-sm rounded-2xl p-6 shadow-2xl transition-all duration-300",
           isDark ? "glass" : "border border-slate-200 bg-white",
           allowOverflow ? "overflow-visible" : "",
           visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
@@ -134,4 +121,4 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   );
 };
 
-BottomSheet.displayName = "BottomSheet";
+Modal.displayName = "Modal";

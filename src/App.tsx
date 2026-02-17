@@ -7,9 +7,9 @@ import {
   SettingsModal,
   SplashScreen,
 } from "@/components/organisms";
-import { useExchangeRate, useIsMobile, useNetworkStatus, useWakeLock } from "@/hooks";
+import { useExchangeRate, useIsMobile, useWakeLock } from "@/hooks";
 import i18n from "@/i18n";
-import { stockSocket } from "@/services/websocket/stockSocket";
+import { stockSocket } from "@/services/websocket";
 import { useSettingsStore, useShowToast, useStockStore, useUIStore } from "@/stores";
 import { cn } from "@/utils/cn";
 import { useEffect, useState } from "react";
@@ -37,7 +37,6 @@ function App() {
   const language = useSettingsStore((state) => state.language);
   const { rate: exchangeRate } = useExchangeRate();
   const isMobile = useIsMobile();
-  const { isOnline } = useNetworkStatus();
   useWakeLock();
 
   // WebSocket 초기화 (앱 시작 시 1회)
@@ -68,9 +67,7 @@ function App() {
       )}
     >
       {/* 스플래시 화면 — key 고정으로 리마운트 방지 */}
-      {!splashDone && (
-        <SplashScreen key="splash" isDark={isDark} onComplete={() => setSplashDone(true)} />
-      )}
+      {!splashDone && <SplashScreen key="splash" onComplete={() => setSplashDone(true)} />}
 
       {/* 배경 그라디언트 */}
       <div
@@ -83,7 +80,7 @@ function App() {
       />
 
       {/* 네트워크 오프라인 배너 */}
-      <NetworkOfflineBanner isOnline={isOnline} />
+      <NetworkOfflineBanner />
 
       {/* 헤더 */}
       <div className="relative z-50">

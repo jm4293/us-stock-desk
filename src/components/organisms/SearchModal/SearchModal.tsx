@@ -1,5 +1,5 @@
-import { BottomSheet, SearchInput } from "@/components/molecules";
-import { useTheme, useStockStore, useUIActions, useUIStore, useShowToast } from "@/stores";
+import { Modal, SearchInput } from "@/components/molecules";
+import { useShowToast, useStockStore, useTheme, useUIActions, useUIStore } from "@/stores";
 import { cn } from "@/utils/cn";
 import React from "react";
 import { useTranslation } from "react-i18next";
@@ -20,13 +20,7 @@ export const SearchModal: React.FC = () => {
   };
 
   return (
-    <BottomSheet
-      open={isSearchOpen}
-      onClose={closeSearch}
-      isDark={isDark}
-      allowOverflow
-      mobileMinHeight="85vh"
-    >
+    <Modal open={isSearchOpen} onClose={closeSearch} allowOverflow>
       <h2 className={cn("mb-4 text-lg font-bold", isDark ? "text-white" : "text-slate-800")}>
         {t("search.title")}
       </h2>
@@ -42,7 +36,7 @@ export const SearchModal: React.FC = () => {
       >
         {t("common.done")}
       </button>
-    </BottomSheet>
+    </Modal>
   );
 };
 

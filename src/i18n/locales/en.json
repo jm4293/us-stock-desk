@@ -74,7 +74,7 @@
     "languageChanged": "Language changed to {{value}}",
     "currencyChanged": "Currency changed to {{value}}",
     "colorSchemeChanged": "{{value}} candle colors applied",
-    "chartChanged": "Chart {{value}}"
+    "chartChanged": "Chart display turned {{value}}"
   },
   "splash": {
     "subtitle": "Global Stock Dashboard",

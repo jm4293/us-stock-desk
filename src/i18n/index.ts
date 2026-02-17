@@ -1,11 +1,12 @@
+import { STORAGE_KEYS } from "@/constants";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import ko from "./locales/ko.json";
 import en from "./locales/en.json";
+import ko from "./locales/ko.json";
 
 const savedLanguage = (() => {
   try {
-    const raw = localStorage.getItem("stockdesk_settings_v1");
+    const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (!raw) return "ko";
     const decoded = JSON.parse(atob(raw));
     return decoded?.state?.language ?? "ko";

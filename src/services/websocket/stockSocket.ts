@@ -1,5 +1,5 @@
-import type { WebSocketMessage, TradeData } from "@/types/api";
-import { WEBSOCKET_URL, RECONNECT_DELAY, MAX_RECONNECT_ATTEMPTS } from "@/constants/api";
+import { MAX_RECONNECT_ATTEMPTS, RECONNECT_DELAY, WEBSOCKET_URL } from "@/constants/api";
+import type { TradeData, WebSocketMessage } from "@/types/api";
 
 type TradeCallback = (data: TradeData) => void;
 type ErrorCallback = () => void;

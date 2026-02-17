@@ -1,24 +1,26 @@
+import { useSettingsStore } from "@/stores";
 import { cn } from "@/utils/cn";
 import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 interface SplashScreenProps {
-  isDark: boolean;
   onComplete: () => void;
 }
 
-export const SplashScreen = ({ isDark, onComplete }: SplashScreenProps) => {
+export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   const { t } = useTranslation();
+
+  const theme = useSettingsStore((state) => state.theme);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
-  // onComplete를 ref로 보관 → 인라인 함수여도 useEffect 재실행 방지
-  const onCompleteRef = useRef(onComplete);
-  onCompleteRef.current = onComplete;
+
+  const isDark = theme === "dark";
 
   useEffect(() => {
     const tl = gsap.timeline({
@@ -28,7 +30,7 @@ export const SplashScreen = ({ isDark, onComplete }: SplashScreenProps) => {
           opacity: 0,
           duration: 0.5,
           ease: "power2.inOut",
-          onComplete: () => onCompleteRef.current(),
+          onComplete: () => onComplete(),
         });
       },
     });

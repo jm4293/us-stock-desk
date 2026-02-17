@@ -3,11 +3,11 @@ import { useColorScheme, useCurrency, useTheme } from "@/stores";
 import type { StockPrice } from "@/types/stock";
 import { cn } from "@/utils/cn";
 import {
-  formatUSD,
-  formatKRW,
-  formatChangeUSD,
   formatChangeKRW,
+  formatChangeUSD,
+  formatKRW,
   formatPercent,
+  formatUSD,
 } from "@/utils/formatters";
 import React from "react";
 import { useTranslation } from "react-i18next";
