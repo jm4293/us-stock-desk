@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { StockChartData, ChartTimeRange } from "@/types/stock";
 import type { AsyncState } from "@/types/common";
 import { fetchChartWithDedup } from "@/services/api/chartCache";
@@ -43,9 +43,18 @@ function mapYahooToChartData(result: YahooChartResult): StockChartData[] {
 
 export function useChartData(symbol: string, range: ChartTimeRange) {
   const [state, setState] = useState<AsyncState<StockChartData[]>>({ status: "idle" });
+  const hasLoadedRef = useRef(false);
+
+  // symbol/range 변경 시 최초 로딩 플래그 초기화
+  useEffect(() => {
+    hasLoadedRef.current = false;
+  }, [symbol, range]);
 
   const fetchCandles = useCallback(async () => {
-    setState({ status: "loading" });
+    // 최초 로딩만 "loading" 표시, 이후엔 기존 데이터 유지(깜빡임 방지)
+    if (!hasLoadedRef.current) {
+      setState({ status: "loading" });
+    }
     try {
       const response = await fetchChartWithDedup(symbol, range);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -57,12 +66,15 @@ export function useChartData(symbol: string, range: ChartTimeRange) {
       }
 
       const chartData = mapYahooToChartData(data.chart.result[0]);
+      hasLoadedRef.current = true;
       setState({ status: "success", data: chartData });
     } catch (error) {
-      setState({
-        status: "error",
-        error: error instanceof Error ? error.message : "Failed to fetch",
-      });
+      if (!hasLoadedRef.current) {
+        setState({
+          status: "error",
+          error: error instanceof Error ? error.message : "Failed to fetch",
+        });
+      }
     }
   }, [symbol, range]);
 

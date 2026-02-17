@@ -22,41 +22,30 @@ const STATUS_COLORS: Record<MarketStatus, string> = {
 };
 
 const TOOLTIP_WIDTH = 288; // px (w-72)
+const krwFormatter = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
 
 interface TooltipPos {
   top: number;
   left: number;
 }
 
-/** Portal로 body에 직접 마운트 — stacking context 우회 */
-const MarketTooltip = ({
-  isDST,
-  isDark,
-  isMobile,
-  anchorEl,
-}: {
+interface MarketTooltipBaseProps {
   isDST: boolean;
   isDark: boolean;
-  isMobile: boolean;
   anchorEl: HTMLElement | null;
-}) => {
-  const { t } = useTranslation();
-  const [pos, setPos] = useState<TooltipPos>({ top: 0, left: 0 });
+  children: React.ReactNode;
+}
 
-  useEffect(() => {
-    if (!anchorEl) return;
-    const rect = anchorEl.getBoundingClientRect();
-    // 뷰포트 오른쪽 끝을 넘지 않도록 left 값 클램프
-    const rawLeft = rect.left + window.scrollX;
-    const maxLeft = window.innerWidth - TOOLTIP_WIDTH - 8;
-    setPos({
-      top: rect.bottom + window.scrollY + 8,
-      left: Math.min(rawLeft, maxLeft),
-    });
-  }, [anchorEl]);
+type SessionItem = {
+  key: "pre" | "open" | "post" | "closed";
+  color: string;
+  etKey: string;
+  kstKey: string;
+};
 
+function useTooltipSessions(isDST: boolean): SessionItem[] {
   const dst = isDST ? "EDT" : "EST";
-  const sessions = [
+  return [
     {
       key: "pre",
       color: "bg-yellow-400",
@@ -81,7 +70,25 @@ const MarketTooltip = ({
       etKey: `market.tooltip.closedTime${dst}`,
       kstKey: `market.tooltip.closedTimeKST${dst}`,
     },
-  ] as const;
+  ];
+}
+
+/** Portal로 body에 직접 마운트 — stacking context 우회 */
+const MarketTooltipBase = ({ isDST, isDark, anchorEl, children }: MarketTooltipBaseProps) => {
+  const { t } = useTranslation();
+  const [pos, setPos] = useState<TooltipPos>({ top: 0, left: 0 });
+
+  useEffect(() => {
+    if (!anchorEl) return;
+    const rect = anchorEl.getBoundingClientRect();
+    // 뷰포트 오른쪽 끝을 넘지 않도록 left 값 클램프
+    const rawLeft = rect.left + window.scrollX;
+    const maxLeft = window.innerWidth - TOOLTIP_WIDTH - 8;
+    setPos({
+      top: rect.bottom + window.scrollY + 8,
+      left: Math.min(rawLeft, maxLeft),
+    });
+  }, [anchorEl]);
 
   return createPortal(
     <div
@@ -96,126 +103,148 @@ const MarketTooltip = ({
       <p className={cn("mb-1 text-xs font-semibold", isDark ? "text-white" : "text-slate-900")}>
         {t("market.tooltip.title")}
       </p>
-
       {/* DST 상태 */}
       <p className={cn("mb-3 text-xs", isDark ? "text-gray-400" : "text-slate-500")}>
         {isDST ? t("market.tooltip.dstActive") : t("market.tooltip.dstInactive")}
       </p>
+      {children}
+    </div>,
+    document.body
+  );
+};
 
-      {isMobile ? (
-        /* 모바일: 세션명 상단, ET/KST 시간 아래에 한 줄씩 */
-        <div className="space-y-3">
-          {sessions.map(({ key, color, etKey, kstKey }) => (
-            <div key={key}>
-              {/* 세션명 */}
-              <div className="mb-1 flex items-center gap-2">
-                <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", color)} />
-                <span
-                  className={cn("text-xs font-medium", isDark ? "text-gray-300" : "text-slate-700")}
-                >
-                  {t(`market.tooltip.${key}`)}
-                </span>
-              </div>
-              {/* ET / KST 시간 */}
-              <div className="ml-3.5 flex gap-4">
-                <div>
-                  <span
-                    className={cn(
-                      "block text-xs font-medium",
-                      isDark ? "text-gray-500" : "text-slate-400"
-                    )}
-                  >
-                    {t("market.tooltip.etLabel")}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-xs tabular-nums",
-                      isDark ? "text-gray-400" : "text-slate-600"
-                    )}
-                  >
-                    {t(etKey)}
-                  </span>
-                </div>
-                <div>
-                  <span
-                    className={cn(
-                      "block text-xs font-medium",
-                      isDark ? "text-gray-500" : "text-slate-400"
-                    )}
-                  >
-                    {t("market.tooltip.kstLabel")}
-                  </span>
-                  <span
-                    className={cn(
-                      "text-xs tabular-nums",
-                      isDark ? "text-gray-400" : "text-slate-600"
-                    )}
-                  >
-                    {t(kstKey)}
-                  </span>
-                </div>
-              </div>
+/** 모바일: 세션명 상단, ET/KST 시간 아래에 한 줄씩 */
+const MarketTooltipMobile = ({
+  isDST,
+  isDark,
+  anchorEl,
+}: Omit<MarketTooltipBaseProps, "children">) => {
+  const { t } = useTranslation();
+  const sessions = useTooltipSessions(isDST);
+
+  return (
+    <MarketTooltipBase isDST={isDST} isDark={isDark} anchorEl={anchorEl}>
+      <div className="space-y-3">
+        {sessions.map(({ key, color, etKey, kstKey }) => (
+          <div key={key}>
+            <div className="mb-1 flex items-center gap-2">
+              <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", color)} />
+              <span
+                className={cn("text-xs font-medium", isDark ? "text-gray-300" : "text-slate-700")}
+              >
+                {t(`market.tooltip.${key}`)}
+              </span>
             </div>
-          ))}
-        </div>
-      ) : (
-        /* 데스크톱: 세션명 | ET 시간 | KST 시간 한 줄 */
-        <table className="w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="w-full pb-1" />
-              <th
-                className={cn(
-                  "whitespace-nowrap pb-1 pr-0 text-right text-xs font-medium",
-                  isDark ? "text-gray-500" : "text-slate-400"
-                )}
-              >
-                {t("market.tooltip.etLabel")}
-              </th>
-              <th
-                className={cn(
-                  "whitespace-nowrap pb-1 pl-4 text-right text-xs font-medium",
-                  isDark ? "text-gray-500" : "text-slate-400"
-                )}
-              >
-                {t("market.tooltip.kstLabel")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessions.map(({ key, color, etKey, kstKey }) => (
-              <tr key={key}>
-                <td className="py-1">
-                  <div className="flex items-center gap-2">
-                    <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", color)} />
-                    <span className={cn("text-xs", isDark ? "text-gray-300" : "text-slate-700")}>
-                      {t(`market.tooltip.${key}`)}
-                    </span>
-                  </div>
-                </td>
-                <td
+            <div className="ml-3.5 flex gap-4">
+              <div>
+                <span
                   className={cn(
-                    "whitespace-nowrap py-1 pr-0 text-right text-xs tabular-nums",
+                    "block text-xs font-medium",
                     isDark ? "text-gray-500" : "text-slate-400"
                   )}
                 >
-                  {t(etKey)}
-                </td>
-                <td
+                  {t("market.tooltip.etLabel")}
+                </span>
+                <span
                   className={cn(
-                    "whitespace-nowrap py-1 pl-4 text-right text-xs tabular-nums",
+                    "text-xs tabular-nums",
+                    isDark ? "text-gray-400" : "text-slate-600"
+                  )}
+                >
+                  {t(etKey)}
+                </span>
+              </div>
+              <div>
+                <span
+                  className={cn(
+                    "block text-xs font-medium",
+                    isDark ? "text-gray-500" : "text-slate-400"
+                  )}
+                >
+                  {t("market.tooltip.kstLabel")}
+                </span>
+                <span
+                  className={cn(
+                    "text-xs tabular-nums",
                     isDark ? "text-gray-400" : "text-slate-600"
                   )}
                 >
                   {t(kstKey)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>,
-    document.body
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </MarketTooltipBase>
+  );
+};
+
+/** 데스크톱: 세션명 | ET 시간 | KST 시간 한 줄 */
+const MarketTooltipDesktop = ({
+  isDST,
+  isDark,
+  anchorEl,
+}: Omit<MarketTooltipBaseProps, "children">) => {
+  const { t } = useTranslation();
+  const sessions = useTooltipSessions(isDST);
+
+  return (
+    <MarketTooltipBase isDST={isDST} isDark={isDark} anchorEl={anchorEl}>
+      <table className="w-full border-collapse">
+        <thead>
+          <tr>
+            <th className="w-full pb-1" />
+            <th
+              className={cn(
+                "whitespace-nowrap pb-1 pr-0 text-right text-xs font-medium",
+                isDark ? "text-gray-500" : "text-slate-400"
+              )}
+            >
+              {t("market.tooltip.etLabel")}
+            </th>
+            <th
+              className={cn(
+                "whitespace-nowrap pb-1 pl-4 text-right text-xs font-medium",
+                isDark ? "text-gray-500" : "text-slate-400"
+              )}
+            >
+              {t("market.tooltip.kstLabel")}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {sessions.map(({ key, color, etKey, kstKey }) => (
+            <tr key={key}>
+              <td className="py-1">
+                <div className="flex items-center gap-2">
+                  <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", color)} />
+                  <span className={cn("text-xs", isDark ? "text-gray-300" : "text-slate-700")}>
+                    {t(`market.tooltip.${key}`)}
+                  </span>
+                </div>
+              </td>
+              <td
+                className={cn(
+                  "whitespace-nowrap py-1 pr-0 text-right text-xs tabular-nums",
+                  isDark ? "text-gray-500" : "text-slate-400"
+                )}
+              >
+                {t(etKey)}
+              </td>
+              <td
+                className={cn(
+                  "whitespace-nowrap py-1 pl-4 text-right text-xs tabular-nums",
+                  isDark ? "text-gray-400" : "text-slate-600"
+                )}
+              >
+                {t(kstKey)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </MarketTooltipBase>
   );
 };
 
@@ -234,9 +263,7 @@ export const Header = memo(function Header({
   const [showTooltip, setShowTooltip] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
 
-  const formattedRate = new Intl.NumberFormat("ko-KR", {
-    maximumFractionDigits: 0,
-  }).format(exchangeRate);
+  const formattedRate = krwFormatter.format(exchangeRate);
 
   return (
     <header className={cn("glass flex items-center justify-between px-4 py-3", className)}>
@@ -267,12 +294,7 @@ export const Header = memo(function Header({
               <KSTClock mobileOnly />
             </span>
             {showTooltip && (
-              <MarketTooltip
-                isDST={isDST}
-                isDark={isDark}
-                isMobile={true}
-                anchorEl={triggerRef.current}
-              />
+              <MarketTooltipMobile isDST={isDST} isDark={isDark} anchorEl={triggerRef.current} />
             )}
           </div>
         ) : (
@@ -297,12 +319,7 @@ export const Header = memo(function Header({
               </div>
 
               {showTooltip && (
-                <MarketTooltip
-                  isDST={isDST}
-                  isDark={isDark}
-                  isMobile={false}
-                  anchorEl={triggerRef.current}
-                />
+                <MarketTooltipDesktop isDST={isDST} isDark={isDark} anchorEl={triggerRef.current} />
               )}
 
               <span className="text-gray-600">|</span>

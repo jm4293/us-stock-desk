@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { useShallow } from "zustand/react/shallow";
 import type { StockBox, Position, Size } from "@/types/stock";
 import type { StockState, StockActions } from "@/types/store";
 import { STORAGE_KEYS, STOCK_BOX } from "@/constants/app";
@@ -18,7 +19,8 @@ export const useStockStore = create<StockStore>()(
         addStock: (symbol: string, companyName: string) => {
           set((state) => {
             const newZIndex = state.maxZIndex + 1;
-            const offset = state.stocks.length * 30;
+            // maxZIndex는 삭제 후에도 감소하지 않으므로 항상 고유한 오프셋 보장
+            const offset = (newZIndex - 1) * 30;
             const newStock: StockBox = {
               id: crypto.randomUUID(),
               symbol: symbol.toUpperCase(),
@@ -129,11 +131,13 @@ export const useStockStore = create<StockStore>()(
 export const useStocks = () => useStockStore((state) => state.stocks);
 export const useFocusedStockId = () => useStockStore((state) => state.focusedStockId);
 export const useStockActions = () =>
-  useStockStore((state) => ({
-    addStock: state.addStock,
-    removeStock: state.removeStock,
-    updatePosition: state.updatePosition,
-    updateSize: state.updateSize,
-    setFocused: state.setFocused,
-    bringToFront: state.bringToFront,
-  }));
+  useStockStore(
+    useShallow((state) => ({
+      addStock: state.addStock,
+      removeStock: state.removeStock,
+      updatePosition: state.updatePosition,
+      updateSize: state.updateSize,
+      setFocused: state.setFocused,
+      bringToFront: state.bringToFront,
+    }))
+  );

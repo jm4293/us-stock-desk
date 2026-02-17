@@ -63,10 +63,10 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
   useEffect(() => {
     if (!showDropdown) return;
     updateDropdownRect();
-    window.addEventListener("scroll", updateDropdownRect, true);
-    window.addEventListener("resize", updateDropdownRect);
+    window.addEventListener("scroll", updateDropdownRect, { capture: true, passive: true });
+    window.addEventListener("resize", updateDropdownRect, { passive: true });
     return () => {
-      window.removeEventListener("scroll", updateDropdownRect, true);
+      window.removeEventListener("scroll", updateDropdownRect, { capture: true });
       window.removeEventListener("resize", updateDropdownRect);
     };
   }, [showDropdown, updateDropdownRect]);
