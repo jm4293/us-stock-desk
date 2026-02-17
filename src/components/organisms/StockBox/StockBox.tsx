@@ -2,7 +2,7 @@ import { Button } from "@/components/atoms";
 import { PriceDisplay, StockChart } from "@/components/molecules";
 import { STOCK_BOX } from "@/constants/app";
 import { useChartData, useMarketStatus, useStockData } from "@/hooks";
-import { useShowChart, useTheme } from "@/stores";
+import { useColorScheme, useShowChart, useTheme } from "@/stores";
 import type { ChartTimeRange, Position, Size } from "@/types/stock";
 import { cn } from "@/utils/cn";
 import React, { useEffect, useRef, useState } from "react";
@@ -54,8 +54,44 @@ export const StockBox: React.FC<StockBoxProps> = ({
   const showChart = useShowChart();
   const theme = useTheme();
   const isDark = theme === "dark";
+  const colorScheme = useColorScheme();
   const { status: marketStatus } = useMarketStatus();
   const isMounted = useRef(false);
+
+  const prevPriceRef = useRef<number | null>(null);
+  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const currentPrice = priceState.status === "success" ? priceState.data.current : null;
+
+  useEffect(() => {
+    if (currentPrice === null) return;
+    const prev = prevPriceRef.current;
+    if (prev !== null && prev !== currentPrice) {
+      const direction = currentPrice > prev ? "up" : "down";
+      setFlashDirection(direction);
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+      flashTimerRef.current = setTimeout(() => setFlashDirection(null), 600);
+    }
+    prevPriceRef.current = currentPrice;
+  }, [currentPrice]);
+
+  useEffect(() => {
+    return () => {
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    };
+  }, []);
+
+  const flashRingClass =
+    flashDirection === "up"
+      ? colorScheme === "kr"
+        ? "outline outline-2 outline-red-500"
+        : "outline outline-2 outline-green-400"
+      : flashDirection === "down"
+        ? colorScheme === "kr"
+          ? "outline outline-2 outline-blue-500"
+          : "outline outline-2 outline-red-500"
+        : null;
 
   useEffect(() => {
     if (!isMounted.current) {
@@ -140,7 +176,9 @@ export const StockBox: React.FC<StockBoxProps> = ({
         className={cn(
           "glass w-full cursor-grab rounded-xl transition-all duration-200 active:cursor-grabbing",
           showChart && "flex h-full flex-col",
-          focused && "z-50 shadow-2xl ring-1 ring-white/30"
+          focused && !flashDirection && "z-50 shadow-2xl outline outline-1 outline-white/30",
+          focused && flashDirection && "z-50 shadow-2xl",
+          flashRingClass
         )}
         onClick={handleClick}
         onKeyDown={handleKeyDown}

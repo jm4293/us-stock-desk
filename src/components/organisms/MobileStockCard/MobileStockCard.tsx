@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -49,6 +49,41 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
   const rawPrice = priceState.status === "success" ? priceState.data : null;
   const price = rawPrice?.current ? rawPrice : null;
   const isLoading = priceState.status === "loading" || priceState.status === "idle" || !price;
+
+  const prevPriceRef = useRef<number | null>(null);
+  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
+  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const currentPrice = price?.current ?? null;
+
+  useEffect(() => {
+    if (currentPrice === null) return;
+    const prev = prevPriceRef.current;
+    if (prev !== null && prev !== currentPrice) {
+      const direction = currentPrice > prev ? "up" : "down";
+      setFlashDirection(direction);
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+      flashTimerRef.current = setTimeout(() => setFlashDirection(null), 600);
+    }
+    prevPriceRef.current = currentPrice;
+  }, [currentPrice]);
+
+  useEffect(() => {
+    return () => {
+      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+    };
+  }, []);
+
+  const flashRingClass =
+    flashDirection === "up"
+      ? colorScheme === "kr"
+        ? "outline outline-2 outline-red-500"
+        : "outline outline-2 outline-green-400"
+      : flashDirection === "down"
+        ? colorScheme === "kr"
+          ? "outline outline-2 outline-blue-500"
+          : "outline outline-2 outline-red-500"
+        : null;
 
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-600" : "text-down-us";
@@ -119,9 +154,10 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "rounded-2xl border p-4 shadow-sm transition-shadow",
+        "rounded-2xl border p-4 shadow-sm transition-all duration-200",
         isDark ? "glass" : "border-slate-200 bg-white shadow-slate-100",
-        isDragging && "shadow-2xl"
+        isDragging && "shadow-2xl",
+        flashRingClass
       )}
     >
       {/* 카드 헤더 */}
