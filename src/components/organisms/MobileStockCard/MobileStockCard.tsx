@@ -3,9 +3,15 @@ import { useTranslation } from "react-i18next";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/utils/cn";
-import { formatUSD, formatKRW, formatPercent } from "@/utils/formatters";
+import {
+  formatUSD,
+  formatKRW,
+  formatChangeUSD,
+  formatChangeKRW,
+  formatPercent,
+} from "@/utils/formatters";
 import { StockChart } from "@/components/molecules";
-import { useMobileStockCard } from "@/hooks";
+import { useMobileStockCard, useMarketStatus } from "@/hooks";
 import type { ChartTimeRange } from "@/types/stock";
 
 const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];
@@ -27,6 +33,7 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
   const [range, setRange] = useState<ChartTimeRange>("1W");
   const { isDark, priceState, chartState, showChart, colorScheme, currency, exchangeRate } =
     useMobileStockCard(symbol, range);
+  const { status: marketStatus } = useMarketStatus();
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,
@@ -68,6 +75,38 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
       ? formatKRW(price.low * exchangeRate)
       : formatUSD(price.low)
     : null;
+
+  // 확장시간 세션 레이블 (current가 이미 확장가로 교체된 상태)
+  const sessionLabel =
+    marketStatus === "pre"
+      ? t("stockBox.preMarket")
+      : marketStatus === "post"
+        ? t("stockBox.postMarket")
+        : null;
+
+  // 정규장 종가 (확장시간 중 보조 표시용)
+  const isExtendedHours = marketStatus === "pre" || marketStatus === "post";
+  const displayClose =
+    isExtendedHours && price && price.close > 0
+      ? currency === "KRW"
+        ? formatKRW(price.close * exchangeRate)
+        : formatUSD(price.close)
+      : null;
+
+  // closed 상태에서 postMarket 보조 표시
+  const closedPostMarket = marketStatus === "closed" && price ? price.postMarket : null;
+  const displayClosedPost = closedPostMarket
+    ? currency === "KRW"
+      ? formatKRW(closedPostMarket.price * exchangeRate)
+      : formatUSD(closedPostMarket.price)
+    : null;
+  const closedPostChange = closedPostMarket
+    ? currency === "KRW"
+      ? formatChangeKRW(closedPostMarket.change * exchangeRate)
+      : formatChangeUSD(closedPostMarket.change)
+    : null;
+  const isClosedPostPositive = closedPostMarket ? closedPostMarket.change >= 0 : true;
+  const closedPostColorClass = isClosedPostPositive ? upClass : downClass;
 
   return (
     <div
@@ -115,7 +154,19 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
             </div>
           ) : displayPrice ? (
             <>
-              <span className={cn("text-sm font-bold", priceColorClass)}>{displayPrice}</span>
+              <div className="flex items-center gap-1">
+                <span className={cn("text-sm font-bold", priceColorClass)}>{displayPrice}</span>
+                {sessionLabel && (
+                  <span
+                    className={cn(
+                      "rounded px-1 py-0.5 text-xs font-medium",
+                      isDark ? "bg-white/10 text-gray-300" : "bg-slate-100 text-slate-500"
+                    )}
+                  >
+                    {sessionLabel}
+                  </span>
+                )}
+              </div>
               <span className={cn("text-xs", priceColorClass)}>{displayPercent}</span>
             </>
           ) : null}
@@ -151,6 +202,37 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
           <span>
             <span className="mr-1 opacity-60">{t("stockBox.low")}</span>
             <span className={downClass}>{displayLow}</span>
+          </span>
+        </div>
+      )}
+
+      {/* 애프터마켓 (closed 상태에서 보조 표시) */}
+      {!isLoading && displayClosedPost && (
+        <div
+          className={cn(
+            "mt-1 flex items-center gap-1.5 text-xs",
+            isDark ? "text-gray-500" : "text-slate-400"
+          )}
+        >
+          <span>{t("stockBox.postMarket")}</span>
+          <span className={cn("tabular-nums", closedPostColorClass)}>{displayClosedPost}</span>
+          {closedPostChange && (
+            <span className={cn("tabular-nums", closedPostColorClass)}>{closedPostChange}</span>
+          )}
+        </div>
+      )}
+
+      {/* 정규장 종가 (확장시간 중 보조 표시) */}
+      {!isLoading && displayClose && (
+        <div
+          className={cn(
+            "mt-1 flex items-center gap-1.5 text-xs",
+            isDark ? "text-gray-500" : "text-slate-400"
+          )}
+        >
+          <span>{t("stockBox.regularClose")}</span>
+          <span className={cn("tabular-nums", isDark ? "text-gray-400" : "text-slate-500")}>
+            {displayClose}
           </span>
         </div>
       )}

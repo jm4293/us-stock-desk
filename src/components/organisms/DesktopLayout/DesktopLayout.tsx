@@ -1,12 +1,12 @@
-import { StockBox } from "@/components/organisms";
 import { EmptyState } from "@/components/molecules";
+import { StockBox } from "@/components/organisms";
 import { useStockStore } from "@/stores";
 
 interface DesktopCanvasProps {
   onRemoveStock: (id: string) => void;
 }
 
-export function DesktopCanvas({ onRemoveStock }: DesktopCanvasProps) {
+export function DesktopLayout({ onRemoveStock }: DesktopCanvasProps) {
   const stocks = useStockStore((state) => state.stocks);
   const focusedStockId = useStockStore((state) => state.focusedStockId);
   const updatePosition = useStockStore((state) => state.updatePosition);

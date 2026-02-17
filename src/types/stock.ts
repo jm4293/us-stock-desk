@@ -19,6 +19,14 @@ export interface StockBox {
   updated: number;
 }
 
+/** 프리마켓 / 애프터마켓 가격 정보 */
+export interface ExtendedHoursPrice {
+  price: number;
+  change: number;
+  changePercent: number;
+  timestamp: number;
+}
+
 export interface StockPrice {
   symbol: string;
   current: number;
@@ -30,6 +38,10 @@ export interface StockPrice {
   changePercent: number;
   volume: number;
   timestamp: number;
+  /** 프리마켓 가격 (장 시작 전에만 유효) */
+  preMarket?: ExtendedHoursPrice;
+  /** 애프터마켓 가격 (장 종료 후에만 유효) */
+  postMarket?: ExtendedHoursPrice;
 }
 
 export interface StockChartData {

@@ -148,7 +148,6 @@ html.light .glass h2,
 html.light .glass h3,
 html.light .glass h4,
 html.light .glass p,
-html.light .glass span,
 html.light .glass button {
   color: inherit;
 }
@@ -165,6 +164,28 @@ html.light .text-gray-400 {
 html.light .text-gray-500,
 html.light .text-gray-600 {
   color: rgb(71, 85, 105);
+}
+
+/* 라이트 모드에서 상승/하락 색상 클래스 보호 — gray override보다 높은 specificity */
+html.light .text-up-kr,
+html.light .glass .text-up-kr {
+  color: #ef4444;
+}
+html.light .text-down-kr,
+html.light .glass .text-down-kr {
+  color: #3b82f6;
+}
+html.light .text-up-us,
+html.light .glass .text-up-us {
+  color: #22c55e;
+}
+html.light .text-down-us,
+html.light .glass .text-down-us {
+  color: #ef4444;
+}
+html.light .text-blue-600,
+html.light .glass .text-blue-600 {
+  color: #2563eb;
 }
 /* ===================== 라이트 모드 오버라이드 끝 ===================== */
 

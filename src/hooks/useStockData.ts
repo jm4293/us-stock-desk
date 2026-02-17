@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import type { StockPrice } from "@/types/stock";
 import type { AsyncState } from "@/types/common";
 import type { TradeData } from "@/types/api";
-import { finnhubApi } from "@/services/api/finnhubApi";
+import { finnhubApi, getExtendedHours } from "@/services/api/finnhubApi";
 import { stockSocket } from "@/services/websocket/stockSocket";
 import { POLLING_INTERVAL } from "@/constants/api";
 import { useMarketStatus } from "@/hooks/useMarketStatus";
@@ -19,7 +19,11 @@ export function useStockData(symbol: string) {
   // Polling fallback 여부 (WebSocket 연결 실패 시 true)
   const [wsFailedFallback, setWsFailedFallback] = useState(false);
 
-  const { isRegularHours } = useMarketStatus();
+  const { isRegularHours, status: marketStatus } = useMarketStatus();
+
+  // marketStatus를 ref로 보관 → fetchPrice 클로저가 항상 최신값을 읽도록
+  const marketStatusRef = useRef(marketStatus);
+  marketStatusRef.current = marketStatus;
 
   // ─── Polling: 최초 및 갱신 시 loading 표시 없이 데이터 교체 ───────────────
   const fetchPrice = useCallback(async () => {
@@ -31,13 +35,41 @@ export function useStockData(symbol: string) {
     const result = await finnhubApi.getQuote(symbol);
     if (result.success && result.data) {
       hasLoadedOnce.current = true;
-      currentData.current = result.data;
-      setState({ status: "success", data: result.data });
+
+      let priceData = result.data;
+
+      // 정규장 외 시간에는 Yahoo Finance에서 확장 거래 데이터를 가져와 병합
+      // ref를 통해 최신 marketStatus를 읽으므로 클로저 stale 문제 없음
+      const currentMarketStatus = marketStatusRef.current;
+      if (currentMarketStatus !== "open") {
+        const extResult = await getExtendedHours(symbol);
+        if (extResult.success && extResult.data) {
+          priceData = { ...priceData, ...extResult.data };
+
+          // 프리/애프터마켓 중에는 확장 거래 가격을 현재가로 교체
+          // closed 상태에서는 종가를 그대로 유지하고 postMarket을 보조로만 표시
+          if (currentMarketStatus === "pre" || currentMarketStatus === "post") {
+            const extPrice =
+              currentMarketStatus === "pre" ? extResult.data.preMarket : extResult.data.postMarket;
+            if (extPrice) {
+              priceData = {
+                ...priceData,
+                current: extPrice.price,
+                change: extPrice.change,
+                changePercent: extPrice.changePercent,
+              };
+            }
+          }
+        }
+      }
+
+      currentData.current = priceData;
+      setState({ status: "success", data: priceData });
     } else if (!hasLoadedOnce.current) {
       // 아직 한 번도 성공한 적 없을 때만 에러 표시
       setState({ status: "error", error: result.error ?? "Failed to fetch" });
     }
-  }, [symbol]);
+  }, [symbol]); // marketStatus는 ref로 읽으므로 deps 불필요
 
   // ─── WebSocket 트레이드 수신 핸들러 ────────────────────────────────────────
   const handleTrade = useCallback((trade: TradeData) => {
@@ -70,7 +102,7 @@ export function useStockData(symbol: string) {
     const usePolling = wsFailedFallback || !isRegularHours;
 
     if (usePolling) {
-      // Polling 모드
+      // Polling 모드 (marketStatus 포함한 최신 fetchPrice 사용)
       fetchPrice();
       const interval = setInterval(fetchPrice, POLLING_INTERVAL);
       return () => clearInterval(interval);

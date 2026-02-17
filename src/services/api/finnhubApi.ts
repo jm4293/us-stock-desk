@@ -1,5 +1,5 @@
 import type { FinnhubQuote, FinnhubCandle, ApiResponse } from "@/types/api";
-import type { StockPrice, StockChartData, ChartTimeRange } from "@/types/stock";
+import type { StockPrice, StockChartData, ChartTimeRange, ExtendedHoursPrice } from "@/types/stock";
 import { API_ENDPOINTS } from "@/constants/api";
 
 const CHART_RESOLUTION: Record<ChartTimeRange, string> = {
@@ -128,3 +128,71 @@ export const finnhubApi = {
     return fetchFromProxy(`/stock-proxy?type=search&q=${encodeURIComponent(query)}`);
   },
 };
+
+/** Yahoo Finance v7 응답에서 extended hours 가격을 추출합니다 */
+function parseYahooExtendedHours(
+  result: Record<string, unknown>
+): Pick<StockPrice, "preMarket" | "postMarket"> {
+  const preMarketPrice = result.preMarketPrice as number | undefined;
+  const preMarketChange = result.preMarketChange as number | undefined;
+  const preMarketChangePercent = result.preMarketChangePercent as number | undefined;
+  const preMarketTime = result.preMarketTime as number | undefined;
+
+  const postMarketPrice = result.postMarketPrice as number | undefined;
+  const postMarketChange = result.postMarketChange as number | undefined;
+  const postMarketChangePercent = result.postMarketChangePercent as number | undefined;
+  const postMarketTime = result.postMarketTime as number | undefined;
+
+  const pre: ExtendedHoursPrice | undefined =
+    preMarketPrice && preMarketPrice > 0
+      ? {
+          price: preMarketPrice,
+          change: preMarketChange ?? 0,
+          changePercent: preMarketChangePercent ?? 0,
+          timestamp: (preMarketTime ?? 0) * 1000,
+        }
+      : undefined;
+
+  const post: ExtendedHoursPrice | undefined =
+    postMarketPrice && postMarketPrice > 0
+      ? {
+          price: postMarketPrice,
+          change: postMarketChange ?? 0,
+          changePercent: postMarketChangePercent ?? 0,
+          timestamp: (postMarketTime ?? 0) * 1000,
+        }
+      : undefined;
+
+  return { preMarket: pre, postMarket: post };
+}
+
+/** 프리마켓 / 애프터마켓 가격을 Yahoo Finance에서 가져옵니다 */
+export async function getExtendedHours(
+  symbol: string
+): Promise<ApiResponse<Pick<StockPrice, "preMarket" | "postMarket">>> {
+  try {
+    const response = await fetch(`${API_ENDPOINTS.PROXY_BASE}/extended-hours?symbol=${symbol}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+    const json = (await response.json()) as {
+      quoteResponse?: { result?: Record<string, unknown>[] };
+    };
+    const result = json?.quoteResponse?.result?.[0];
+    if (!result) {
+      return {
+        data: { preMarket: undefined, postMarket: undefined },
+        success: true,
+        timestamp: Date.now(),
+      };
+    }
+    return {
+      data: parseYahooExtendedHours(result),
+      success: true,
+      timestamp: Date.now(),
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return { data: null, success: false, error: message, timestamp: Date.now() };
+  }
+}

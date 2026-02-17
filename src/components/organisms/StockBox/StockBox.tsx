@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import { Rnd } from "react-rnd";
-import { cn } from "@/utils/cn";
 import { Button } from "@/components/atoms";
 import { PriceDisplay, StockChart } from "@/components/molecules";
-import { useStockData, useChartData } from "@/hooks";
+import { useChartData, useMarketStatus, useStockData } from "@/hooks";
 import { useShowChart } from "@/stores";
-import type { Position, Size, ChartTimeRange } from "@/types/stock";
+import type { ChartTimeRange, Position, Size } from "@/types/stock";
+import { cn } from "@/utils/cn";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Rnd } from "react-rnd";
 
 // 차트 표시 여부에 따른 최소/기본 높이
+// 확장시간 보조 행(정규장 종가, 애프터마켓)이 추가될 수 있어 여유 있게 설정
 const HEIGHT_WITH_CHART = 300;
-const HEIGHT_WITHOUT_CHART = 160;
+const HEIGHT_WITHOUT_CHART = 200;
 
 const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];
 
@@ -50,13 +51,13 @@ export const StockBox: React.FC<StockBoxProps> = ({
   const { state: priceState } = useStockData(symbol);
   const { state: chartState } = useChartData(symbol, range);
   const showChart = useShowChart();
+  const { status: marketStatus } = useMarketStatus();
 
-  // 차트 표시 여부 변경 시 박스 높이 자동 조정
+  // 차트 표시 여부 변경 및 마운트 시 최소 높이 보장
   useEffect(() => {
-    if (!showChart && size.height > HEIGHT_WITHOUT_CHART) {
-      onSizeChange(id, { ...size, height: HEIGHT_WITHOUT_CHART });
-    } else if (showChart && size.height < HEIGHT_WITH_CHART) {
-      onSizeChange(id, { ...size, height: HEIGHT_WITH_CHART });
+    const minH = showChart ? HEIGHT_WITH_CHART : HEIGHT_WITHOUT_CHART;
+    if (size.height < minH) {
+      onSizeChange(id, { ...size, height: minH });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showChart]);
@@ -153,6 +154,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
             <PriceDisplay
               price={priceState.status === "success" ? priceState.data : null}
               loading={priceState.status === "loading" || priceState.status === "idle"}
+              marketStatus={marketStatus}
             />
           )}
         </div>

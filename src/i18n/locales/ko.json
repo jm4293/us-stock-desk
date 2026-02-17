@@ -18,12 +18,39 @@
   },
   "market": {
     "weekend": "주말 — 장 휴장",
-    "pre": "프리마켓 (04:00~09:30 미국 동부시간)",
-    "open": "정규장 (09:30~16:00 미국 동부시간)",
-    "post": "애프터마켓 (16:00~20:00 미국 동부시간)",
-    "closed": "장 마감 (20:00~04:00 미국 동부시간)",
+    "pre": "프리마켓",
+    "open": "정규장",
+    "post": "애프터마켓",
+    "closed": "장 마감",
     "dstOn": "서머타임 적용 중",
-    "dstOff": "서머타임 미적용"
+    "dstOff": "서머타임 미적용",
+    "tooltip": {
+      "title": "미국 주식 거래시간",
+      "dstActive": "서머타임(EDT, UTC-4) 적용 중",
+      "dstInactive": "표준시(EST, UTC-5) 적용 중",
+      "etLabel": "ET",
+      "kstLabel": "KST",
+      "pre": "프리마켓",
+      "preTimeEST": "04:00 ~ 09:30",
+      "preTimeKSTEST": "18:00 ~ 23:30",
+      "preTimeEDT": "04:00 ~ 09:30",
+      "preTimeKSTEDT": "17:00 ~ 22:30",
+      "open": "정규장",
+      "openTimeEST": "09:30 ~ 16:00",
+      "openTimeKSTEST": "23:30 ~ 06:00",
+      "openTimeEDT": "09:30 ~ 16:00",
+      "openTimeKSTEDT": "22:30 ~ 05:00",
+      "post": "애프터마켓",
+      "postTimeEST": "16:00 ~ 20:00",
+      "postTimeKSTEST": "06:00 ~ 10:00",
+      "postTimeEDT": "16:00 ~ 20:00",
+      "postTimeKSTEDT": "05:00 ~ 09:00",
+      "closed": "장 마감",
+      "closedTimeEST": "20:00 ~ 04:00",
+      "closedTimeKSTEST": "10:00 ~ 18:00",
+      "closedTimeEDT": "20:00 ~ 04:00",
+      "closedTimeKSTEDT": "09:00 ~ 17:00"
+    }
   },
   "search": {
     "title": "종목 추가",
@@ -35,7 +62,10 @@
     "high": "고가",
     "low": "저가",
     "noData": "데이터 없음",
-    "noDataHint": "주중 장중에만 1D 차트가 표시됩니다"
+    "noDataHint": "주중 장중에만 1D 차트가 표시됩니다",
+    "preMarket": "프리마켓",
+    "postMarket": "애프터마켓",
+    "regularClose": "정규장 종가"
   },
   "toast": {
     "stockAdded": "{{symbol}} 종목이 추가되었습니다",
