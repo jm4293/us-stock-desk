@@ -1,5 +1,5 @@
-import { useExchangeRate } from "@/hooks/useExchangeRate";
-import { useColorScheme, useCurrency } from "@/stores/settingsStore";
+import { useExchangeRate } from "@/hooks";
+import { useColorScheme, useCurrency } from "@/stores";
 import type { StockPrice } from "@/types/stock";
 import { cn } from "@/utils/cn";
 import {

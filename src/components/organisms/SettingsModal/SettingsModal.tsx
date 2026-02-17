@@ -1,4 +1,4 @@
-import { BottomSheet } from "@/components/molecules/BottomSheet/BottomSheet";
+import { BottomSheet } from "@/components/molecules";
 import {
   useColorScheme,
   useCurrency,
@@ -6,9 +6,10 @@ import {
   useSettingsActions,
   useShowChart,
   useTheme,
-} from "@/stores/settingsStore";
-import { useUIActions, useUIStore } from "@/stores/uiStore";
-import { useShowToast } from "@/stores/toastStore";
+  useUIActions,
+  useUIStore,
+  useShowToast,
+} from "@/stores";
 import { cn } from "@/utils/cn";
 import React from "react";
 import { useTranslation } from "react-i18next";

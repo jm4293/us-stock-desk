@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-import { useKSTClock } from "@/hooks/useMarketStatus";
+import { useKSTClock } from "@/hooks";
 
 interface KSTClockProps {
   /** 모바일 전용: 레이블/아이콘 없이 시간 문자열만 렌더링 */

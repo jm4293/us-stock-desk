@@ -1,5 +1,4 @@
-import { useToastStore } from "@/stores/toastStore";
-import { useTheme } from "@/stores/settingsStore";
+import { useToastStore, useTheme } from "@/stores";
 import { cn } from "@/utils/cn";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";

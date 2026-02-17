@@ -1,10 +1,8 @@
 import { cn } from "@/utils/cn";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
-import { useMarketStatus } from "@/hooks/useMarketStatus";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useFullscreen } from "@/hooks/useFullscreen";
-import { KSTClock } from "@/components/molecules/KSTClock/KSTClock";
+import { useMarketStatus, useIsMobile, useFullscreen } from "@/hooks";
+import { KSTClock } from "@/components/molecules";
 import type { MarketStatus } from "@/types/stock";
 
 interface HeaderProps {

@@ -1,6 +1,6 @@
 import { cn } from "@/utils/cn";
 import { useTranslation } from "react-i18next";
-import { useSettingsStore } from "@/stores/settingsStore";
+import { useSettingsStore } from "@/stores";
 
 export function EmptyState() {
   const { t } = useTranslation();

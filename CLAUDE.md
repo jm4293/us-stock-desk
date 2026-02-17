@@ -22,8 +22,9 @@
 3. **[docs/guides/tdd-storybook-i18n.md](./docs/guides/tdd-storybook-i18n.md)** - TDD, Storybook, Atomic Design, i18n 가이드
 4. **[docs/architecture/tech-stack.md](./docs/architecture/tech-stack.md)** - Zustand, react-hook-form, GSAP, 접근성 가이드
 5. **[docs/architecture/bundle-optimization.md](./docs/architecture/bundle-optimization.md)** - 번들 최적화 및 성능 가이드
-6. **[docs/getting-started.md](./docs/getting-started.md)** - 개발 시작 가이드
-7. **[docs/guides/git-workflow.md](./docs/guides/git-workflow.md)** - Git 브랜치 전략 및 Claude 작업 가이드
+6. **[docs/architecture/import-conventions.md](./docs/architecture/import-conventions.md)** - Import 경로 규칙 (Barrel 패턴)
+7. **[docs/getting-started.md](./docs/getting-started.md)** - 개발 시작 가이드
+8. **[docs/guides/git-workflow.md](./docs/guides/git-workflow.md)** - Git 브랜치 전략 및 Claude 작업 가이드
 
 ---
 
@@ -282,7 +283,35 @@ export const StockBox = ({ symbol, focused }) => {
 - ✅ 컴포넌트는 작고 단일 책임
 - ✅ Utils는 순수 함수로
 
-### 5. 코드 품질 및 커밋 규칙
+### 5. Import 경로 규칙 (Barrel 패턴)
+
+**레이어 barrel을 통해 import합니다. 개별 파일 경로 직접 접근 금지.**
+
+```ts
+// ✅ 올바른 방법
+import { Header, SearchModal } from "@/components/organisms";
+import { PriceDisplay, StockChart } from "@/components/molecules";
+import { Button } from "@/components/atoms";
+import { useStockData, useIsMobile } from "@/hooks";
+import { useStockStore, useSettingsStore } from "@/stores";
+
+// ❌ 금지 — 개별 파일 직접 접근
+import { Header } from "@/components/organisms/Header/Header";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useSettingsStore } from "@/stores/settingsStore";
+```
+
+**예외 (직접 접근 허용):**
+
+- `@/services/api/...`, `@/services/websocket/...` — 서비스 파일
+- `@/utils/cn`, `@/utils/formatters` — 유틸리티 함수
+- `@/types/...`, `@/constants/...` — 타입 및 상수
+- hooks 파일 내부에서 다른 hook 참조 시 (순환 참조 방지)
+
+**새 파일 추가 시 반드시 해당 레이어 `index.ts`에 export를 추가해야 합니다.**
+자세한 내용: [docs/architecture/import-conventions.md](./docs/architecture/import-conventions.md)
+
+### 6. 코드 품질 및 커밋 규칙
 
 - ✅ **Prettier**: 저장 시 자동 포맷팅 (VSCode)
 - ✅ **ESLint**: 코드 스타일 및 오류 자동 수정

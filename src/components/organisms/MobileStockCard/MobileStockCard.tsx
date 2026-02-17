@@ -4,8 +4,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { cn } from "@/utils/cn";
 import { formatUSD, formatKRW, formatPercent } from "@/utils/formatters";
-import { StockChart } from "@/components/molecules/StockChart/StockChart";
-import { useMobileStockCard } from "@/hooks/useMobileStockCard";
+import { StockChart } from "@/components/molecules";
+import { useMobileStockCard } from "@/hooks";
 import type { ChartTimeRange } from "@/types/stock";
 
 const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];

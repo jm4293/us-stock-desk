@@ -1,6 +1,6 @@
-import { MobileStockCard } from "@/components/organisms/MobileStockCard/MobileStockCard";
-import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
-import { useStockStore } from "@/stores/stockStore";
+import { MobileStockCard } from "@/components/organisms";
+import { EmptyState } from "@/components/molecules";
+import { useStockStore } from "@/stores";
 import {
   DndContext,
   PointerSensor,

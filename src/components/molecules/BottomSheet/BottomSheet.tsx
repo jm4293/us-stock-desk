@@ -1,4 +1,4 @@
-import { useIsMobile } from "@/hooks/useIsMobile";
+import { useIsMobile } from "@/hooks";
 import { cn } from "@/utils/cn";
 import React, { useEffect, useRef, useState } from "react";
 

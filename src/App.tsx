@@ -1,19 +1,14 @@
-import { Header } from "@/components/organisms/Header";
-import { MobileLayout } from "@/components/organisms/MobileLayout/MobileLayout";
-import { DesktopCanvas } from "@/components/organisms/DesktopCanvas/DesktopCanvas";
-import { SearchModal } from "@/components/organisms/SearchModal/SearchModal";
-import { SettingsModal } from "@/components/organisms/SettingsModal/SettingsModal";
-import { NetworkOfflineBanner } from "@/components/molecules/NetworkOfflineBanner/NetworkOfflineBanner";
-import { ToastContainer } from "@/components/molecules/Toast/Toast";
-import { useExchangeRate } from "@/hooks/useExchangeRate";
-import { useIsMobile } from "@/hooks/useIsMobile";
-import { useNetworkStatus } from "@/hooks/useNetworkStatus";
-import { useWakeLock } from "@/hooks/useWakeLock";
+import {
+  Header,
+  MobileLayout,
+  DesktopCanvas,
+  SearchModal,
+  SettingsModal,
+} from "@/components/organisms";
+import { NetworkOfflineBanner, ToastContainer } from "@/components/molecules";
+import { useExchangeRate, useIsMobile, useNetworkStatus, useWakeLock } from "@/hooks";
 import { stockSocket } from "@/services/websocket/stockSocket";
-import { useSettingsStore } from "@/stores/settingsStore";
-import { useStockStore } from "@/stores/stockStore";
-import { useUIStore } from "@/stores/uiStore";
-import { useShowToast } from "@/stores/toastStore";
+import { useSettingsStore, useStockStore, useUIStore, useShowToast } from "@/stores";
 import { cn } from "@/utils/cn";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";

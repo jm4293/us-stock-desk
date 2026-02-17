@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Rnd } from "react-rnd";
 import { cn } from "@/utils/cn";
-import { Button } from "@/components/atoms/Button";
-import { PriceDisplay } from "@/components/molecules/PriceDisplay";
-import { StockChart } from "@/components/molecules/StockChart/StockChart";
-import { useStockData } from "@/hooks/useStockData";
-import { useChartData } from "@/hooks/useChartData";
-import { useShowChart } from "@/stores/settingsStore";
+import { Button } from "@/components/atoms";
+import { PriceDisplay, StockChart } from "@/components/molecules";
+import { useStockData, useChartData } from "@/hooks";
+import { useShowChart } from "@/stores";
 import type { Position, Size, ChartTimeRange } from "@/types/stock";
 
 // 차트 표시 여부에 따른 최소/기본 높이

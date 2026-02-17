@@ -1,6 +1,6 @@
-import { StockBox } from "@/components/organisms/StockBox";
-import { EmptyState } from "@/components/molecules/EmptyState/EmptyState";
-import { useStockStore } from "@/stores/stockStore";
+import { StockBox } from "@/components/organisms";
+import { EmptyState } from "@/components/molecules";
+import { useStockStore } from "@/stores";
 
 interface DesktopCanvasProps {
   onRemoveStock: (id: string) => void;

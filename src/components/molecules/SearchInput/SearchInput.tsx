@@ -1,6 +1,6 @@
 import { finnhubApi } from "@/services/api/finnhubApi";
 import { TIMING } from "@/constants/timing";
-import { useTheme } from "@/stores/settingsStore";
+import { useTheme } from "@/stores";
 import { cn } from "@/utils/cn";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";

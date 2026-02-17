@@ -1,11 +1,6 @@
 import { useStockData } from "@/hooks/useStockData";
 import { useChartData } from "@/hooks/useChartData";
-import {
-  useColorScheme,
-  useCurrency,
-  useSettingsStore,
-  useShowChart,
-} from "@/stores/settingsStore";
+import { useColorScheme, useCurrency, useSettingsStore, useShowChart } from "@/stores";
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import type { ChartTimeRange } from "@/types/stock";
 

@@ -7,7 +7,7 @@ import {
   ColorType,
 } from "lightweight-charts";
 import type { StockChartData } from "@/types/stock";
-import { useColorScheme, useTheme } from "@/stores/settingsStore";
+import { useColorScheme, useTheme } from "@/stores";
 
 interface StockChartProps {
   data: StockChartData[];
