@@ -1,13 +1,13 @@
 <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
   <style>
-    .bg { fill: #18181b; stroke: rgba(255, 255, 255, 0.2); stroke-width: 2; }
+    .bg { fill: #18181b; }
     .line1 { stroke: #ffffff; }
     .line2 { stroke: #a1a1aa; }
     @media (prefers-color-scheme: dark) {
-      .bg { fill: #18181b; stroke: rgba(255, 255, 255, 0.3); }
+      .bg { fill: #18181b; }
     }
   </style>
-  <rect x="2" y="2" width="76" height="76" rx="20" class="bg" />
+  <rect width="80" height="80" rx="20" class="bg" />
   <g transform="translate(16, 16)">
     <!-- 차트 라인 -->
     <polyline
