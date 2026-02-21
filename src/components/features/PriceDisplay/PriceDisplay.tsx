@@ -46,10 +46,30 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
 
   if (loading || !price || !price.current) {
     return (
-      <div data-testid="price-skeleton" className={cn("animate-pulse space-y-2", className)}>
-        <div className={cn("h-8 w-32 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
-        <div className={cn("h-4 w-24 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
-        <div className={cn("h-3 w-40 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+      <div className={cn(className)}>
+        <div className="flex items-start justify-between">
+          <div className="min-w-0 flex-1 pr-4">
+            {companyName ? (
+              <h3 className="truncate text-lg font-bold text-white">{companyName}</h3>
+            ) : (
+              symbol && <h3 className="truncate text-lg font-bold text-white">{symbol}</h3>
+            )}
+            {companyName && symbol && (
+              <p className="text-sm font-medium text-gray-400/80">{symbol}</p>
+            )}
+          </div>
+          <div className="flex shrink-0 items-start">
+            <div
+              data-testid="price-skeleton"
+              className="flex animate-pulse flex-col items-end space-y-2"
+            >
+              <div className={cn("h-8 w-32 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+              <div className={cn("h-4 w-24 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+              <div className={cn("h-3 w-40 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+            </div>
+            {actionNode && <div className="-mr-2 -mt-1 ml-2">{actionNode}</div>}
+          </div>
+        </div>
       </div>
     );
   }

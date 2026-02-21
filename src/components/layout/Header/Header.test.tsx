@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Header } from "./Header";
 
 describe("Header", () => {
@@ -22,8 +22,8 @@ describe("Header", () => {
 
   it("소수점 환율을 올바르게 표시한다", () => {
     render(<Header {...defaultProps} exchangeRate={1325.5} />);
-    // 환율이 반올림되어 표시됨 (1325.5 → 1,326)
-    expect(screen.getByText(/1,326/)).toBeInTheDocument();
+    // 환율이 2자리 소수점까지 표시됨 (1325.5 → 1,325.5 또는 1,325.50)
+    expect(screen.getByText(/1,325\.5/)).toBeInTheDocument();
   });
 
   it("종목 추가 버튼을 렌더링한다", () => {

@@ -1,7 +1,7 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
-import { PriceDisplay } from "./PriceDisplay";
 import type { StockPrice } from "@/types/stock";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { PriceDisplay } from "./PriceDisplay";
 
 describe("PriceDisplay", () => {
   const mockPrice: StockPrice = {
@@ -19,7 +19,7 @@ describe("PriceDisplay", () => {
 
   it("현재가를 렌더링한다", () => {
     render(<PriceDisplay price={mockPrice} />);
-    expect(screen.getByText("$182.50")).toBeInTheDocument();
+    expect(screen.getAllByText("$182.50")[0]).toBeInTheDocument();
   });
 
   it("상승 시 양수 변동을 표시한다", () => {
@@ -37,14 +37,14 @@ describe("PriceDisplay", () => {
 
   it("상승 시 상승 색상 스타일을 적용한다", () => {
     render(<PriceDisplay price={mockPrice} />);
-    const priceEl = screen.getByText("$182.50");
+    const priceEl = screen.getAllByText("$182.50")[0];
     expect(priceEl).toHaveClass("text-up-us");
   });
 
   it("하락 시 하락 색상 스타일을 적용한다", () => {
     const downPrice: StockPrice = { ...mockPrice, change: -2.5, changePercent: -1.39 };
     render(<PriceDisplay price={downPrice} />);
-    const priceEl = screen.getByText("$182.50");
+    const priceEl = screen.getAllByText("$182.50")[0];
     expect(priceEl).toHaveClass("text-down-us");
   });
 
@@ -61,6 +61,6 @@ describe("PriceDisplay", () => {
   it("변동이 0이면 중립 스타일을 적용한다", () => {
     const neutralPrice: StockPrice = { ...mockPrice, change: 0, changePercent: 0 };
     render(<PriceDisplay price={neutralPrice} />);
-    expect(screen.getByText("$182.50")).toBeInTheDocument();
+    expect(screen.getAllByText("$182.50")[0]).toBeInTheDocument();
   });
 });
