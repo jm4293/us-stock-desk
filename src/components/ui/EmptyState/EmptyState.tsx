@@ -10,7 +10,7 @@ export function EmptyState() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
       <p className={cn("text-xl font-bold", isDark ? "text-white" : "text-slate-900")}>
-        Stock Desk
+        US Stock Desk
       </p>
       <p className={cn("text-sm", isDark ? "text-gray-400" : "text-slate-500")}>
         {t("search.empty")}

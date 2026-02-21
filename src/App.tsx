@@ -67,9 +67,7 @@ function App() {
       <div
         className={cn(
           "pointer-events-none absolute inset-0",
-          isDark
-            ? "bg-gradient-to-br from-blue-950/30 via-gray-950 to-purple-950/30"
-            : "bg-gradient-to-br from-blue-100/80 via-slate-50 to-purple-100/80"
+          isDark ? "bg-gray-950" : "bg-slate-50"
         )}
       />
 

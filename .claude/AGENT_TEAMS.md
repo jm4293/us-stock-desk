@@ -1,4 +1,4 @@
-# 🤖 Stock Desk - Agent Teams 협업 가이드
+# 🤖 US Stock Desk - Agent Teams 협업 가이드
 
 > Claude Agent Teams를 활용한 체계적인 프로젝트 개발 전략
 

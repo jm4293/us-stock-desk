@@ -1,5 +1,5 @@
-import React from "react";
 import { cn } from "@/utils/cn";
+import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost" | "danger";
@@ -23,7 +23,8 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const variants = {
-      primary: "bg-blue-500 hover:bg-blue-600 text-white",
+      primary:
+        "bg-gray-900 hover:bg-gray-800 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-gray-900",
       secondary: "bg-gray-600 hover:bg-gray-700 text-white",
       ghost: "bg-transparent hover:bg-white/10 text-white",
       danger: "bg-red-500 hover:bg-red-600 text-white",

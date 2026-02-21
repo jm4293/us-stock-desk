@@ -62,23 +62,21 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
       ref={containerRef}
       className={cn(
         "fixed inset-0 z-[9999] flex flex-col items-center justify-center",
-        isDark
-          ? "bg-gradient-to-br from-blue-950 via-gray-950 to-purple-950"
-          : "bg-gradient-to-br from-blue-100 via-slate-50 to-purple-100"
+        isDark ? "bg-gray-950" : "bg-slate-50"
       )}
     >
-      {/* 배경 장식 */}
+      {/* 배경 장식 (Subdued monochrome blurs) */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div
           className={cn(
             "absolute -left-32 -top-32 h-96 w-96 rounded-full blur-3xl",
-            isDark ? "bg-blue-800/20" : "bg-blue-300/30"
+            isDark ? "bg-white/5" : "bg-black/5"
           )}
         />
         <div
           className={cn(
             "absolute -bottom-32 -right-32 h-96 w-96 rounded-full blur-3xl",
-            isDark ? "bg-purple-800/20" : "bg-purple-300/30"
+            isDark ? "bg-white/5" : "bg-black/5"
           )}
         />
       </div>
@@ -99,19 +97,19 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
             xmlns="http://www.w3.org/2000/svg"
             className="h-12 w-12"
           >
-            {/* 차트 라인 */}
+            {/* 차트 라인 (Monochrome) */}
             <polyline
               points="4,36 14,24 22,30 32,12 44,20"
-              stroke={isDark ? "#60a5fa" : "#2563eb"}
+              stroke={isDark ? "#fafafa" : "#18181b"}
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
             />
-            {/* 상승 화살표 */}
+            {/* 상승 화살표 (Monochrome contrast) */}
             <polyline
               points="38,8 44,8 44,14"
-              stroke={isDark ? "#34d399" : "#16a34a"}
+              stroke={isDark ? "#a1a1aa" : "#52525b"}
               strokeWidth="3"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -128,7 +126,7 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
               isDark ? "text-white" : "text-gray-900"
             )}
           >
-            Stock Desk
+            US Stock Desk
           </h1>
           <p
             ref={subtitleRef}
@@ -148,12 +146,7 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           >
             <div
               ref={barRef}
-              className={cn(
-                "h-full w-0 rounded-full",
-                isDark
-                  ? "bg-gradient-to-r from-blue-400 to-purple-400"
-                  : "bg-gradient-to-r from-blue-500 to-purple-500"
-              )}
+              className={cn("h-full w-0 rounded-full", isDark ? "bg-white" : "bg-gray-900")}
             />
           </div>
           <span className={cn("text-xs", isDark ? "text-gray-500" : "text-gray-400")}>

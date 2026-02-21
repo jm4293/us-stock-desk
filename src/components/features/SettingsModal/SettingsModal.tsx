@@ -1,4 +1,5 @@
 import { Modal } from "@/components/ui";
+import { SettingOptionButton } from "@/components/ui/Button/SettingOptionButton";
 import {
   useColorScheme,
   useCurrency,
@@ -35,12 +36,6 @@ export const SettingsModal: React.FC = () => {
 
   const headingColor = isDark ? "text-white" : "text-slate-800";
   const sectionHeadingColor = isDark ? "text-gray-300" : "text-slate-500";
-  const btnActive = isDark
-    ? "border-white/40 bg-white/20 text-white"
-    : "border-blue-500 bg-blue-50 text-blue-700";
-  const btnInactive = isDark
-    ? "border-white/10 bg-white/5 text-gray-400 hover:bg-white/10"
-    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100";
 
   return (
     <Modal open={isSettingsOpen} onClose={closeSettings}>
@@ -54,44 +49,34 @@ export const SettingsModal: React.FC = () => {
           {t("settings.candleColor")}
         </h3>
         <div className="flex gap-2">
-          <button
+          <SettingOptionButton
+            isActive={colorScheme === "kr"}
+            isDark={isDark}
+            className="p-3 text-left"
             onClick={() =>
               handleSetting(
                 () => setColorScheme("kr"),
                 t("toast.colorSchemeChanged", { value: t("settings.kr") })
               )
             }
-            className={cn(
-              "flex-1 rounded-lg border p-3 text-left transition-colors",
-              colorScheme === "kr" ? btnActive : btnInactive
-            )}
           >
             <div className="text-sm font-medium">{t("settings.kr")}</div>
             <div className="mt-1 text-xs opacity-70">{t("settings.krDesc")}</div>
-            {/* <div className="mt-2 flex gap-1">
-              <span className="h-3 w-3 rounded-sm bg-red-500" />
-              <span className="h-3 w-3 rounded-sm bg-blue-600" />
-            </div> */}
-          </button>
-          <button
+          </SettingOptionButton>
+          <SettingOptionButton
+            isActive={colorScheme === "us"}
+            isDark={isDark}
+            className="p-3 text-left"
             onClick={() =>
               handleSetting(
                 () => setColorScheme("us"),
                 t("toast.colorSchemeChanged", { value: t("settings.us") })
               )
             }
-            className={cn(
-              "flex-1 rounded-lg border p-3 text-left transition-colors",
-              colorScheme === "us" ? btnActive : btnInactive
-            )}
           >
             <div className="text-sm font-medium">{t("settings.us")}</div>
             <div className="mt-1 text-xs opacity-70">{t("settings.usDesc")}</div>
-            {/* <div className="mt-2 flex gap-1">
-              <span className="h-3 w-3 rounded-sm bg-green-500" />
-              <span className="h-3 w-3 rounded-sm bg-red-500" />
-            </div> */}
-          </button>
+          </SettingOptionButton>
         </div>
       </section>
 
@@ -102,8 +87,11 @@ export const SettingsModal: React.FC = () => {
         </h3>
         <div className="flex gap-2">
           {(["dark", "light"] as const).map((t_val) => (
-            <button
+            <SettingOptionButton
               key={t_val}
+              isActive={theme === t_val}
+              isDark={isDark}
+              className="p-2 text-sm"
               onClick={() =>
                 handleSetting(
                   () => setTheme(t_val),
@@ -112,13 +100,9 @@ export const SettingsModal: React.FC = () => {
                   })
                 )
               }
-              className={cn(
-                "flex-1 rounded-lg border p-2 text-sm transition-colors",
-                theme === t_val ? btnActive : btnInactive
-              )}
             >
               {t_val === "dark" ? t("settings.dark") : t("settings.light")}
-            </button>
+            </SettingOptionButton>
           ))}
         </div>
       </section>
@@ -130,21 +114,20 @@ export const SettingsModal: React.FC = () => {
         </h3>
         <div className="flex gap-2">
           {(["ko", "en"] as const).map((l) => (
-            <button
+            <SettingOptionButton
               key={l}
+              isActive={language === l}
+              isDark={isDark}
+              className="p-2 text-sm"
               onClick={() =>
                 handleSetting(
                   () => setLanguage(l),
                   t("toast.languageChanged", { value: l === "ko" ? "한국어" : "English" })
                 )
               }
-              className={cn(
-                "flex-1 rounded-lg border p-2 text-sm transition-colors",
-                language === l ? btnActive : btnInactive
-              )}
             >
               {l === "ko" ? "한국어" : "English"}
-            </button>
+            </SettingOptionButton>
           ))}
         </div>
       </section>
@@ -156,21 +139,20 @@ export const SettingsModal: React.FC = () => {
         </h3>
         <div className="flex gap-2">
           {(["USD", "KRW"] as const).map((c) => (
-            <button
+            <SettingOptionButton
               key={c}
+              isActive={currency === c}
+              isDark={isDark}
+              className="p-2 text-sm"
               onClick={() =>
                 handleSetting(
                   () => setCurrency(c),
                   t("toast.currencyChanged", { value: c === "USD" ? "USD ($)" : "KRW (₩)" })
                 )
               }
-              className={cn(
-                "flex-1 rounded-lg border p-2 text-sm transition-colors",
-                currency === c ? btnActive : btnInactive
-              )}
             >
               {c === "USD" ? "USD ($)" : "KRW (₩)"}
-            </button>
+            </SettingOptionButton>
           ))}
         </div>
       </section>
@@ -181,34 +163,32 @@ export const SettingsModal: React.FC = () => {
           {t("settings.chart")}
         </h3>
         <div className="flex gap-2">
-          <button
+          <SettingOptionButton
+            isActive={showChart}
+            isDark={isDark}
+            className="p-2 text-sm"
             onClick={() =>
               handleSetting(
                 () => setShowChart(true),
                 t("toast.chartChanged", { value: t("settings.chartOn") })
               )
             }
-            className={cn(
-              "flex-1 rounded-lg border p-2 text-sm transition-colors",
-              showChart ? btnActive : btnInactive
-            )}
           >
             {t("settings.chartOn")}
-          </button>
-          <button
+          </SettingOptionButton>
+          <SettingOptionButton
+            isActive={!showChart}
+            isDark={isDark}
+            className="p-2 text-sm"
             onClick={() =>
               handleSetting(
                 () => setShowChart(false),
                 t("toast.chartChanged", { value: t("settings.chartOff") })
               )
             }
-            className={cn(
-              "flex-1 rounded-lg border p-2 text-sm transition-colors",
-              !showChart ? btnActive : btnInactive
-            )}
           >
             {t("settings.chartOff")}
-          </button>
+          </SettingOptionButton>
         </div>
       </section>
 
@@ -219,7 +199,7 @@ export const SettingsModal: React.FC = () => {
           "w-full rounded-xl py-3 text-sm font-medium transition-colors",
           isDark
             ? "bg-white/15 text-white hover:bg-white/25"
-            : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            : "border border-slate-200 bg-white text-slate-800 shadow-sm hover:bg-slate-50"
         )}
       >
         {t("common.done")}

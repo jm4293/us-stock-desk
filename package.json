@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "해외주식 실시간 모니터링 대시보드 - 브라우저 시작 페이지로 사용 가능한 인터랙티브 위젯",
+  "description": "미국주식 실시간 모니터링 대시보드 - 브라우저 시작 페이지로 사용 가능한 인터랙티브 위젯",
   "author": "jm4293",
   "license": "MIT",
   "scripts": {

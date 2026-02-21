@@ -1,8 +1,8 @@
-# Stock Desk - 고급 기술 스택 가이드
+# US Stock Desk - 고급 기술 스택 가이드
 
 ## 📋 개요
 
-이 문서는 Stock Desk 프로젝트의 고급 기술 스택 및 패턴에 대한 가이드입니다.
+이 문서는 US Stock Desk 프로젝트의 고급 기술 스택 및 패턴에 대한 가이드입니다.
 
 ---
 
@@ -326,7 +326,7 @@ export const LandingPage = () => {
 
   return (
     <div>
-      <h1 ref={titleRef}>Stock Desk</h1>
+      <h1 ref={titleRef}>US Stock Desk</h1>
       <div className="h-2 w-full rounded-full bg-gray-700">
         <div ref={progressRef} className="h-2 w-0 rounded-full bg-blue-500" />
       </div>

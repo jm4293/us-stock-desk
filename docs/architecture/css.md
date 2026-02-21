@@ -1,4 +1,4 @@
-# Stock Desk - CSS 전략 및 아키텍처 가이드
+# US Stock Desk - CSS 전략 및 아키텍처 가이드
 
 ## 🎨 CSS 전략: Tailwind CSS + CSS Modules
 

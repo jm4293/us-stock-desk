@@ -12,7 +12,7 @@ describe("Header", () => {
 
   it("앱 제목을 렌더링한다", () => {
     render(<Header {...defaultProps} />);
-    expect(screen.getByText("Stock Desk")).toBeInTheDocument();
+    expect(screen.getByText("US Stock Desk")).toBeInTheDocument();
   });
 
   it("환율을 표시한다", () => {

@@ -77,7 +77,7 @@
     "chartChanged": "차트 표시가 {{value}}로 변경되었습니다"
   },
   "splash": {
-    "subtitle": "해외주식 대시보드",
+    "subtitle": "미국주식 대시보드",
     "loading": "불러오는 중..."
   },
   "settings": {

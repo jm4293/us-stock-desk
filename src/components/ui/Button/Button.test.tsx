@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { Button } from "./Button";
 
 describe("Button", () => {
@@ -32,9 +32,9 @@ describe("Button", () => {
     expect(screen.getByRole("button")).toBeDisabled();
   });
 
-  it("primary variant는 blue 스타일을 적용한다", () => {
+  it("primary variant는 기본 스타일(bg-gray-900)을 적용한다", () => {
     render(<Button variant="primary">버튼</Button>);
-    expect(screen.getByRole("button")).toHaveClass("bg-blue-500");
+    expect(screen.getByRole("button")).toHaveClass("bg-gray-900");
   });
 
   it("ghost variant는 투명 배경을 적용한다", () => {

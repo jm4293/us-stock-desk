@@ -269,7 +269,7 @@ export const Header = memo(function Header({
     <header className={cn("glass flex items-center justify-between px-4 py-3", className)}>
       {/* 왼쪽: 로고 + 정보 */}
       <div className="flex min-w-0 items-center gap-3">
-        <h1 className="shrink-0 text-base font-bold text-white">Stock Desk</h1>
+        <h1 className="shrink-0 text-base font-bold text-white">US Stock Desk</h1>
 
         {isMobile ? (
           /* 모바일: 상태 도트 + KST 시각 (터치 → 툴팁) */

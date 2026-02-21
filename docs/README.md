@@ -1,4 +1,4 @@
-# 📚 Stock Desk 기술 문서
+# 📚 US Stock Desk 기술 문서
 
 > 프로젝트 개발을 위한 모든 기술 문서
 

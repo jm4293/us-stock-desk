@@ -1,4 +1,4 @@
-# Stock Desk - 번들 최적화 가이드
+# US Stock Desk - 번들 최적화 가이드
 
 ## 📋 개요
 

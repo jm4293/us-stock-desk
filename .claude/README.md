@@ -1,6 +1,6 @@
 # 🤖 Agent Teams 실행 가이드
 
-> Stock Desk 프로젝트를 Claude Agent Teams로 체계적으로 개발하기
+> US Stock Desk 프로젝트를 Claude Agent Teams로 체계적으로 개발하기
 
 ## 📋 개요
 

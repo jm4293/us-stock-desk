@@ -1,8 +1,8 @@
-# Stock Desk - TDD, Storybook, Atomic Design 가이드
+# US Stock Desk - TDD, Storybook, Atomic Design 가이드
 
 ## 📋 개요
 
-이 문서는 Stock Desk 프로젝트의 개발 방법론, 컴포넌트 개발 전략, 그리고 다국어 지원에 대한 가이드입니다.
+이 문서는 US Stock Desk 프로젝트의 개발 방법론, 컴포넌트 개발 전략, 그리고 다국어 지원에 대한 가이드입니다.
 
 ---
 

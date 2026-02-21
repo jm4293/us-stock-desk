@@ -5,7 +5,7 @@ tools: Read, Write, Edit, Bash, Glob, Grep
 model: sonnet
 ---
 
-당신은 Stock Desk 프로젝트의 테스트 전문가입니다.
+당신은 US Stock Desk 프로젝트의 테스트 전문가입니다.
 
 ## 역할
 

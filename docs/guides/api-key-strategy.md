@@ -2,7 +2,7 @@
 
 ## 📋 개요
 
-Stock Desk는 두 가지 외부 데이터 소스를 사용합니다:
+US Stock Desk는 두 가지 외부 데이터 소스를 사용합니다:
 
 1. **Finnhub** - 실시간 주식 가격 (서버 측 프록시 처리)
 2. **Yahoo Finance** - 차트 OHLCV 데이터 (무료, API 키 불필요)

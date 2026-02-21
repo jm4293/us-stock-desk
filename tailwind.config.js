@@ -11,26 +11,21 @@ export default {
         // 미국식 색상 (상승: 초록, 하락: 빨강)
         "up-us": "#089981",
         "down-us": "#ef4444",
-        // 브랜드 색상
+        // 브랜드 색상 (Sophisticated Monochrome)
         primary: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          500: "#3b82f6",
-          600: "#2563eb",
-          900: "#1e3a8a",
+          50: "var(--color-primary-50, #fafafa)",
+          100: "var(--color-primary-100, #f4f4f5)",
+          500: "var(--color-primary-500, #71717a)",
+          600: "var(--color-primary-600, #52525b)",
+          900: "var(--color-primary-900, #18181b)",
         },
       },
-      backgroundImage: {
-        "glass-gradient":
-          "linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))",
-        "card-gradient":
-          "linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05))",
-      },
+      backgroundImage: {},
       backdropBlur: {
         xs: "2px",
       },
       boxShadow: {
-        glass: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
+        glass: "0 8px 32px 0 rgba(0, 0, 0, 0.25)",
         card: "0 4px 16px 0 rgba(0, 0, 0, 0.1)",
       },
       animation: {

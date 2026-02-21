@@ -72,7 +72,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, children, allowOver
         <div
           className={cn(
             "fixed bottom-0 left-0 right-0 z-[1001] min-h-[80vh] rounded-t-3xl transition-transform duration-700 ease-in-out will-change-transform",
-            isDark ? "glass border-t border-white/10" : "border-t border-slate-200 bg-white",
+            isDark ? "glass border-t border-white/10" : "glass border-t border-slate-200",
             visible ? "translate-y-0" : "translate-y-full"
           )}
           style={{
@@ -110,7 +110,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, children, allowOver
       <div
         className={cn(
           "w-full max-w-sm rounded-2xl p-6 shadow-2xl transition-all duration-300",
-          isDark ? "glass" : "border border-slate-200 bg-white",
+          isDark ? "glass" : "glass border border-slate-200",
           allowOverflow ? "overflow-visible" : "",
           visible ? "scale-100 opacity-100" : "scale-95 opacity-0"
         )}

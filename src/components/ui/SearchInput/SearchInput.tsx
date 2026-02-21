@@ -1,5 +1,5 @@
-import { finnhubApi } from "@/services/api/finnhubApi";
 import { TIMING } from "@/constants/timing";
+import { finnhubApi } from "@/services/api/finnhubApi";
 import { useTheme } from "@/stores";
 import { cn } from "@/utils/cn";
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -174,7 +174,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
                   activeIndex === idx
                     ? isDark
                       ? "bg-white/10"
-                      : "bg-blue-50"
+                      : "bg-gray-100"
                     : isDark
                       ? "hover:bg-white/5"
                       : "hover:bg-slate-50"
@@ -183,7 +183,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
                 <span
                   className={cn(
                     "w-16 shrink-0 rounded px-1.5 py-0.5 text-center text-xs font-bold",
-                    isDark ? "bg-white/10 text-blue-300" : "bg-blue-100 text-blue-700"
+                    isDark ? "bg-white/10 text-gray-300" : "bg-gray-200 text-gray-800"
                   )}
                 >
                   {item.symbol}
@@ -219,14 +219,14 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
             className={cn(
               "w-full rounded-lg border px-4 py-2.5 text-base outline-none transition-colors md:text-sm",
               isDark
-                ? "border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
-                : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+                ? "border-white/20 bg-white/10 text-white placeholder-gray-400 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
+                : "border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:border-gray-400 focus:ring-1 focus:ring-gray-400"
             )}
           />
           {/* 로딩 스피너 */}
           {isLoading && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <svg className="h-4 w-4 animate-spin text-blue-400" fill="none" viewBox="0 0 24 24">
+              <svg className="h-4 w-4 animate-spin text-gray-500" fill="none" viewBox="0 0 24 24">
                 <circle
                   className="opacity-25"
                   cx="12"
@@ -256,7 +256,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
                 ? "border-white/40 bg-white/20 text-white hover:bg-white/30"
                 : "border-white/10 bg-white/5 text-gray-500"
               : hasValue
-                ? "border-blue-500 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                ? "border-gray-900 bg-gray-100 text-gray-900 hover:bg-gray-200"
                 : "border-slate-200 bg-slate-50 text-slate-400"
           )}
         >

@@ -420,7 +420,7 @@ import React from 'react';
 function App() {
   return (
     <div className="app">
-      <h1>Stock Desk</h1>
+      <h1>US Stock Desk</h1>
       <p>Agent Teams 개발 시작</p>
     </div>
   );
@@ -438,8 +438,8 @@ export default App;
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="해외주식 실시간 모니터링 대시보드" />
-    <title>Stock Desk</title>
+    <meta name="description" content="미국주식 실시간 모니터링 대시보드" />
+    <title>US Stock Desk</title>
   </head>
   <body>
     <div id="root"></div>

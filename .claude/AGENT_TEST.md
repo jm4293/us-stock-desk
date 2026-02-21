@@ -221,7 +221,7 @@ vi.mock('react-i18next', () => ({
 describe('Header', () => {
   it('renders app title', () => {
     render(<Header />);
-    expect(screen.getByText('Stock Desk')).toBeInTheDocument();
+    expect(screen.getByText('US Stock Desk')).toBeInTheDocument();
   });
 
   it('has add stock button', () => {
@@ -622,7 +622,7 @@ Test 작업 완료 후:
 - Storybook 설정 완료
 - 스토리 작성 완료
 
-✨ Stock Desk 프로젝트 개발 완료!
+✨ US Stock Desk 프로젝트 개발 완료!
 모든 Agent Teams 작업이 완료되었습니다.
 ```
 

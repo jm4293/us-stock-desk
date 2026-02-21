@@ -56,8 +56,8 @@ const TYPE_COLORS = {
     light: "border border-red-500/30 bg-red-50/90 text-red-700 backdrop-blur-xl",
   },
   info: {
-    dark: "border border-blue-400/30 bg-blue-500/20 text-blue-300 backdrop-blur-xl",
-    light: "border border-blue-500/30 bg-blue-50/90 text-blue-700 backdrop-blur-xl",
+    dark: "border border-gray-400/30 bg-gray-500/20 text-gray-300 backdrop-blur-xl",
+    light: "border border-gray-500/30 bg-gray-100 text-gray-800 backdrop-blur-xl",
   },
 };
 

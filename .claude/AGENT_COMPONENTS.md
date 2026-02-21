@@ -322,7 +322,7 @@ export const Header: React.FC = () => {
   return (
     <header className="glass fixed left-0 right-0 top-0 z-50 px-6 py-4">
       <div className="mx-auto flex max-w-screen-2xl items-center justify-between">
-        <h1 className="text-gradient text-2xl font-bold">Stock Desk</h1>
+        <h1 className="text-gradient text-2xl font-bold">US Stock Desk</h1>
 
         <div className="flex items-center gap-4">
           <Button
