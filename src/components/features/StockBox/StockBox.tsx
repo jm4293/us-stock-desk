@@ -1,5 +1,5 @@
-import { Button } from "@/components/atoms";
-import { PriceDisplay, StockChart } from "@/components/molecules";
+import { PriceDisplay, StockChart } from "@/components/features";
+import { Button } from "@/components/ui";
 import { STOCK_BOX } from "@/constants/app";
 import { useChartData, useMarketStatus, useStockData } from "@/hooks";
 import { useColorScheme, useShowChart, useTheme } from "@/stores";
@@ -194,7 +194,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
             size="sm"
             aria-label={t("common.close")}
             onClick={handleClose}
-            onMouseDown={(e) => e.stopPropagation()}
+            onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
           >
             ✕
           </Button>

@@ -1,18 +1,18 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { StockChart } from "@/components/features";
+import { useMarketStatus, useMobileStockCard } from "@/hooks";
+import type { ChartTimeRange } from "@/types/stock";
 import { cn } from "@/utils/cn";
 import {
-  formatUSD,
-  formatKRW,
-  formatChangeUSD,
   formatChangeKRW,
+  formatChangeUSD,
+  formatKRW,
   formatPercent,
+  formatUSD,
 } from "@/utils/formatters";
-import { StockChart } from "@/components/molecules";
-import { useMobileStockCard, useMarketStatus } from "@/hooks";
-import type { ChartTimeRange } from "@/types/stock";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];
 

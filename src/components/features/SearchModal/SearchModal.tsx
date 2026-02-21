@@ -1,4 +1,4 @@
-import { Modal, SearchInput } from "@/components/molecules";
+import { Modal, SearchInput } from "@/components/ui";
 import { useShowToast, useStockStore, useTheme, useUIActions, useUIStore } from "@/stores";
 import { cn } from "@/utils/cn";
 import React from "react";

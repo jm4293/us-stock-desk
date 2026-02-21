@@ -1,5 +1,5 @@
-import { MobileStockCard } from "@/components/organisms";
-import { EmptyState } from "@/components/molecules";
+import { MobileStockCard } from "@/components/features";
+import { EmptyState } from "@/components/ui";
 import { useStockStore } from "@/stores";
 import {
   DndContext,

@@ -20,9 +20,8 @@
 
   body {
     @apply font-sans antialiased;
-    @apply text-gray-900 dark:text-gray-100;
-    @apply bg-gradient-to-br from-blue-50 to-indigo-100;
-    @apply dark:from-gray-900 dark:to-gray-800;
+    color: var(--foreground);
+    background-color: var(--background);
     overflow: hidden;
   }
 
@@ -71,9 +70,10 @@
   }
 
   .card {
-    @apply bg-white dark:bg-gray-800;
-    @apply rounded-xl shadow-card;
-    @apply border border-gray-200 dark:border-gray-700;
+    @apply rounded-xl border shadow-card;
+    background-color: var(--card);
+    color: var(--card-foreground);
+    border-color: var(--border);
   }
 
   .card-gradient {
@@ -126,25 +126,23 @@
   }
 
   .modal-overlay {
-    @apply fixed inset-0 z-50;
-    @apply bg-black/50 backdrop-blur-sm;
-    @apply flex items-center justify-center;
-    @apply animate-fade-in;
+    @apply fixed inset-0 z-50 flex animate-fade-in items-center justify-center bg-black/50 backdrop-blur-sm;
   }
 
   .modal-content {
-    @apply glass rounded-2xl p-6;
-    @apply mx-4 w-full max-w-lg;
-    @apply animate-scale-in;
+    @apply mx-4 w-full max-w-lg animate-scale-in rounded-2xl border p-6 shadow-glass;
+    background-color: var(--card);
+    color: var(--card-foreground);
+    border-color: var(--border);
   }
 }
 
 /* ===================== 라이트 모드 오버라이드 ===================== */
 html.light .glass {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
-  color: rgb(15, 23, 42);
+  background: var(--color-glass);
+  border-color: var(--color-glass-border);
+  box-shadow: var(--shadow-glass);
+  color: var(--foreground);
 }
 
 html.light .glass h1,

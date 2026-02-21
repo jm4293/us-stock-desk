@@ -1,4 +1,4 @@
-import { KSTClock } from "@/components/molecules";
+import { KSTClock } from "@/components/features";
 import { useFullscreen, useIsMobile, useMarketStatus } from "@/hooks";
 import { useTheme } from "@/stores";
 import type { MarketStatus } from "@/types/stock";
@@ -333,24 +333,6 @@ export const Header = memo(function Header({
 
       {/* 오른쪽: 버튼 */}
       <div className="flex shrink-0 items-center gap-1">
-        {/* 종목 추가 */}
-        <button
-          onClick={onAddStock}
-          aria-label={t("header.addStock")}
-          className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <svg
-            className="h-4 w-4"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          {!isMobile && t("header.addStock")}
-        </button>
-
         {/* 전체화면 토글 */}
         <button
           onClick={toggleFullscreen}
@@ -387,6 +369,24 @@ export const Header = memo(function Header({
             </svg>
           )}
           {!isMobile && (isFullscreen ? t("header.exitFullscreen") : t("header.fullscreen"))}
+        </button>
+
+        {/* 종목 추가 */}
+        <button
+          onClick={onAddStock}
+          aria-label={t("header.addStock")}
+          className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          {!isMobile && t("header.addStock")}
         </button>
 
         {/* 설정 */}

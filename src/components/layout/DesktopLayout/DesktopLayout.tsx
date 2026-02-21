@@ -1,5 +1,5 @@
-import { EmptyState } from "@/components/molecules";
-import { StockBox } from "@/components/organisms";
+import { StockBox } from "@/components/features";
+import { EmptyState } from "@/components/ui";
 import { useStockStore } from "@/stores";
 
 interface DesktopCanvasProps {

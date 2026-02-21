@@ -1,4 +1,4 @@
-import { Modal } from "@/components/molecules";
+import { Modal } from "@/components/ui";
 import {
   useColorScheme,
   useCurrency,

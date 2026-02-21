@@ -1,12 +1,6 @@
-import { NetworkOfflineBanner, ToastContainer } from "@/components/molecules";
-import {
-  DesktopLayout,
-  Header,
-  MobileLayout,
-  SearchModal,
-  SettingsModal,
-  SplashScreen,
-} from "@/components/organisms";
+import { NetworkOfflineBanner, SearchModal, SettingsModal } from "@/components/features";
+import { DesktopLayout, Header, MobileLayout, SplashScreen } from "@/components/layout";
+import { ToastContainer } from "@/components/ui/Toast";
 import { useExchangeRate, useIsMobile, useWakeLock } from "@/hooks";
 import i18n from "@/i18n";
 import { stockSocket } from "@/services/websocket";
