@@ -38,5 +38,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const data = await response.json();
 
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "s-maxage=5, stale-while-revalidate=10");
   return res.status(response.status).json(data);
 }

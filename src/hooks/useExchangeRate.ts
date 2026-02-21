@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface ExchangeRateResponse {
   base: string;
@@ -9,7 +9,8 @@ interface ExchangeRateResponse {
 
 let cachedRate: number | null = null;
 let cacheTime = 0;
-const CACHE_DURATION = 5 * 60 * 1000; // 5분
+// 프론트엔드 캐시는 1분 (Vercel Edge Cache s-maxage=60 설정과 동일하게 맞춰 불필요한 네트워크 요청 방지)
+const CACHE_DURATION = 60 * 1000;
 
 export function useExchangeRate() {
   const [rate, setRate] = useState<number>(cachedRate ?? 1450);
@@ -33,6 +34,7 @@ export function useExchangeRate() {
       })
       .catch((error) => {
         console.error("[useExchangeRate] Failed to fetch exchange rate:", error);
+        // 에러 시에도 로딩 해제 (UI 멈춤 방지)
         setLoading(false);
       });
   }, []);

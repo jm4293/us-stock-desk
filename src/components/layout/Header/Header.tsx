@@ -22,7 +22,7 @@ const STATUS_COLORS: Record<MarketStatus, string> = {
 };
 
 const TOOLTIP_WIDTH = 288; // px (w-72)
-const krwFormatter = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 });
+const krwFormatter = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 2 });
 
 interface TooltipPos {
   top: number;

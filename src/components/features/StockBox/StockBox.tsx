@@ -183,32 +183,43 @@ export const StockBox: React.FC<StockBoxProps> = ({
         onClick={handleClick}
         onKeyDown={handleKeyDown}
       >
-        {/* 헤더 (드래그 핸들) */}
-        <div className="flex items-start justify-between p-4 pb-2">
-          <div>
-            <h3 className="text-lg font-bold text-white">{companyName}</h3>
-            <p className="text-xs text-gray-400">{symbol}</p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={t("common.close")}
-            onClick={handleClose}
-            onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
-          >
-            ✕
-          </Button>
-        </div>
-
-        {/* 가격 */}
-        <div className={cn("px-4", showChart ? "pb-2" : "pb-4")}>
+        {/* 헤더 및 가격 (PriceDisplay 통합) */}
+        <div className={cn("px-4", showChart ? "pb-2 pt-4" : "py-4")}>
           {error ? (
-            <p className="text-sm text-red-400">{error}</p>
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-white">{companyName}</h3>
+                <p className="text-xs text-gray-400">{symbol}</p>
+                <p className="mt-2 text-sm text-red-400">{error}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-label={t("common.close")}
+                onClick={handleClose}
+                onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+              >
+                ✕
+              </Button>
+            </div>
           ) : (
             <PriceDisplay
               price={priceState.status === "success" ? priceState.data : null}
               loading={priceState.status === "loading" || priceState.status === "idle"}
               marketStatus={marketStatus}
+              companyName={companyName}
+              symbol={symbol}
+              actionNode={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  aria-label={t("common.close")}
+                  onClick={handleClose}
+                  onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+                >
+                  ✕
+                </Button>
+              }
             />
           )}
         </div>
@@ -240,7 +251,11 @@ export const StockBox: React.FC<StockBoxProps> = ({
 
             <div className="min-h-0 flex-1 px-2 pb-2">
               {chartState.status === "success" && chartState.data.length > 0 ? (
-                <StockChart data={chartState.data} />
+                <StockChart
+                  data={chartState.data}
+                  livePrice={priceState.status === "success" ? priceState.data.current : null}
+                  liveTimestamp={priceState.status === "success" ? priceState.data.timestamp : null}
+                />
               ) : chartState.status === "loading" || chartState.status === "idle" ? (
                 <div className="flex h-full items-center justify-center">
                   <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-white" />

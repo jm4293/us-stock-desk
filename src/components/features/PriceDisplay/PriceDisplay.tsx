@@ -18,6 +18,11 @@ interface PriceDisplayProps {
   /** 현재 마켓 상태: pre/post일 때 확장 거래 가격 표시 */
   marketStatus?: "open" | "pre" | "post" | "closed";
   className?: string;
+
+  /** 헤더 통합용 옵션 props (데스크탑/모바일 인라인 레이아웃) */
+  companyName?: string;
+  symbol?: string;
+  actionNode?: React.ReactNode;
 }
 
 export const PriceDisplay: React.FC<PriceDisplayProps> = ({
@@ -25,6 +30,9 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   loading = false,
   marketStatus,
   className,
+  companyName,
+  symbol,
+  actionNode,
 }) => {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
@@ -72,7 +80,7 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
         : null;
 
   // closed 상태에서 postMarket 보조 표시
-  const closedPostMarket = marketStatus === "closed" ? price.postMarket : null;
+  const closedPostMarket = price.postMarket;
   const displayClosedPost = closedPostMarket
     ? currency === "KRW"
       ? formatKRW(closedPostMarket.price * exchangeRate)
@@ -86,84 +94,141 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   const isClosedPostPositive = closedPostMarket ? closedPostMarket.change >= 0 : true;
   const closedPostColorClass = isClosedPostPositive ? upClass : downClass;
 
-  // 정규장 종가 보조 표시 (pre/post 중에만)
-  const isExtendedHours = marketStatus === "pre" || marketStatus === "post";
+  // preMarket 보조 표시
+  const preMarket = price.preMarket;
+  const displayPreMarket = preMarket
+    ? currency === "KRW"
+      ? formatKRW(preMarket.price * exchangeRate)
+      : formatUSD(preMarket.price)
+    : null;
+  const preMarketChange = preMarket
+    ? currency === "KRW"
+      ? formatChangeKRW(preMarket.change * exchangeRate)
+      : formatChangeUSD(preMarket.change)
+    : null;
+  const isPreMarketPositive = preMarket ? preMarket.change >= 0 : true;
+  const preMarketColorClass = isPreMarketPositive ? upClass : downClass;
+
+  // 정규장 종가 보조 표시
+  // 메인 가격이 현재 세션에 따라 바뀌므로, 훼손되지 않은 원본 정규장 가격을 하단에 항상 표시합니다.
+  const displayCloseNum = price.regularMarketPrice ?? price.current;
   const displayClose =
-    isExtendedHours && price.close > 0
-      ? currency === "KRW"
-        ? formatKRW(price.close * exchangeRate)
-        : formatUSD(price.close)
-      : null;
+    currency === "KRW" ? formatKRW(displayCloseNum * exchangeRate) : formatUSD(displayCloseNum);
 
   return (
-    <div className={cn("space-y-1", className)}>
-      {/* 현재가 + 세션 레이블 */}
-      <div className="flex items-baseline gap-2">
-        <div className={cn("text-2xl font-bold", priceColorClass)}>{displayPrice}</div>
-        {sessionLabel && (
-          <span
-            className={cn(
-              "rounded px-1.5 py-0.5 text-xs font-medium",
-              isDark ? "bg-white/10 text-gray-300" : "bg-slate-100 text-slate-500"
-            )}
-          >
-            {sessionLabel}
-          </span>
-        )}
-      </div>
-
-      {/* 변동 수치 + 변동 % (확장시간 기준) */}
-      <div className="flex items-center gap-2 text-sm">
-        <span className={priceColorClass}>{displayChange}</span>
-        <span className={priceColorClass}>{formatPercent(price.changePercent)}</span>
-      </div>
-
-      {/* 정규장 종가 (확장시간 중에만 보조 표시) */}
-      {displayClose && (
-        <div
-          className={cn(
-            "flex items-center gap-1.5 text-xs",
-            isDark ? "text-gray-500" : "text-slate-400"
+    <div className={cn(className)}>
+      <div className="flex items-start justify-between">
+        {/* 좌측: 이름 및 티커 */}
+        <div className="min-w-0 flex-1 pr-4">
+          {companyName ? (
+            <h3 className="truncate text-lg font-bold text-white">{companyName}</h3>
+          ) : (
+            symbol && <h3 className="truncate text-lg font-bold text-white">{symbol}</h3>
           )}
-        >
-          <span>{t("stockBox.regularClose")}</span>
-          <span className={cn("tabular-nums", isDark ? "text-gray-400" : "text-slate-500")}>
-            {displayClose}
-          </span>
-        </div>
-      )}
-
-      {/* 애프터마켓 (closed 상태에서 보조 표시) */}
-      {displayClosedPost && (
-        <div
-          className={cn(
-            "flex items-center gap-1.5 text-xs",
-            isDark ? "text-gray-500" : "text-slate-400"
-          )}
-        >
-          <span>{t("stockBox.postMarket")}</span>
-          <span className={cn("tabular-nums", closedPostColorClass)}>{displayClosedPost}</span>
-          {closedPostChange && (
-            <span className={cn("tabular-nums", closedPostColorClass)}>{closedPostChange}</span>
+          {companyName && symbol && (
+            <p className="text-sm font-medium text-gray-400/80">{symbol}</p>
           )}
         </div>
-      )}
 
-      {/* 오늘 최고가 / 최저가 */}
-      <div
-        className={cn(
-          "flex items-center gap-3 text-xs",
-          isDark ? "text-gray-400" : "text-slate-400"
+        {/* 우측: 가격/변동률 (우측 정렬) + X 버튼 */}
+        <div className="flex shrink-0 items-center">
+          <div className="flex flex-col items-end">
+            <div className={cn("text-2xl font-bold tracking-tight", priceColorClass)}>
+              {displayPrice}
+            </div>
+            <div className="mt-0.5 flex items-center justify-end gap-1.5 text-sm">
+              {sessionLabel && (
+                <span
+                  className={cn(
+                    "rounded px-1.5 py-0.5 text-[10px] font-medium leading-none",
+                    isDark ? "bg-white/10 text-gray-300" : "bg-slate-100 text-slate-500"
+                  )}
+                >
+                  {sessionLabel}
+                </span>
+              )}
+              <span className={priceColorClass}>{displayChange}</span>
+              <span className={priceColorClass}>{formatPercent(price.changePercent)}</span>
+            </div>
+          </div>
+          {/* X 버튼을 가격/변동률 블록의 우측에 고정 */}
+          {actionNode && <div className="-mr-2 -mt-1 ml-2">{actionNode}</div>}
+        </div>
+      </div>
+
+      <div className="flex flex-col text-xs">
+        {/* 프리마켓 (pre/post/closed 상태에서 보조 표시) */}
+        {displayPreMarket && (
+          <div className="flex items-center justify-between">
+            <span className={isDark ? "text-gray-400" : "text-slate-500"}>
+              {t("stockBox.preMarket")}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className={cn("font-medium tabular-nums", preMarketColorClass)}>
+                {displayPreMarket}
+              </span>
+              {preMarketChange && (
+                <span className={cn("text-[10px] tabular-nums", preMarketColorClass)}>
+                  {preMarketChange}
+                </span>
+              )}
+            </div>
+          </div>
         )}
-      >
-        <span>
-          <span className="mr-1 opacity-60">{t("stockBox.high")}</span>
-          <span className={upClass}>{displayHigh}</span>
-        </span>
-        <span>
-          <span className="mr-1 opacity-60">{t("stockBox.low")}</span>
-          <span className={downClass}>{displayLow}</span>
-        </span>
+
+        {/* 정규장 종가 */}
+        {displayClose && (
+          <div className="flex items-center gap-2">
+            <span className={isDark ? "text-gray-400" : "text-slate-500"}>
+              {t("stockBox.regularClose") || "Regular Close"}
+            </span>
+            <span
+              className={cn(
+                "font-medium tabular-nums",
+                isDark ? "text-gray-300" : "text-slate-700"
+              )}
+            >
+              {displayClose}
+            </span>
+          </div>
+        )}
+
+        {/* 애프터마켓 */}
+        {displayClosedPost && (
+          <div className="flex items-center justify-between">
+            <span className={isDark ? "text-gray-400" : "text-slate-500"}>
+              {t("stockBox.postMarket")}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <span className={cn("font-medium tabular-nums", closedPostColorClass)}>
+                {displayClosedPost}
+              </span>
+              {closedPostChange && (
+                <span className={cn("text-[10px] tabular-nums", closedPostColorClass)}>
+                  {closedPostChange}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 오늘 최고가 / 최저가 (한 줄로 통합) */}
+        <div
+          className={cn("mt-0.5 flex gap-3 text-xs", isDark ? "text-gray-400" : "text-slate-500")}
+        >
+          <span>
+            <span className={`mr-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+              {t("stockBox.high")}
+            </span>
+            <span className={upClass}>{displayHigh}</span>
+          </span>
+          <span>
+            <span className={`mr-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+              {t("stockBox.low")}
+            </span>
+            <span className={downClass}>{displayLow}</span>
+          </span>
+        </div>
       </div>
     </div>
   );

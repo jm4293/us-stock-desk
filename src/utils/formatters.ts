@@ -5,7 +5,7 @@ export function formatUSD(value: number): string {
 
 export function formatKRW(value: number): string {
   if (value == null || isNaN(value)) return "₩—";
-  return `₩${Math.round(value).toLocaleString("ko-KR")}`;
+  return `₩${value.toLocaleString("ko-KR", { maximumFractionDigits: 2 })}`;
 }
 
 export function formatChangeUSD(value: number): string {
@@ -15,10 +15,9 @@ export function formatChangeUSD(value: number): string {
 
 export function formatChangeKRW(value: number): string {
   if (value == null || isNaN(value)) return "—";
-  const rounded = Math.round(value);
-  return rounded >= 0
-    ? `+₩${rounded.toLocaleString("ko-KR")}`
-    : `-₩${Math.abs(rounded).toLocaleString("ko-KR")}`;
+  return value >= 0
+    ? `+₩${value.toLocaleString("ko-KR", { maximumFractionDigits: 2 })}`
+    : `-₩${Math.abs(value).toLocaleString("ko-KR", { maximumFractionDigits: 2 })}`;
 }
 
 export function formatPercent(value: number): string {

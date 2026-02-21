@@ -125,14 +125,14 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
         ? t("stockBox.postMarket")
         : null;
 
-  // 정규장 종가 (확장시간 중 보조 표시용)
-  const isExtendedHours = marketStatus === "pre" || marketStatus === "post";
-  const displayClose =
-    isExtendedHours && price && price.close > 0
-      ? currency === "KRW"
-        ? formatKRW(price.close * exchangeRate)
-        : formatUSD(price.close)
-      : null;
+  // 정규장 종가 (항상 보조 표시용으로 분리)
+  // 메인 가격이 현재 세션에 따라 바뀌므로 모바일에도 훼손되지 않은 원본 정규장 가격을 하단에 표시합니다.
+  const displayCloseNum = price ? (price.regularMarketPrice ?? price.current) : null;
+  const displayClose = displayCloseNum
+    ? currency === "KRW"
+      ? formatKRW(displayCloseNum * exchangeRate)
+      : formatUSD(displayCloseNum)
+    : null;
 
   // closed 상태에서 postMarket 보조 표시
   const closedPostMarket = marketStatus === "closed" && price ? price.postMarket : null;
@@ -232,14 +232,33 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
         </button>
       </div>
 
+      {/* 정규장 종가 */}
+      {!isLoading && displayClose && (
+        <div
+          className={cn(
+            "mt-1 flex items-center gap-2 text-xs",
+            isDark ? "text-gray-400" : "text-slate-500"
+          )}
+        >
+          <span>{t("stockBox.regularClose") || "Regular Close"}</span>
+          <span
+            className={cn("font-medium tabular-nums", isDark ? "text-gray-300" : "text-slate-700")}
+          >
+            {displayClose}
+          </span>
+        </div>
+      )}
+
       {/* 고가 / 저가 */}
       {isLoading || !price ? (
-        <div className="mt-2 flex animate-pulse gap-3">
+        <div className="mt-1 flex animate-pulse gap-3">
           <div className={cn("h-3 w-20 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
           <div className={cn("h-3 w-20 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
         </div>
       ) : (
-        <div className={cn("mt-2 flex gap-3 text-xs", isDark ? "text-gray-400" : "text-slate-400")}>
+        <div
+          className={cn("mt-0.5 flex gap-3 text-xs", isDark ? "text-gray-400" : "text-slate-400")}
+        >
           <span>
             <span className="mr-1 opacity-60">{t("stockBox.high")}</span>
             <span className={upClass}>{displayHigh}</span>
@@ -264,21 +283,6 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
           {closedPostChange && (
             <span className={cn("tabular-nums", closedPostColorClass)}>{closedPostChange}</span>
           )}
-        </div>
-      )}
-
-      {/* 정규장 종가 (확장시간 중 보조 표시) */}
-      {!isLoading && displayClose && (
-        <div
-          className={cn(
-            "mt-1 flex items-center gap-1.5 text-xs",
-            isDark ? "text-gray-500" : "text-slate-400"
-          )}
-        >
-          <span>{t("stockBox.regularClose")}</span>
-          <span className={cn("tabular-nums", isDark ? "text-gray-400" : "text-slate-500")}>
-            {displayClose}
-          </span>
         </div>
       )}
 

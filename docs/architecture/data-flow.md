@@ -9,21 +9,20 @@
 ```mermaid
 graph TD
     subgraph External["외부 API"]
-        F["Finnhub API<br/>(실시간 가격 · 검색)"]
-        Y["Yahoo Finance API<br/>(차트 OHLCV · 확장거래)"]
-        E["Exchange Rate API<br/>(USD/KRW 환율)"]
+        F["Finnhub API<br/>(초기 가격 · 차트 · 검색)"]
+        Y["Yahoo Finance API<br/>(실시간 시세 · 확장거래 · 환율)"]
     end
 
     subgraph Serverless["Vercel Serverless Functions (api/)"]
-        SP["/api/stock-proxy<br/>Finnhub 프록시"]
+        SP["/api/stock-proxy<br/>Finnhub 프록시 (Edge Cache)"]
         CH["/api/chart<br/>Yahoo Finance 차트 프록시"]
         EH["/api/extended-hours<br/>확장거래시간 프록시"]
-        ER["/api/exchange-rate<br/>환율 프록시"]
+        ER["/api/exchange-rate<br/>Yahoo 환율 프록시 (Edge Cache)"]
     end
 
     subgraph Services["Services (src/services/)"]
         FA["finnhubApi.ts<br/>REST 호출 래퍼"]
-        SS["stockSocket.ts<br/>WebSocket 싱글턴"]
+        YS["yahooSocket.ts<br/>Yahoo WebSocket (Protobuf)"]
         CC["chartCache.ts<br/>중복 요청 제거"]
         LS["localStorage.ts<br/>Base64 암호화 저장"]
     end
@@ -32,7 +31,7 @@ graph TD
         USD["useStockData()<br/>실시간 가격"]
         UCD["useChartData()<br/>OHLCV 차트"]
         UMS["useMarketStatus()<br/>시장 개폐장 판단"]
-        UER["useExchangeRate()<br/>환율 (5분 캐시)"]
+        UER["useExchangeRate()<br/>환율"]
     end
 
     subgraph Store["Store (src/stores/)"]
@@ -47,8 +46,7 @@ graph TD
     end
 
     F --> SP
-    Y --> CH & EH
-    E --> ER
+    Y --> CH & EH & ER
 
     SP --> FA
     CH --> CC
@@ -56,7 +54,7 @@ graph TD
     ER --> UER
 
     FA --> USD
-    SS --> USD
+    YS --> USD
     CC --> UCD
     UMS --> USD
 
@@ -133,36 +131,22 @@ sequenceDiagram
 
 ---
 
-## 4. WebSocket 연결 및 재연결 (`stockSocket`)
+## 4. WebSocket 연결 및 재연결 (`yahooSocket`)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> IDLE : init(apiKey)
+    [*] --> IDLE
 
     IDLE --> CONNECTING : subscribe() 최초 호출
     CONNECTING --> OPEN : ws.onopen
-    OPEN --> SUBSCRIBED : resubscribeAll()\n구독 심볼 전송
+    OPEN --> SUBSCRIBED : Yahoo에 구독 심볼 전송\n{"subscribe": ["AAPL"]}
 
-    SUBSCRIBED --> SUBSCRIBED : onmessage → trade tick\ncallbacks 실행
+    SUBSCRIBED --> SUBSCRIBED : onmessage → Protobuf 디코딩\n→ callbacks 실행
 
     SUBSCRIBED --> CLOSED : ws.onclose
     OPEN --> CLOSED : ws.onclose
 
-    CLOSED --> CONNECTING : scheduleReconnect()\nattempts < MAX_RECONNECT_ATTEMPTS
-    CLOSED --> FAILED : attempts ≥ MAX_RECONNECT_ATTEMPTS
-
-    FAILED --> IDLE : 정규장 재진입 시\nstockSocket.init() 재호출
-
-    note right of CONNECTING
-        지연: RECONNECT_DELAY × 2ⁿ ms
-        (지수 백오프)
-    end note
-
-    note right of FAILED
-        onConnectionFailed 콜백 실행
-        → wsFailedFallback = true
-        → Polling 전환
-    end note
+    CLOSED --> CONNECTING : scheduleReconnect()
 ```
 
 ---
@@ -171,7 +155,7 @@ stateDiagram-v2
 
 ```mermaid
 flowchart LR
-    NOW["현재 UTC 시각"] --> DST{DST 판단\n3월 둘째 일요일\n~ 11월 첫째 일요일}
+    NOW["현재 UTC 시각"] --> DST{DST 판단}
     DST -->|"EDT (여름)"| UTC_4["UTC - 4h → ET"]
     DST -->|"EST (겨울)"| UTC_5["UTC - 5h → ET"]
 
@@ -184,8 +168,8 @@ flowchart LR
     TIME -->|"16:00 ~ 20:00"| POST["post\nmarket.post"]
     TIME -->|"그 외"| CLOSED["closed\nmarket.closed"]
 
-    OPEN -->|"true"| WS_MODE["WebSocket 모드"]
-    PRE & POST & CLOSED & WEEKEND -->|"false"| POLL_MODE["Polling 모드\n+ 확장거래 데이터"]
+    PRE & OPEN & POST -->|"true"| WS_MODE["Yahoo WebSocket 스트리밍 활성화"]
+    CLOSED & WEEKEND -->|"false"| STATIC_MODE["마감가 표시 (연결 안함)"]
 
     style OPEN fill:#22c55e,color:#fff
     style PRE fill:#f59e0b,color:#fff
@@ -225,27 +209,32 @@ flowchart LR
 
 ---
 
-## 7. 환율 캐싱 (`useExchangeRate`)
+## 7. 환율 시스템 (`useExchangeRate`)
 
 ```mermaid
 sequenceDiagram
     participant Comp as 컴포넌트
     participant Hook as useExchangeRate
-    participant Cache as 모듈 변수 캐시
     participant API as /api/exchange-rate
+    participant Vercel as Vercel Edge Cache
+    participant Yahoo as Yahoo Finance<br/>(KRW=X)
 
     Comp->>Hook: useExchangeRate()
-    Hook->>Cache: cachedRate & now - cacheTime < 5분?
+    Hook->>API: GET /api/exchange-rate
 
-    alt 캐시 유효
-        Cache-->>Hook: cachedRate 반환
-        Hook-->>Comp: { rate: cachedRate, loading: false }
-    else 캐시 만료 or 없음
-        Hook->>API: GET /api/exchange-rate
-        API-->>Hook: { rate: 1450, ... }
-        Hook->>Cache: cachedRate = rate, cacheTime = now
-        Hook-->>Comp: { rate, loading: false }
+    API->>Vercel: 캐시 히트? (Cache-Control: s-maxage=60)
+
+    alt Edge Cache Hit (60초 내 요청)
+        Vercel-->>API: 기존 응답
+    else Edge Cache Miss
+        Vercel->>Yahoo: Yahoo Finance 호출
+        Yahoo-->>Vercel: 새로운 환율 응답
+        Vercel->>Vercel: 60초간 응답 기록 (Edge 캐시 생성)
+        Vercel-->>API: 새로운 응답
     end
+
+    API-->>Hook: { rate: 1450, ... }
+    Hook-->>Comp: { rate, loading: false }
 ```
 
 ---
@@ -255,7 +244,7 @@ sequenceDiagram
 | 다이어그램      | 파일                                                                                 |
 | --------------- | ------------------------------------------------------------------------------------ |
 | REST 래퍼       | [src/services/api/finnhubApi.ts](../../src/services/api/finnhubApi.ts)               |
-| WebSocket       | [src/services/websocket/stockSocket.ts](../../src/services/websocket/stockSocket.ts) |
+| Yahoo WebSocket | [src/services/websocket/yahooSocket.ts](../../src/services/websocket/yahooSocket.ts) |
 | 차트 캐시       | [src/services/api/chartCache.ts](../../src/services/api/chartCache.ts)               |
 | 실시간 가격 훅  | [src/hooks/useStockData.ts](../../src/hooks/useStockData.ts)                         |
 | 차트 데이터 훅  | [src/hooks/useChartData.ts](../../src/hooks/useChartData.ts)                         |

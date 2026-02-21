@@ -38,13 +38,12 @@
 
 ### APIs
 
-- **Price Data**: Finnhub (실시간 주식 가격, 서버 측 프록시)
-  - REST API Polling (5초 / 10초 / 30초 간격, 설정 가능)
-  - API 키는 서버 환경변수로 관리, 클라이언트에 노출 없음
-- **Chart Data**: Finnhub Candle API (차트 OHLCV 데이터, 서버 측 프록시)
-  - REST API (`/api/stock-proxy?type=candle`)
-  - Yahoo Finance 대신 Finnhub 단일 소스로 통합
-- **Rate Limiting**: Serverless Function에서 구현 (Finnhub 프록시)
+- **Price Data**: Finnhub & Yahoo Finance
+  - Initial Load: Finnhub REST API (via Vercel proxy with Edge Caching).
+  - Real-time Streaming: Yahoo Finance WebSocket (Client-side, 100% free, all hours).
+  - Exchange Rate: Yahoo Finance REST API (`KRW=X`) via Vercel Edge Caching proxy.
+- **Chart Data**: Finnhub Candle API (via server proxy)
+- **Rate Limiting**: Effectively handled globally using Vercel Edge Cache (`Cache-Control`), eliminating per-user API quota limits.
 
 ### Storage
 
@@ -272,14 +271,20 @@
 
 ### 실시간 업데이트 전략
 
+### 실시간 업데이트 전략
+
 ```
-실시간 가격 (Finnhub):
-  → WebSocket (finnhub.io/api/v1/ws) - 1차
-  → REST API Polling Fallback (설정에 따라 5초 / 10초 / 30초 간격)
-  → 현재가, 등락률, 거래량 갱신
+실시간 주식 데이터 (Yahoo Finance WebSocket):
+  1. 초기 진입 시 Finnhub REST (Server Proxy) 로 기본 스냅샷 확보.
+  2. Yahoo Finance WebSocket (wss://streamer.finance.yahoo.com) 연결.
+  3. Protobuf 메시지 수신 및 디코딩으로 정규장 및 확장거래 실시간 렌더링.
+  4. 시장 종료 시 연결 해제 후 마지막 마감가 유지.
+
+환율 데이터 (Vercel Edge Cache):
+  1. 클라이언트가 /api/exchange-rate 호출.
+  2. Vercel Edge 서버가 60초 캐싱 (Yahoo Finance 통신 최소화).
 
 차트 데이터 (Finnhub Candle API, 서버 프록시 경유):
-  → REST API Polling
   → 기간별 OHLCV 데이터 (1일, 1주, 1개월, 3개월, 6개월, 1년)
 ```
 
@@ -338,15 +343,11 @@
 - Yahoo Finance는 API 키 불필요 (무료 공개 API)
 - 사용자가 별도로 API 키를 발급하거나 관리할 필요 없음
 
-### Rate Limiting
+### 캐싱 및 트래픽 분산 (Edge Caching)
 
-- Serverless Function에서 IP별 요청 제한
-- 무분별한 API 호출 방지
-
-### 캐싱
-
-- 동일 종목 데이터 캐싱 (선택적)
-- LocalStorage 캐시 활용
+- Vercel Edge Network의 `Cache-Control: s-maxage=N` 헤더를 활용.
+- 개별 사용자가 아닌 **URL 파라미터(심볼)** 기준으로 요청을 그룹화하여, 대규모 트래픽 발생 시에도 Vercel 서버가 Yahoo/Finnhub로 보내는 요청 수를 극단적으로 억제함.
+- LocalStorage의 `stockdesk_cache_v1` 의존도를 낮추고 Edge Cache에 위임.
 
 ### 성능 최적화
 
@@ -398,7 +399,7 @@ stock-desk/
 │   │   ├── api/
 │   │   │   └── finnhubApi.ts    # Finnhub REST API (Quote + Candle + Search)
 │   │   ├── websocket/
-│   │   │   └── stockSocket.ts   # Finnhub WebSocket 서비스
+│   │   │   └── yahooSocket.ts   # Yahoo Finance WebSocket (Protobuf)
 │   │   └── storage/
 │   │       └── localStorage.ts  # LocalStorage 서비스
 │   ├── stores/                  # 전역 상태 관리 (Zustand)

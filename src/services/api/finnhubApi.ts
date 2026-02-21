@@ -1,6 +1,6 @@
-import type { FinnhubQuote, FinnhubCandle, ApiResponse } from "@/types/api";
-import type { StockPrice, StockChartData, ChartTimeRange, ExtendedHoursPrice } from "@/types/stock";
 import { API_ENDPOINTS } from "@/constants/api";
+import type { ApiResponse, FinnhubCandle, FinnhubQuote } from "@/types/api";
+import type { ChartTimeRange, ExtendedHoursPrice, StockChartData, StockPrice } from "@/types/stock";
 
 const CHART_RESOLUTION: Record<ChartTimeRange, string> = {
   "1D": "5",
@@ -53,6 +53,9 @@ export function mapQuoteToStockPrice(symbol: string, quote: FinnhubQuote): Stock
     changePercent,
     volume: 0,
     timestamp: quote.t * 1000,
+    regularMarketPrice: quote.c,
+    regularMarketChange: change,
+    regularMarketChangePercent: changePercent,
   };
 }
 

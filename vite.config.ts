@@ -1,6 +1,6 @@
-import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 
 // Yahoo Finance 차트 프록시 (무료, API 키 불필요)
 function yahooChartPlugin(): Plugin {
@@ -82,15 +82,20 @@ function finnhubProxyPlugin(apiKey: string): Plugin {
         }
       });
 
-      // Frankfurt Open Data API (무료, 키 불필요, ECB 기준 실시간 환율)
+      // Yahoo Finance Exchange Rate Proxy (Match production api/exchange-rate.ts)
       server.middlewares.use("/api/exchange-rate", async (_req, res) => {
         res.setHeader("Content-Type", "application/json");
         try {
-          const response = await fetch("https://api.frankfurter.app/latest?from=USD&to=KRW");
-          const data = (await response.json()) as { rates?: Record<string, number> };
-          const rate = data?.rates?.KRW ?? 1450;
+          const response = await fetch(
+            "https://query1.finance.yahoo.com/v8/finance/chart/KRW=X?interval=1m&range=1d",
+            { headers: { "User-Agent": "Mozilla/5.0" } }
+          );
+          if (!response.ok) throw new Error("Yahoo API Error");
+          const data = await response.json();
+          const rate = data?.chart?.result?.[0]?.meta?.regularMarketPrice ?? 1450;
           res.end(JSON.stringify({ base: "USD", target: "KRW", rate, timestamp: Date.now() }));
-        } catch {
+        } catch (error) {
+          console.error("Local Exchange Rate Proxy Error:", error);
           res.end(
             JSON.stringify({ base: "USD", target: "KRW", rate: 1450, timestamp: Date.now() })
           );

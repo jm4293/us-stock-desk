@@ -42,6 +42,11 @@ export interface StockPrice {
   preMarket?: ExtendedHoursPrice;
   /** 애프터마켓 가격 (장 종료 후에만 유효) */
   postMarket?: ExtendedHoursPrice;
+
+  /** 원본 정규장 가격 (current가 pre/post로 덮어씌워져도 유지됨) */
+  regularMarketPrice?: number;
+  regularMarketChange?: number;
+  regularMarketChangePercent?: number;
 }
 
 export interface StockChartData {
