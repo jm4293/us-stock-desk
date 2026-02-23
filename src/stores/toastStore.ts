@@ -1,5 +1,5 @@
-import { create } from "zustand";
 import { TIMING } from "@/constants/timing";
+import { create } from "zustand";
 
 interface Toast {
   id: string;
@@ -13,8 +13,12 @@ interface ToastStore {
   removeToast: (id: string) => void;
 }
 
+const DEFAULT_TOASTS = {
+  toasts: [] as Toast[],
+};
+
 export const useToastStore = create<ToastStore>((set) => ({
-  toasts: [],
+  ...DEFAULT_TOASTS,
 
   showToast: (message, type = "success") => {
     const id = crypto.randomUUID();

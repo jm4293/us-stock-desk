@@ -1,20 +1,24 @@
+import { STOCK_BOX, STORAGE_KEYS } from "@/constants/app";
+import type { Position, Size, StockBox } from "@/types/stock";
+import type { StockActions, StockState } from "@/types/store";
 import { create } from "zustand";
-import { persist, devtools } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import { useShallow } from "zustand/react/shallow";
-import type { StockBox, Position, Size } from "@/types/stock";
-import type { StockState, StockActions } from "@/types/store";
-import { STORAGE_KEYS, STOCK_BOX } from "@/constants/app";
 
 type StockStore = StockState & StockActions;
+
+const DEFAULT_STOCKS = {
+  stocks: [] as StockBox[],
+  focusedStockId: null as string | null,
+  maxZIndex: 0 as number,
+};
 
 export const useStockStore = create<StockStore>()(
   devtools(
     persist(
       immer((set) => ({
-        stocks: [],
-        focusedStockId: null,
-        maxZIndex: 0,
+        ...DEFAULT_STOCKS,
 
         addStock: (symbol: string, companyName: string) => {
           set((state) => {

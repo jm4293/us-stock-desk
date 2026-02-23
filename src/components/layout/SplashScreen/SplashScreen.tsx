@@ -1,15 +1,13 @@
 import { useSettingsStore } from "@/stores";
 import { cn } from "@/utils/cn";
 import { gsap } from "gsap";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 
-interface SplashScreenProps {
-  onComplete: () => void;
-}
-
-export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
+export const SplashScreen = () => {
   const { t } = useTranslation();
+  const [isDone, setIsDone] = useState(false);
 
   const theme = useSettingsStore((state) => state.theme);
 
@@ -25,12 +23,12 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
   useEffect(() => {
     const tl = gsap.timeline({
       onComplete: () => {
-        // 스플래시 fade-out 후 onComplete 호출
+        // 스플래시 fade-out 후 내부 상태 변경
         gsap.to(containerRef.current, {
           opacity: 0,
           duration: 0.5,
           ease: "power2.inOut",
-          onComplete: () => onComplete(),
+          onComplete: () => setIsDone(true),
         });
       },
     });
@@ -57,7 +55,9 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
+  if (isDone) return null;
+
+  return createPortal(
     <div
       ref={containerRef}
       className={cn(
@@ -154,6 +154,7 @@ export const SplashScreen = ({ onComplete }: SplashScreenProps) => {
           </span>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

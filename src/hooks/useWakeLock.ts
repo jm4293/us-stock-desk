@@ -4,7 +4,10 @@ export function useWakeLock() {
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   const acquire = async () => {
-    if (!("wakeLock" in navigator)) return;
+    if (!("wakeLock" in navigator)) {
+      return;
+    }
+
     try {
       wakeLockRef.current = await navigator.wakeLock.request("screen");
     } catch {

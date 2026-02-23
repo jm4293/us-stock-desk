@@ -1,10 +1,18 @@
+import { STORAGE_KEYS } from "@/constants/app";
+import type { SettingsActions, SettingsState } from "@/types/store";
 import { create } from "zustand";
-import { persist, devtools } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import type { SettingsState, SettingsActions } from "@/types/store";
-import { STORAGE_KEYS, DEFAULT_SETTINGS } from "@/constants/app";
 
 type SettingsStore = SettingsState & SettingsActions;
+
+const DEFAULT_SETTINGS = {
+  theme: "dark" as const,
+  language: "ko" as const,
+  colorScheme: "us" as const,
+  currency: "USD" as const,
+  showChart: true,
+};
 
 export const useSettingsStore = create<SettingsStore>()(
   devtools(
@@ -44,7 +52,31 @@ export const useSettingsStore = create<SettingsStore>()(
       })),
       {
         name: STORAGE_KEYS.SETTINGS,
-        version: 1,
+        version: 2,
+        partialize: (state) => ({
+          theme: state.theme,
+          language: state.language,
+          colorScheme: state.colorScheme,
+          currency: state.currency,
+          showChart: state.showChart,
+        }),
+        storage: {
+          getItem: (name) => {
+            const str = localStorage.getItem(name);
+            if (!str) return null;
+            try {
+              const decoded = atob(str);
+              return JSON.parse(decoded);
+            } catch {
+              return null;
+            }
+          },
+          setItem: (name, value) => {
+            const encoded = btoa(JSON.stringify(value));
+            localStorage.setItem(name, encoded);
+          },
+          removeItem: (name) => localStorage.removeItem(name),
+        },
       }
     ),
     {
