@@ -82,7 +82,8 @@
     "currencyChanged": "통화가 {{value}}로 변경되었습니다",
     "colorSchemeChanged": "{{value}} 캔들 색상으로 변경되었습니다",
     "chartChanged": "차트 표시가 {{value}}로 변경되었습니다",
-    "indexChanged": "{{name}} 지수 표시가 {{value}}로 변경되었습니다"
+    "indexChanged": "{{name}} 지수 표시가 {{value}}로 변경되었습니다",
+    "exchangeRateChanged": "환율 표시가 {{value}}로 변경되었습니다"
   },
   "splash": {
     "subtitle": "미국주식 대시보드",
@@ -100,7 +101,8 @@
     "light": "라이트 모드",
     "language": "언어",
     "currency": "통화 표시",
-    "chart": "차트 표시",
+    "chart": "차트",
+    "chartLabel": "차트 표시",
     "chartOn": "켜기",
     "chartOff": "끄기",
     "marketIndex": "시장 지수",
@@ -108,6 +110,8 @@
     "indexSP500": "S&P 500",
     "indexNASDAQ": "나스닥",
     "indexOn": "켜기",
-    "indexOff": "끄기"
+    "indexOff": "끄기",
+    "exchangeRate": "환율 (USD/KRW)",
+    "exchangeRateLabel": "달러/원"
   }
 }

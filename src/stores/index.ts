@@ -24,6 +24,7 @@ export const resetAllStores = () => {
     showIndexDJI: true,
     showIndexSP500: true,
     showIndexNASDAQ: true,
+    showExchangeRate: true,
   });
 
   useUIStore.setState({

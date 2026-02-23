@@ -196,22 +196,20 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
             </div>
           ) : displayPrice ? (
             <>
-              <div className="flex items-center gap-1">
-                <span className={cn("text-sm font-bold", priceColorClass)}>{displayPrice}</span>
+              <span className={cn("text-sm font-bold", priceColorClass)}>{displayPrice}</span>
+              <div className="flex items-center gap-1 text-xs">
                 {sessionLabel && (
                   <span
                     className={cn(
-                      "rounded px-1 py-0.5 text-xs font-medium",
+                      "rounded px-1 py-0.5 font-medium",
                       isDark ? "bg-white/10 text-gray-300" : "bg-slate-100 text-slate-500"
                     )}
                   >
                     {sessionLabel}
                   </span>
                 )}
-              </div>
-              <div className={cn("flex items-center gap-1 text-xs", priceColorClass)}>
-                {displayChange && <span>{displayChange}</span>}
-                <span>{displayPercent}</span>
+                {displayChange && <span className={priceColorClass}>{displayChange}</span>}
+                <span className={priceColorClass}>{displayPercent}</span>
               </div>
             </>
           ) : null}

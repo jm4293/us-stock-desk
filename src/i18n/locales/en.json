@@ -82,7 +82,8 @@
     "currencyChanged": "Currency changed to {{value}}",
     "colorSchemeChanged": "{{value}} candle colors applied",
     "chartChanged": "Chart display turned {{value}}",
-    "indexChanged": "{{name}} index display turned {{value}}"
+    "indexChanged": "{{name}} index display turned {{value}}",
+    "exchangeRateChanged": "Exchange rate display turned {{value}}"
   },
   "splash": {
     "subtitle": "Global Stock Dashboard",
@@ -101,6 +102,7 @@
     "language": "Language",
     "currency": "Currency",
     "chart": "Chart",
+    "chartLabel": "Chart Display",
     "chartOn": "On",
     "chartOff": "Off",
     "marketIndex": "Market Indices",
@@ -108,6 +110,8 @@
     "indexSP500": "S&P 500",
     "indexNASDAQ": "NASDAQ",
     "indexOn": "On",
-    "indexOff": "Off"
+    "indexOff": "Off",
+    "exchangeRate": "Exchange Rate (USD/KRW)",
+    "exchangeRateLabel": "USD/KRW"
   }
 }

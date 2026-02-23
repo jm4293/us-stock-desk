@@ -7,7 +7,6 @@ import { memo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface HeaderProps {
-  exchangeRate: number;
   onAddStock: () => void;
   onOpenSettings: () => void;
   className?: string;
@@ -20,16 +19,9 @@ const STATUS_COLORS: Record<MarketStatus, string> = {
   closed: "bg-gray-500",
 };
 
-const krwFormatter = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 2 });
-
 import { MarketTooltipDesktop } from "./MarketTooltipDesktop";
 import { MarketTooltipMobile } from "./MarketTooltipMobile";
-export const Header = memo(function Header({
-  exchangeRate,
-  onAddStock,
-  onOpenSettings,
-  className,
-}: HeaderProps) {
+export const Header = memo(function Header({ onAddStock, onOpenSettings, className }: HeaderProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();
   const { status, labelKey, isDST } = useMarketStatus();
@@ -38,8 +30,6 @@ export const Header = memo(function Header({
   const isDark = theme === "dark";
   const [showTooltip, setShowTooltip] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
-
-  const formattedRate = krwFormatter.format(exchangeRate);
 
   return (
     <header className={cn("glass flex items-center justify-between px-4 py-3", className)}>
@@ -74,14 +64,8 @@ export const Header = memo(function Header({
             )}
           </div>
         ) : (
-          /* 데스크톱: 환율 + 거래시간 + 한국시각 */
+          /* 데스크톱: 거래시간 + 한국시각 */
           <>
-            {/* 환율 */}
-            <div className="flex items-center gap-1.5 text-sm text-gray-400">
-              <span className="text-gray-500">{t("header.exchangeRateLabel")}</span>
-              <span className="font-medium text-gray-300">₩{formattedRate}</span>
-            </div>
-
             {/* 거래시간 + 한국시각 (hover → 툴팁) */}
             <div className="flex items-center gap-2 text-sm">
               <div

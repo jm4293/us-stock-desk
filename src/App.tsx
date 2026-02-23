@@ -7,7 +7,7 @@ import {
   SplashScreen,
 } from "@/components/layout";
 import { ToastContainer } from "@/components/ui/Toast";
-import { useExchangeRate, useIsMobile, useWakeLock } from "@/hooks";
+import { useIsMobile, useWakeLock } from "@/hooks";
 import i18n from "@/i18n";
 import { stockSocket } from "@/services/websocket";
 import { useSettingsStore, useShowToast, useStockStore, useUIStore } from "@/stores";
@@ -22,7 +22,6 @@ function App() {
 
   const showToast = useShowToast();
   const isMobile = useIsMobile();
-  const { rate: exchangeRate } = useExchangeRate();
 
   const stocks = useStockStore((state) => state.stocks);
   const removeStock = useStockStore((state) => state.removeStock);
@@ -80,12 +79,7 @@ function App() {
       <NetworkOfflineBanner />
 
       {/* 헤더 */}
-      <Header
-        className="relative z-50"
-        exchangeRate={exchangeRate}
-        onAddStock={openSearch}
-        onOpenSettings={openSettings}
-      />
+      <Header className="relative z-50" onAddStock={openSearch} onOpenSettings={openSettings} />
 
       {/* 레이아웃 (모바일 / 데스크톱) */}
       {isMobile ? (

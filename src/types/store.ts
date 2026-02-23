@@ -25,6 +25,7 @@ export interface SettingsState {
   showIndexDJI: boolean;
   showIndexSP500: boolean;
   showIndexNASDAQ: boolean;
+  showExchangeRate: boolean;
 }
 
 export interface SettingsActions {
@@ -36,6 +37,7 @@ export interface SettingsActions {
   setShowIndexDJI: (show: boolean) => void;
   setShowIndexSP500: (show: boolean) => void;
   setShowIndexNASDAQ: (show: boolean) => void;
+  setShowExchangeRate: (show: boolean) => void;
 }
 
 export interface UIState {

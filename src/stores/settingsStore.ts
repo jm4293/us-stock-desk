@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS = {
   showIndexDJI: true,
   showIndexSP500: true,
   showIndexNASDAQ: true,
+  showExchangeRate: true,
 };
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -70,6 +71,12 @@ export const useSettingsStore = create<SettingsStore>()(
             state.showIndexNASDAQ = show;
           });
         },
+
+        setShowExchangeRate: (show: boolean) => {
+          set((state) => {
+            state.showExchangeRate = show;
+          });
+        },
       })),
       {
         name: STORAGE_KEYS.SETTINGS,
@@ -83,6 +90,7 @@ export const useSettingsStore = create<SettingsStore>()(
           showIndexDJI: state.showIndexDJI,
           showIndexSP500: state.showIndexSP500,
           showIndexNASDAQ: state.showIndexNASDAQ,
+          showExchangeRate: state.showExchangeRate,
         }),
         storage: {
           getItem: (name) => {
@@ -119,6 +127,7 @@ export const useShowChart = () => useSettingsStore((state) => state.showChart);
 export const useShowIndexDJI = () => useSettingsStore((state) => state.showIndexDJI);
 export const useShowIndexSP500 = () => useSettingsStore((state) => state.showIndexSP500);
 export const useShowIndexNASDAQ = () => useSettingsStore((state) => state.showIndexNASDAQ);
+export const useShowExchangeRate = () => useSettingsStore((state) => state.showExchangeRate);
 export const useSettingsActions = () =>
   useSettingsStore((state) => ({
     setTheme: state.setTheme,
@@ -129,4 +138,5 @@ export const useSettingsActions = () =>
     setShowIndexDJI: state.setShowIndexDJI,
     setShowIndexSP500: state.setShowIndexSP500,
     setShowIndexNASDAQ: state.setShowIndexNASDAQ,
+    setShowExchangeRate: state.setShowExchangeRate,
   }));

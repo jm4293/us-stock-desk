@@ -31,8 +31,21 @@ const DEFAULT_INDICES: IndexBoxData[] = [
   },
 ];
 
+interface ExchangeRateBoxLayout {
+  position: Position;
+  size: Size;
+  zIndex: number;
+}
+
+const DEFAULT_EXCHANGE_RATE_BOX: ExchangeRateBoxLayout = {
+  position: { x: 980, y: 20 },
+  size: { width: INDEX_BOX_WIDTH, height: INDEX_BOX_HEIGHT },
+  zIndex: 1,
+};
+
 interface IndexState {
   indices: IndexBoxData[];
+  exchangeRateBox: ExchangeRateBoxLayout;
   maxZIndex: number;
 }
 
@@ -40,6 +53,9 @@ interface IndexActions {
   updatePosition: (id: IndexSymbol, position: Position) => void;
   updateSize: (id: IndexSymbol, size: Size) => void;
   bringToFront: (id: IndexSymbol) => void;
+  updateExchangeRatePosition: (position: Position) => void;
+  updateExchangeRateSize: (size: Size) => void;
+  bringExchangeRateToFront: () => void;
 }
 
 type IndexStore = IndexState & IndexActions;
@@ -49,6 +65,7 @@ export const useIndexStore = create<IndexStore>()(
     persist(
       immer((set) => ({
         indices: DEFAULT_INDICES,
+        exchangeRateBox: DEFAULT_EXCHANGE_RATE_BOX,
         maxZIndex: 1,
 
         updatePosition: (id: IndexSymbol, position: Position) => {
@@ -75,12 +92,33 @@ export const useIndexStore = create<IndexStore>()(
             }
           });
         },
+
+        updateExchangeRatePosition: (position: Position) => {
+          set((state) => {
+            state.exchangeRateBox.position = position;
+          });
+        },
+
+        updateExchangeRateSize: (size: Size) => {
+          set((state) => {
+            state.exchangeRateBox.size = size;
+          });
+        },
+
+        bringExchangeRateToFront: () => {
+          set((state) => {
+            const newZ = state.maxZIndex + 1;
+            state.exchangeRateBox.zIndex = newZ;
+            state.maxZIndex = newZ;
+          });
+        },
       })),
       {
         name: STORAGE_KEYS.INDEX_LAYOUT,
         version: 3,
         partialize: (state) => ({
           indices: state.indices,
+          exchangeRateBox: state.exchangeRateBox,
           maxZIndex: state.maxZIndex,
         }),
         storage: {

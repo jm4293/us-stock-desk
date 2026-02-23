@@ -1,11 +1,11 @@
-import { Modal } from "@/components/ui";
-import { SettingOptionButton } from "@/components/ui/Button/SettingOptionButton";
+import { Modal, SettingOptionButton } from "@/components/ui";
 import {
   useColorScheme,
   useCurrency,
   useLanguage,
   useSettingsActions,
   useShowChart,
+  useShowExchangeRate,
   useShowIndexDJI,
   useShowIndexNASDAQ,
   useShowIndexSP500,
@@ -31,6 +31,7 @@ export const SettingsModal: React.FC = () => {
     setShowIndexDJI,
     setShowIndexSP500,
     setShowIndexNASDAQ,
+    setShowExchangeRate,
   } = useSettingsActions();
   const colorScheme = useColorScheme();
   const theme = useTheme();
@@ -40,6 +41,7 @@ export const SettingsModal: React.FC = () => {
   const showIndexDJI = useShowIndexDJI();
   const showIndexSP500 = useShowIndexSP500();
   const showIndexNASDAQ = useShowIndexNASDAQ();
+  const showExchangeRate = useShowExchangeRate();
   const showToast = useShowToast();
 
   const isDark = theme === "dark";
@@ -180,19 +182,34 @@ export const SettingsModal: React.FC = () => {
         <div className="flex flex-col gap-2">
           {(
             [
-              { key: "DJI", show: showIndexDJI, set: setShowIndexDJI },
-              { key: "SP500", show: showIndexSP500, set: setShowIndexSP500 },
-              { key: "NASDAQ", show: showIndexNASDAQ, set: setShowIndexNASDAQ },
+              {
+                label: t("settings.indexDJI"),
+                show: showIndexDJI,
+                onToggle: setShowIndexDJI,
+                name: "settings.indexDJI",
+              },
+              {
+                label: t("settings.indexSP500"),
+                show: showIndexSP500,
+                onToggle: setShowIndexSP500,
+                name: "settings.indexSP500",
+              },
+              {
+                label: t("settings.indexNASDAQ"),
+                show: showIndexNASDAQ,
+                onToggle: setShowIndexNASDAQ,
+                name: "settings.indexNASDAQ",
+              },
             ] as const
-          ).map(({ key, show, set }) => (
-            <div key={key} className="flex items-center gap-2">
+          ).map(({ label, show, onToggle, name }) => (
+            <div key={label} className="flex items-center gap-2">
               <span
                 className={cn(
                   "w-20 shrink-0 text-xs font-medium",
                   isDark ? "text-gray-300" : "text-slate-600"
                 )}
               >
-                {t(`settings.index${key}`)}
+                {label}
               </span>
               <div className="flex flex-1 gap-1">
                 <SettingOptionButton
@@ -201,11 +218,8 @@ export const SettingsModal: React.FC = () => {
                   className="flex-1 py-1 text-xs"
                   onClick={() =>
                     handleSetting(
-                      () => set(true),
-                      t("toast.indexChanged", {
-                        name: t(`settings.index${key}`),
-                        value: t("settings.indexOn"),
-                      })
+                      () => onToggle(true),
+                      t("toast.indexChanged", { name: t(name), value: t("settings.indexOn") })
                     )
                   }
                 >
@@ -217,11 +231,8 @@ export const SettingsModal: React.FC = () => {
                   className="flex-1 py-1 text-xs"
                   onClick={() =>
                     handleSetting(
-                      () => set(false),
-                      t("toast.indexChanged", {
-                        name: t(`settings.index${key}`),
-                        value: t("settings.indexOff"),
-                      })
+                      () => onToggle(false),
+                      t("toast.indexChanged", { name: t(name), value: t("settings.indexOff") })
                     )
                   }
                 >
@@ -233,38 +244,97 @@ export const SettingsModal: React.FC = () => {
         </div>
       </section>
 
+      {/* 환율 on/off */}
+      <section className="mb-5">
+        <h3 className={cn("mb-3 text-sm font-semibold", sectionHeadingColor)}>
+          {t("settings.exchangeRate")}
+        </h3>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                "w-20 shrink-0 text-xs font-medium",
+                isDark ? "text-gray-300" : "text-slate-600"
+              )}
+            >
+              {t("settings.exchangeRateLabel")}
+            </span>
+            <div className="flex flex-1 gap-1">
+              <SettingOptionButton
+                isActive={showExchangeRate}
+                isDark={isDark}
+                className="flex-1 py-1 text-xs"
+                onClick={() =>
+                  handleSetting(
+                    () => setShowExchangeRate(true),
+                    t("toast.exchangeRateChanged", { value: t("settings.indexOn") })
+                  )
+                }
+              >
+                {t("settings.indexOn")}
+              </SettingOptionButton>
+              <SettingOptionButton
+                isActive={!showExchangeRate}
+                isDark={isDark}
+                className="flex-1 py-1 text-xs"
+                onClick={() =>
+                  handleSetting(
+                    () => setShowExchangeRate(false),
+                    t("toast.exchangeRateChanged", { value: t("settings.indexOff") })
+                  )
+                }
+              >
+                {t("settings.indexOff")}
+              </SettingOptionButton>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 차트 표시 on/off */}
       <section className="mb-5">
         <h3 className={cn("mb-3 text-sm font-semibold", sectionHeadingColor)}>
           {t("settings.chart")}
         </h3>
-        <div className="flex gap-2">
-          <SettingOptionButton
-            isActive={showChart}
-            isDark={isDark}
-            className="p-2 text-sm"
-            onClick={() =>
-              handleSetting(
-                () => setShowChart(true),
-                t("toast.chartChanged", { value: t("settings.chartOn") })
-              )
-            }
-          >
-            {t("settings.chartOn")}
-          </SettingOptionButton>
-          <SettingOptionButton
-            isActive={!showChart}
-            isDark={isDark}
-            className="p-2 text-sm"
-            onClick={() =>
-              handleSetting(
-                () => setShowChart(false),
-                t("toast.chartChanged", { value: t("settings.chartOff") })
-              )
-            }
-          >
-            {t("settings.chartOff")}
-          </SettingOptionButton>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <span
+              className={cn(
+                "w-20 shrink-0 text-xs font-medium",
+                isDark ? "text-gray-300" : "text-slate-600"
+              )}
+            >
+              {t("settings.chartLabel")}
+            </span>
+            <div className="flex flex-1 gap-1">
+              <SettingOptionButton
+                isActive={showChart}
+                isDark={isDark}
+                className="flex-1 py-1 text-xs"
+                onClick={() =>
+                  handleSetting(
+                    () => setShowChart(true),
+                    t("toast.chartChanged", { value: t("settings.chartOn") })
+                  )
+                }
+              >
+                {t("settings.chartOn")}
+              </SettingOptionButton>
+              <SettingOptionButton
+                isActive={!showChart}
+                isDark={isDark}
+                className="flex-1 py-1 text-xs"
+                onClick={() =>
+                  handleSetting(
+                    () => setShowChart(false),
+                    t("toast.chartChanged", { value: t("settings.chartOff") })
+                  )
+                }
+              >
+                {t("settings.chartOff")}
+              </SettingOptionButton>
+            </div>
+          </div>
         </div>
       </section>
 
