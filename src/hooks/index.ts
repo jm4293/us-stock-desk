@@ -1,6 +1,7 @@
 export { useStockData } from "./useStockData";
 export { useChartData } from "./useChartData";
 export { useExchangeRate } from "./useExchangeRate";
+export { useIndexData } from "./useIndexData";
 export { useMarketStatus, useKSTClock } from "./useMarketStatus";
 export { useMobileStockCard } from "./useMobileStockCard";
 export { useIsMobile } from "./useIsMobile";

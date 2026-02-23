@@ -6,6 +6,9 @@ import {
   useLanguage,
   useSettingsActions,
   useShowChart,
+  useShowIndexDJI,
+  useShowIndexNASDAQ,
+  useShowIndexSP500,
   useShowToast,
   useTheme,
   useUIActions,
@@ -19,12 +22,24 @@ export const SettingsModal: React.FC = () => {
   const { t } = useTranslation();
   const isSettingsOpen = useUIStore((state) => state.isSettingsOpen);
   const { closeSettings } = useUIActions();
-  const { setColorScheme, setTheme, setLanguage, setCurrency, setShowChart } = useSettingsActions();
+  const {
+    setColorScheme,
+    setTheme,
+    setLanguage,
+    setCurrency,
+    setShowChart,
+    setShowIndexDJI,
+    setShowIndexSP500,
+    setShowIndexNASDAQ,
+  } = useSettingsActions();
   const colorScheme = useColorScheme();
   const theme = useTheme();
   const language = useLanguage();
   const currency = useCurrency();
   const showChart = useShowChart();
+  const showIndexDJI = useShowIndexDJI();
+  const showIndexSP500 = useShowIndexSP500();
+  const showIndexNASDAQ = useShowIndexNASDAQ();
   const showToast = useShowToast();
 
   const isDark = theme === "dark";
@@ -153,6 +168,67 @@ export const SettingsModal: React.FC = () => {
             >
               {c === "USD" ? "USD ($)" : "KRW (₩)"}
             </SettingOptionButton>
+          ))}
+        </div>
+      </section>
+
+      {/* 시장 지수 on/off */}
+      <section className="mb-5">
+        <h3 className={cn("mb-3 text-sm font-semibold", sectionHeadingColor)}>
+          {t("settings.marketIndex")}
+        </h3>
+        <div className="flex flex-col gap-2">
+          {(
+            [
+              { key: "DJI", show: showIndexDJI, set: setShowIndexDJI },
+              { key: "SP500", show: showIndexSP500, set: setShowIndexSP500 },
+              { key: "NASDAQ", show: showIndexNASDAQ, set: setShowIndexNASDAQ },
+            ] as const
+          ).map(({ key, show, set }) => (
+            <div key={key} className="flex items-center gap-2">
+              <span
+                className={cn(
+                  "w-20 shrink-0 text-xs font-medium",
+                  isDark ? "text-gray-300" : "text-slate-600"
+                )}
+              >
+                {t(`settings.index${key}`)}
+              </span>
+              <div className="flex flex-1 gap-1">
+                <SettingOptionButton
+                  isActive={show}
+                  isDark={isDark}
+                  className="flex-1 py-1 text-xs"
+                  onClick={() =>
+                    handleSetting(
+                      () => set(true),
+                      t("toast.indexChanged", {
+                        name: t(`settings.index${key}`),
+                        value: t("settings.indexOn"),
+                      })
+                    )
+                  }
+                >
+                  {t("settings.indexOn")}
+                </SettingOptionButton>
+                <SettingOptionButton
+                  isActive={!show}
+                  isDark={isDark}
+                  className="flex-1 py-1 text-xs"
+                  onClick={() =>
+                    handleSetting(
+                      () => set(false),
+                      t("toast.indexChanged", {
+                        name: t(`settings.index${key}`),
+                        value: t("settings.indexOff"),
+                      })
+                    )
+                  }
+                >
+                  {t("settings.indexOff")}
+                </SettingOptionButton>
+              </div>
+            </div>
           ))}
         </div>
       </section>

@@ -14,7 +14,7 @@ import { Rnd } from "react-rnd";
 const HEIGHT_WITH_CHART = 300;
 const HEIGHT_WITHOUT_CHART = 200;
 
-const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];
+const TIME_RANGES: ChartTimeRange[] = ["1m", "5m", "10m", "1h", "1D"];
 
 interface StockBoxProps {
   id: string;
@@ -48,7 +48,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
   onSizeChange,
 }) => {
   const { t } = useTranslation();
-  const [range, setRange] = useState<ChartTimeRange>("1W");
+  const [range, setRange] = useState<ChartTimeRange>("1m");
   const { state: priceState } = useStockData(symbol);
   const { state: chartState } = useChartData(symbol, range);
   const showChart = useShowChart();

@@ -67,12 +67,11 @@
     "postMarket": "After-Hours",
     "regularClose": "Regular Close",
     "range": {
-      "1D": "1D",
-      "1W": "1W",
-      "1M": "1M",
-      "3M": "3M",
-      "6M": "6M",
-      "1Y": "1Y"
+      "1m": "1m",
+      "5m": "5m",
+      "10m": "10m",
+      "1h": "1h",
+      "1D": "1D"
     }
   },
   "toast": {
@@ -82,7 +81,8 @@
     "languageChanged": "Language changed to {{value}}",
     "currencyChanged": "Currency changed to {{value}}",
     "colorSchemeChanged": "{{value}} candle colors applied",
-    "chartChanged": "Chart display turned {{value}}"
+    "chartChanged": "Chart display turned {{value}}",
+    "indexChanged": "{{name}} index display turned {{value}}"
   },
   "splash": {
     "subtitle": "Global Stock Dashboard",
@@ -102,6 +102,12 @@
     "currency": "Currency",
     "chart": "Chart",
     "chartOn": "On",
-    "chartOff": "Off"
+    "chartOff": "Off",
+    "marketIndex": "Market Indices",
+    "indexDJI": "Dow Jones",
+    "indexSP500": "S&P 500",
+    "indexNASDAQ": "NASDAQ",
+    "indexOn": "On",
+    "indexOff": "Off"
   }
 }

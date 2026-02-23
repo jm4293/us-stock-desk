@@ -3,6 +3,7 @@ export const STORAGE_KEYS = {
   SETTINGS: "stockdesk_settings_v2",
   THEME: "stockdesk_theme_v1",
   LAYOUT: "stockdesk_layout_v1",
+  INDEX_LAYOUT: "stockdesk_index_layout_v1",
   CACHE: "stockdesk_cache_v1",
 } as const;
 

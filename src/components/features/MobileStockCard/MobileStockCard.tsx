@@ -14,7 +14,7 @@ import { CSS } from "@dnd-kit/utilities";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const TIME_RANGES: ChartTimeRange[] = ["1D", "1W", "1M", "3M", "6M", "1Y"];
+const TIME_RANGES: ChartTimeRange[] = ["1m", "5m", "10m", "1h", "1D"];
 
 interface MobileStockCardProps {
   id: string;
@@ -30,7 +30,7 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
-  const [range, setRange] = useState<ChartTimeRange>("1W");
+  const [range, setRange] = useState<ChartTimeRange>("1m");
   const { isDark, priceState, chartState, showChart, colorScheme, currency, exchangeRate } =
     useMobileStockCard(symbol, range);
   const { status: marketStatus } = useMarketStatus();

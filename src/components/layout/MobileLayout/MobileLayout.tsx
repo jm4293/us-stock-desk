@@ -1,4 +1,4 @@
-import { MobileStockCard } from "@/components/features";
+import { MarketIndexBar, MobileStockCard } from "@/components/features";
 import { EmptyState } from "@/components/ui";
 import { useStockStore } from "@/stores";
 import {
@@ -37,6 +37,7 @@ export function MobileLayout({ onRemoveStock }: MobileLayoutProps) {
 
   return (
     <div className="absolute bottom-0 left-0 right-0 top-[52px] overflow-y-auto">
+      <MarketIndexBar />
       {stocks.length === 0 ? (
         <EmptyState />
       ) : (

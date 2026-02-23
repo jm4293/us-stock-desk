@@ -6,9 +6,11 @@ export function fetchChartWithDedup(symbol: string, range: ChartTimeRange): Prom
   const key = `${symbol}:${range}`;
 
   if (!pendingRequests.has(key)) {
-    const promise = fetch(`/api/chart?symbol=${symbol}&range=${range}`).finally(() => {
-      pendingRequests.delete(key);
-    });
+    const promise = fetch(`/api/chart?symbol=${encodeURIComponent(symbol)}&range=${range}`).finally(
+      () => {
+        pendingRequests.delete(key);
+      }
+    );
     pendingRequests.set(key, promise);
   }
 

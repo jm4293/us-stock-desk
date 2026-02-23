@@ -20,6 +20,10 @@ export const resetAllStores = () => {
     language: "ko",
     colorScheme: "kr",
     currency: "USD",
+    showChart: true,
+    showIndexDJI: true,
+    showIndexSP500: true,
+    showIndexNASDAQ: true,
   });
 
   useUIStore.setState({
@@ -44,5 +48,6 @@ if (import.meta.env.DEV) {
 
 export * from "./stockStore";
 export * from "./settingsStore";
+export * from "./indexStore";
 export * from "./uiStore";
 export * from "./toastStore";

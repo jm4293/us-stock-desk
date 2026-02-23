@@ -69,7 +69,11 @@ export function StockChart({ data, livePrice }: StockChartProps) {
           const min = String(kstDate.getUTCMinutes()).padStart(2, "0");
           if (tickType === TickMarkType.Year) return yyyy;
           if (tickType === TickMarkType.Month) return `${mm}/${dd}`;
-          if (tickType === TickMarkType.DayOfMonth) return `${mm}/${dd}`;
+          if (tickType === TickMarkType.DayOfMonth) {
+            // 분봉 데이터에서는 날짜 + 시간을 함께 표시
+            if (hh !== "00" || min !== "00") return `${mm}/${dd} ${hh}:${min}`;
+            return `${mm}/${dd}`;
+          }
           return `${hh}:${min}`;
         },
       },

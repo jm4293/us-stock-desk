@@ -67,12 +67,11 @@
     "postMarket": "애프터마켓",
     "regularClose": "정규장 종가",
     "range": {
-      "1D": "1일",
-      "1W": "1주",
-      "1M": "1달",
-      "3M": "3달",
-      "6M": "6달",
-      "1Y": "1년"
+      "1m": "1분",
+      "5m": "5분",
+      "10m": "10분",
+      "1h": "1시간",
+      "1D": "1일"
     }
   },
   "toast": {
@@ -82,7 +81,8 @@
     "languageChanged": "언어가 {{value}}로 변경되었습니다",
     "currencyChanged": "통화가 {{value}}로 변경되었습니다",
     "colorSchemeChanged": "{{value}} 캔들 색상으로 변경되었습니다",
-    "chartChanged": "차트 표시가 {{value}}로 변경되었습니다"
+    "chartChanged": "차트 표시가 {{value}}로 변경되었습니다",
+    "indexChanged": "{{name}} 지수 표시가 {{value}}로 변경되었습니다"
   },
   "splash": {
     "subtitle": "미국주식 대시보드",
@@ -102,6 +102,12 @@
     "currency": "통화 표시",
     "chart": "차트 표시",
     "chartOn": "켜기",
-    "chartOff": "끄기"
+    "chartOff": "끄기",
+    "marketIndex": "시장 지수",
+    "indexDJI": "다우지수",
+    "indexSP500": "S&P 500",
+    "indexNASDAQ": "나스닥",
+    "indexOn": "켜기",
+    "indexOff": "끄기"
   }
 }

@@ -45,9 +45,10 @@ export function useChartData(symbol: string, range: ChartTimeRange) {
   const [state, setState] = useState<AsyncState<StockChartData[]>>({ status: "idle" });
   const hasLoadedRef = useRef(false);
 
-  // symbol/range 변경 시 최초 로딩 플래그 초기화
+  // symbol/range 변경 시 이전 데이터 클리어 및 로딩 플래그 초기화
   useEffect(() => {
     hasLoadedRef.current = false;
+    setState({ status: "loading" });
   }, [symbol, range]);
 
   const fetchCandles = useCallback(async () => {

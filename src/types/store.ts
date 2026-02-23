@@ -22,6 +22,9 @@ export interface SettingsState {
   colorScheme: "kr" | "us";
   currency: "USD" | "KRW";
   showChart: boolean;
+  showIndexDJI: boolean;
+  showIndexSP500: boolean;
+  showIndexNASDAQ: boolean;
 }
 
 export interface SettingsActions {
@@ -30,6 +33,9 @@ export interface SettingsActions {
   setColorScheme: (scheme: "kr" | "us") => void;
   setCurrency: (currency: "USD" | "KRW") => void;
   setShowChart: (show: boolean) => void;
+  setShowIndexDJI: (show: boolean) => void;
+  setShowIndexSP500: (show: boolean) => void;
+  setShowIndexNASDAQ: (show: boolean) => void;
 }
 
 export interface UIState {

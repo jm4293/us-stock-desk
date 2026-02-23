@@ -6,12 +6,11 @@ import { defineConfig, loadEnv, type Plugin } from "vite";
 function yahooChartPlugin(): Plugin {
   const YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart";
   const RANGE_MAP: Record<string, { interval: string; range: string }> = {
-    "1D": { interval: "5m", range: "1d" },
-    "1W": { interval: "1h", range: "5d" },
-    "1M": { interval: "1d", range: "1mo" },
-    "3M": { interval: "1d", range: "3mo" },
-    "6M": { interval: "1d", range: "6mo" },
-    "1Y": { interval: "1wk", range: "1y" },
+    "1m": { interval: "1m", range: "1d" },
+    "5m": { interval: "5m", range: "1d" },
+    "10m": { interval: "15m", range: "5d" },
+    "1h": { interval: "1h", range: "5d" },
+    "1D": { interval: "1d", range: "1mo" },
   };
 
   return {
@@ -20,8 +19,8 @@ function yahooChartPlugin(): Plugin {
       server.middlewares.use("/api/chart", async (req, res) => {
         const url = new URL(req.url!, "http://localhost");
         const symbol = url.searchParams.get("symbol") ?? "";
-        const timeRange = url.searchParams.get("range") ?? "1W";
-        const config = RANGE_MAP[timeRange] ?? RANGE_MAP["1W"];
+        const timeRange = url.searchParams.get("range") ?? "5m";
+        const config = RANGE_MAP[timeRange] ?? RANGE_MAP["5m"];
 
         try {
           const yahooUrl = `${YAHOO_BASE}/${symbol}?interval=${config.interval}&range=${config.range}`;
@@ -35,6 +34,66 @@ function yahooChartPlugin(): Plugin {
         } catch {
           res.writeHead(500);
           res.end(JSON.stringify({ error: "Yahoo chart proxy error" }));
+        }
+      });
+    },
+  };
+}
+
+// Yahoo Finance 지수 시세 프록시 (로컬 개발용)
+function yahooIndexQuotePlugin(): Plugin {
+  const YAHOO_BASE = "https://query1.finance.yahoo.com/v8/finance/chart";
+
+  return {
+    name: "yahoo-index-quote-proxy",
+    configureServer(server) {
+      server.middlewares.use("/api/index-quote", async (req, res) => {
+        const url = new URL(req.url!, "http://localhost");
+        const symbol = url.searchParams.get("symbol") ?? "";
+
+        if (!symbol) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "symbol is required" }));
+          return;
+        }
+
+        try {
+          const yahooUrl = `${YAHOO_BASE}/${encodeURIComponent(symbol)}?interval=1d&range=1d`;
+          const response = await fetch(yahooUrl, {
+            headers: { "User-Agent": "Mozilla/5.0" },
+          });
+          const data = await response.json();
+
+          const result = data?.chart?.result?.[0];
+          if (!result?.meta) {
+            res.writeHead(404, { "Content-Type": "application/json" });
+            res.end(JSON.stringify({ error: "No data found" }));
+            return;
+          }
+
+          const meta = result.meta;
+          const price = meta.regularMarketPrice ?? 0;
+          const previousClose = meta.chartPreviousClose ?? meta.previousClose ?? 0;
+          const change = price - previousClose;
+          const changePercent = previousClose > 0 ? (change / previousClose) * 100 : 0;
+
+          res.setHeader("Content-Type", "application/json");
+          res.setHeader("Access-Control-Allow-Origin", "*");
+          res.end(
+            JSON.stringify({
+              symbol: meta.symbol,
+              shortName: meta.shortName ?? meta.symbol,
+              price,
+              previousClose,
+              change,
+              changePercent,
+              dayHigh: meta.regularMarketDayHigh ?? 0,
+              dayLow: meta.regularMarketDayLow ?? 0,
+            })
+          );
+        } catch {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Yahoo index quote proxy error" }));
         }
       });
     },
@@ -110,7 +169,7 @@ export default defineConfig(({ mode }) => {
   const apiKey = env.FINNHUB_API_KEY ?? "";
 
   return {
-    plugins: [react(), finnhubProxyPlugin(apiKey), yahooChartPlugin()],
+    plugins: [react(), finnhubProxyPlugin(apiKey), yahooChartPlugin(), yahooIndexQuotePlugin()],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),

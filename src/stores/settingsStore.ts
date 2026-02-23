@@ -12,6 +12,9 @@ const DEFAULT_SETTINGS = {
   colorScheme: "us" as const,
   currency: "USD" as const,
   showChart: true,
+  showIndexDJI: true,
+  showIndexSP500: true,
+  showIndexNASDAQ: true,
 };
 
 export const useSettingsStore = create<SettingsStore>()(
@@ -49,6 +52,24 @@ export const useSettingsStore = create<SettingsStore>()(
             state.showChart = show;
           });
         },
+
+        setShowIndexDJI: (show: boolean) => {
+          set((state) => {
+            state.showIndexDJI = show;
+          });
+        },
+
+        setShowIndexSP500: (show: boolean) => {
+          set((state) => {
+            state.showIndexSP500 = show;
+          });
+        },
+
+        setShowIndexNASDAQ: (show: boolean) => {
+          set((state) => {
+            state.showIndexNASDAQ = show;
+          });
+        },
       })),
       {
         name: STORAGE_KEYS.SETTINGS,
@@ -59,6 +80,9 @@ export const useSettingsStore = create<SettingsStore>()(
           colorScheme: state.colorScheme,
           currency: state.currency,
           showChart: state.showChart,
+          showIndexDJI: state.showIndexDJI,
+          showIndexSP500: state.showIndexSP500,
+          showIndexNASDAQ: state.showIndexNASDAQ,
         }),
         storage: {
           getItem: (name) => {
@@ -92,6 +116,9 @@ export const useLanguage = () => useSettingsStore((state) => state.language);
 export const useColorScheme = () => useSettingsStore((state) => state.colorScheme);
 export const useCurrency = () => useSettingsStore((state) => state.currency);
 export const useShowChart = () => useSettingsStore((state) => state.showChart);
+export const useShowIndexDJI = () => useSettingsStore((state) => state.showIndexDJI);
+export const useShowIndexSP500 = () => useSettingsStore((state) => state.showIndexSP500);
+export const useShowIndexNASDAQ = () => useSettingsStore((state) => state.showIndexNASDAQ);
 export const useSettingsActions = () =>
   useSettingsStore((state) => ({
     setTheme: state.setTheme,
@@ -99,4 +126,7 @@ export const useSettingsActions = () =>
     setColorScheme: state.setColorScheme,
     setCurrency: state.setCurrency,
     setShowChart: state.setShowChart,
+    setShowIndexDJI: state.setShowIndexDJI,
+    setShowIndexSP500: state.setShowIndexSP500,
+    setShowIndexNASDAQ: state.setShowIndexNASDAQ,
   }));

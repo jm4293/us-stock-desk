@@ -3,21 +3,19 @@ import type { ApiResponse, FinnhubCandle, FinnhubQuote } from "@/types/api";
 import type { ChartTimeRange, ExtendedHoursPrice, StockChartData, StockPrice } from "@/types/stock";
 
 const CHART_RESOLUTION: Record<ChartTimeRange, string> = {
-  "1D": "5",
-  "1W": "60",
-  "1M": "D",
-  "3M": "D",
-  "6M": "W",
-  "1Y": "W",
+  "1m": "1",
+  "5m": "5",
+  "10m": "15",
+  "1h": "60",
+  "1D": "D",
 };
 
 const CHART_DAYS: Record<ChartTimeRange, number> = {
-  "1D": 1,
-  "1W": 7,
-  "1M": 30,
-  "3M": 90,
-  "6M": 180,
-  "1Y": 365,
+  "1m": 1,
+  "5m": 1,
+  "10m": 5,
+  "1h": 5,
+  "1D": 30,
 };
 
 async function fetchFromProxy<T>(endpoint: string): Promise<ApiResponse<T>> {

@@ -52,6 +52,8 @@ export interface YahooTradeData {
   time: number;
   changePercent?: number;
   dayVolume?: number;
+  dayHigh?: number;
+  dayLow?: number;
   change?: number;
   previousClose?: number;
   marketHours?: number; // 0=PRE, 1=REGULAR, 2=POST, 3=EXTENDED

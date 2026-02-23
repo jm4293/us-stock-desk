@@ -1,4 +1,4 @@
-import { StockBox } from "@/components/features";
+import { MarketIndexBar, StockBox } from "@/components/features";
 import { EmptyState } from "@/components/ui";
 import { useStockStore } from "@/stores";
 
@@ -15,26 +15,24 @@ export function DesktopLayout({ onRemoveStock }: DesktopCanvasProps) {
 
   return (
     <div id="stock-canvas" className="absolute bottom-0 left-0 right-0 top-[52px] overflow-hidden">
-      {stocks.length === 0 ? (
-        <EmptyState />
-      ) : (
-        stocks.map((stock) => (
-          <StockBox
-            key={stock.id}
-            id={stock.id}
-            symbol={stock.symbol}
-            companyName={stock.companyName}
-            position={stock.position}
-            size={stock.size}
-            zIndex={stock.zIndex}
-            focused={focusedStockId === stock.id}
-            onFocus={bringToFront}
-            onClose={onRemoveStock}
-            onPositionChange={updatePosition}
-            onSizeChange={updateSize}
-          />
-        ))
-      )}
+      {stocks.length === 0 && <EmptyState />}
+      <MarketIndexBar />
+      {stocks.map((stock) => (
+        <StockBox
+          key={stock.id}
+          id={stock.id}
+          symbol={stock.symbol}
+          companyName={stock.companyName}
+          position={stock.position}
+          size={stock.size}
+          zIndex={stock.zIndex}
+          focused={focusedStockId === stock.id}
+          onFocus={bringToFront}
+          onClose={onRemoveStock}
+          onPositionChange={updatePosition}
+          onSizeChange={updateSize}
+        />
+      ))}
     </div>
   );
 }

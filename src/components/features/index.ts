@@ -1,4 +1,5 @@
 export * from "./KSTClock";
+export * from "./MarketIndexBar/MarketIndexBar";
 export * from "./MobileStockCard";
 export * from "./NetworkOfflineBanner";
 export * from "./PriceDisplay";
