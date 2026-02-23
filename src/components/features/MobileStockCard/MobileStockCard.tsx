@@ -232,8 +232,8 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
         </button>
       </div>
 
-      {/* 정규장 종가 */}
-      {!isLoading && displayClose && (
+      {/* 정규장 종가 — 정규장이 아닌 시간(pre/post/closed)에만 표시 */}
+      {!isLoading && displayClose && marketStatus !== "open" && (
         <div
           className={cn(
             "mt-1 flex items-center gap-2 text-xs",
@@ -306,7 +306,7 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
                       : "text-slate-400 hover:text-slate-700"
                 )}
               >
-                {r}
+                {t(`stockBox.range.${r}`)}
               </button>
             ))}
           </div>
@@ -314,7 +314,7 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
           {/* 차트 영역 */}
           <div className="mt-2 h-40">
             {chartState.status === "success" && chartState.data && chartState.data.length > 0 ? (
-              <StockChart data={chartState.data} />
+              <StockChart data={chartState.data} livePrice={price ? price.current : null} />
             ) : chartState.status === "loading" || chartState.status === "idle" ? (
               <div className="flex h-full items-center justify-center">
                 <div

@@ -244,7 +244,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
                       : "text-gray-400 hover:text-white"
                   )}
                 >
-                  {r}
+                  {t(`stockBox.range.${r}`)}
                 </button>
               ))}
             </div>
@@ -254,7 +254,6 @@ export const StockBox: React.FC<StockBoxProps> = ({
                 <StockChart
                   data={chartState.data}
                   livePrice={priceState.status === "success" ? priceState.data.current : null}
-                  liveTimestamp={priceState.status === "success" ? priceState.data.timestamp : null}
                 />
               ) : chartState.status === "loading" || chartState.status === "idle" ? (
                 <div className="flex h-full items-center justify-center">

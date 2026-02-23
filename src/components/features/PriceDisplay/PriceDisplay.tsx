@@ -196,8 +196,8 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
           </div>
         )}
 
-        {/* 정규장 종가 */}
-        {displayClose && (
+        {/* 정규장 종가 — 정규장이 아닌 시간(pre/post/closed)에만 표시 */}
+        {displayClose && marketStatus !== "open" && (
           <div className="flex items-center gap-2">
             <span className={isDark ? "text-gray-400" : "text-slate-500"}>
               {t("stockBox.regularClose") || "Regular Close"}

@@ -65,7 +65,15 @@
     "noDataHint": "1D chart is only available during market hours on weekdays",
     "preMarket": "Pre-Market",
     "postMarket": "After-Hours",
-    "regularClose": "Regular Close"
+    "regularClose": "Regular Close",
+    "range": {
+      "1D": "1D",
+      "1W": "1W",
+      "1M": "1M",
+      "3M": "3M",
+      "6M": "6M",
+      "1Y": "1Y"
+    }
   },
   "toast": {
     "stockAdded": "{{symbol}} added",

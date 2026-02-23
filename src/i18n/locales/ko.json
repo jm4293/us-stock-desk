@@ -65,7 +65,15 @@
     "noDataHint": "주중 장중에만 1D 차트가 표시됩니다",
     "preMarket": "프리마켓",
     "postMarket": "애프터마켓",
-    "regularClose": "정규장 종가"
+    "regularClose": "정규장 종가",
+    "range": {
+      "1D": "1일",
+      "1W": "1주",
+      "1M": "1달",
+      "3M": "3달",
+      "6M": "6달",
+      "1Y": "1년"
+    }
   },
   "toast": {
     "stockAdded": "{{symbol}} 종목이 추가되었습니다",
