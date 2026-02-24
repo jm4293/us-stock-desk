@@ -1,6 +1,7 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig, loadEnv, type Plugin } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 // Yahoo Finance 차트 프록시 (무료, API 키 불필요)
 function yahooChartPlugin(): Plugin {
@@ -169,7 +170,37 @@ export default defineConfig(({ mode }) => {
   const apiKey = env.FINNHUB_API_KEY ?? "";
 
   return {
-    plugins: [react(), finnhubProxyPlugin(apiKey), yahooChartPlugin(), yahooIndexQuotePlugin()],
+    plugins: [
+      react(),
+      finnhubProxyPlugin(apiKey),
+      yahooChartPlugin(),
+      yahooIndexQuotePlugin(),
+      VitePWA({
+        registerType: "autoUpdate",
+        manifest: {
+          name: "US Stock Desk",
+          short_name: "StockDesk",
+          description: "미국주식 실시간 모니터링 대시보드",
+          theme_color: "#0f172a",
+          background_color: "#0f172a",
+          display: "standalone",
+          start_url: "/",
+          icons: [
+            { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+            { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+          ],
+        },
+        workbox: {
+          navigateFallback: "/index.html",
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\//,
+              handler: "NetworkOnly",
+            },
+          ],
+        },
+      }),
+    ],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
