@@ -1,5 +1,5 @@
 import { useColorScheme, useTheme } from "@/stores";
-import type { StockChartData } from "@/types/stock";
+import type { ChartTimeRange, StockChartData } from "@/types/stock";
 import {
   ColorType,
   TickMarkType,
@@ -10,17 +10,35 @@ import {
 } from "lightweight-charts";
 import { useEffect, useRef } from "react";
 
+// 타임프레임별 캔들 간격 (초)
+const CANDLE_INTERVAL_SEC: Record<ChartTimeRange, number> = {
+  "1m": 60,
+  "5m": 300,
+  "10m": 600,
+  "1h": 3600,
+  "1D": 86400,
+};
+
 interface StockChartProps {
   data: StockChartData[];
   livePrice?: number | null;
+  timeRange?: ChartTimeRange;
 }
 
-export function StockChart({ data, livePrice }: StockChartProps) {
+export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const dataRef = useRef<StockChartData[]>(data);
   dataRef.current = data;
+
+  // 현재 진행 중인 라이브 캔들 OHLC를 추적 (data ref 기반으로 리셋)
+  const liveCandleRef = useRef<{
+    timeSec: number;
+    open: number;
+    high: number;
+    low: number;
+  } | null>(null);
 
   const colorScheme = useColorScheme();
   const theme = useTheme();
@@ -151,7 +169,7 @@ export function StockChart({ data, livePrice }: StockChartProps) {
     });
   }, [upColor, downColor, chartTextColor, gridColor, borderColor, crosshairColor]);
 
-  // 데이터 변경 시 시리즈 업데이트
+  // 데이터 변경 시 시리즈 업데이트 (API 폴링으로 새 데이터 수신)
   useEffect(() => {
     if (!seriesRef.current || data.length === 0) return;
 
@@ -165,24 +183,74 @@ export function StockChart({ data, livePrice }: StockChartProps) {
 
     seriesRef.current.setData(candleData);
     chartRef.current?.timeScale().fitContent();
+    // API 데이터가 갱신되면 liveCandleRef 리셋 → 이후 livePrice effect에서 재초기화
+    liveCandleRef.current = null;
   }, [data]);
 
   // 라이브 실시간 가격 업데이트
-  // 항상 마지막 캔들의 time을 사용하여 OHLC만 갱신 (새 캔들 추가는 다음 API 폴링 시 반영)
   useEffect(() => {
     if (!seriesRef.current || !data || data.length === 0 || !livePrice) return;
 
+    const intervalSec = CANDLE_INTERVAL_SEC[timeRange];
     const lastCandle = data[data.length - 1];
-    const lastTimeSec = Math.floor(lastCandle.time / 1000) as CandlestickData["time"];
+    const lastCandleTimeSec = Math.floor(lastCandle.time / 1000);
+    // 마지막 API 캔들의 다음 구간 시작 시각
+    const nextCandleTimeSec = lastCandleTimeSec + intervalSec;
 
-    seriesRef.current.update({
-      time: lastTimeSec,
-      open: lastCandle.open,
-      high: Math.max(lastCandle.high, livePrice),
-      low: Math.min(lastCandle.low, livePrice),
-      close: livePrice,
-    });
-  }, [data, livePrice]);
+    const nowSec = Math.floor(Date.now() / 1000);
+
+    // liveCandleRef 초기화 조건:
+    // - 아직 없거나, API data가 업데이트되어 마지막 캔들이 바뀌었을 때 리셋
+    if (!liveCandleRef.current || liveCandleRef.current.timeSec < lastCandleTimeSec) {
+      liveCandleRef.current = null;
+    }
+
+    if (nowSec >= nextCandleTimeSec) {
+      // 새 캔들 구간에 진입했을 때
+      // liveCandleRef가 없거나 이전 구간이면 새로 시작
+      if (!liveCandleRef.current || liveCandleRef.current.timeSec < nextCandleTimeSec) {
+        liveCandleRef.current = {
+          timeSec: nextCandleTimeSec,
+          open: livePrice,
+          high: livePrice,
+          low: livePrice,
+        };
+      } else {
+        // 같은 새 캔들 구간 내에서 누적
+        liveCandleRef.current.high = Math.max(liveCandleRef.current.high, livePrice);
+        liveCandleRef.current.low = Math.min(liveCandleRef.current.low, livePrice);
+      }
+
+      seriesRef.current.update({
+        time: liveCandleRef.current.timeSec as CandlestickData["time"],
+        open: liveCandleRef.current.open,
+        high: liveCandleRef.current.high,
+        low: liveCandleRef.current.low,
+        close: livePrice,
+      });
+    } else {
+      // 아직 같은 캔들 구간 → 마지막 API 캔들 OHLC 갱신
+      // liveCandleRef로 high/low 누적 (data 원본이 리셋해도 유지)
+      if (!liveCandleRef.current || liveCandleRef.current.timeSec !== lastCandleTimeSec) {
+        liveCandleRef.current = {
+          timeSec: lastCandleTimeSec,
+          open: lastCandle.open,
+          high: lastCandle.high,
+          low: lastCandle.low,
+        };
+      }
+      liveCandleRef.current.high = Math.max(liveCandleRef.current.high, livePrice);
+      liveCandleRef.current.low = Math.min(liveCandleRef.current.low, livePrice);
+
+      seriesRef.current.update({
+        time: lastCandleTimeSec as CandlestickData["time"],
+        open: liveCandleRef.current.open,
+        high: liveCandleRef.current.high,
+        low: liveCandleRef.current.low,
+        close: livePrice,
+      });
+    }
+  }, [data, livePrice, timeRange]);
 
   // 차트 영역 드래그 시 부모(Rnd) 드래그 방지
   useEffect(() => {

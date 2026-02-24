@@ -245,6 +245,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
                 <StockChart
                   data={chartState.data}
                   livePrice={priceState.status === "success" ? priceState.data.current : null}
+                  timeRange={range}
                 />
               ) : chartState.status === "loading" || chartState.status === "idle" ? (
                 <div className="flex h-full items-center justify-center">
