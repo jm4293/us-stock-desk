@@ -41,12 +41,12 @@ export function useFlashBorder(
   const flashRingClass =
     flashDirection === "up"
       ? colorScheme === "kr"
-        ? "outline outline-2 outline-red-500"
-        : "outline outline-2 outline-green-400"
+        ? "ring-2 ring-red-500"
+        : "ring-2 ring-green-400"
       : flashDirection === "down"
         ? colorScheme === "kr"
-          ? "outline outline-2 outline-blue-500"
-          : "outline outline-2 outline-red-500"
+          ? "ring-2 ring-blue-500"
+          : "ring-2 ring-red-500"
         : null;
 
   return { flashDirection, flashRingClass };

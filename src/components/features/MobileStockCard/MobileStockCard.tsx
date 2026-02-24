@@ -157,7 +157,11 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
     : undefined;
 
   return (
-    <div ref={setNodeRef} style={style} className="relative overflow-hidden rounded-2xl">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn("relative overflow-hidden rounded-2xl", flashRingClass)}
+    >
       {/* 삭제 버튼 — 카드 뒤에 고정, 카드가 밀리면 자연스럽게 드러남 */}
       <div
         className="absolute inset-y-0 right-0 flex items-center justify-center rounded-2xl bg-red-500"
@@ -197,8 +201,7 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
         className={cn(
           "relative rounded-2xl border p-4 shadow-sm",
           isDark ? "glass" : "border-slate-200 bg-white shadow-slate-100",
-          isDragging && "shadow-2xl",
-          flashRingClass
+          isDragging && "shadow-2xl"
         )}
         style={{ transform: `translateX(-${swipeOffset}px)`, transition: cardTransition }}
         onTouchStart={handleTouchStart}

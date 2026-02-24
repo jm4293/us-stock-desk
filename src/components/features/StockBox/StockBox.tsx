@@ -85,12 +85,12 @@ export const StockBox: React.FC<StockBoxProps> = ({
   const flashRingClass =
     flashDirection === "up"
       ? colorScheme === "kr"
-        ? "outline outline-2 outline-red-500"
-        : "outline outline-2 outline-green-400"
+        ? "ring-2 ring-red-500"
+        : "ring-2 ring-green-400"
       : flashDirection === "down"
         ? colorScheme === "kr"
-          ? "outline outline-2 outline-blue-500"
-          : "outline outline-2 outline-red-500"
+          ? "ring-2 ring-blue-500"
+          : "ring-2 ring-red-500"
         : null;
 
   useEffect(() => {
@@ -189,7 +189,7 @@ export const StockBox: React.FC<StockBoxProps> = ({
         className={cn(
           "glass w-full cursor-grab rounded-xl transition-all duration-200 active:cursor-grabbing",
           showChart && "flex h-full flex-col",
-          focused && !flashDirection && "z-50 shadow-2xl outline outline-1 outline-white/30",
+          focused && !flashDirection && "z-50 shadow-2xl ring-1 ring-white/30",
           focused && flashDirection && "z-50 shadow-2xl",
           flashRingClass
         )}
