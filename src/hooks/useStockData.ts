@@ -30,13 +30,17 @@ export function useStockData(symbol: string) {
       setState({ status: "loading" });
     }
 
-    const result = await finnhubApi.getQuote(symbol);
+    // Finnhub 종가 + Yahoo 확장시간 가격을 병렬로 호출 → 종가가 먼저 표시되는 깜빡임 방지
+    // Finnhub 결과를 previousClose로 넘겨 change 계산 정확도를 높임
+    const finnhubPromise = finnhubApi.getQuote(symbol);
+    const extPromise = finnhubPromise.then((r) => getExtendedHours(symbol, r.data?.close ?? 0));
+    const [result, extResult] = await Promise.all([finnhubPromise, extPromise]);
+
     if (result.success && result.data) {
       hasLoadedOnce.current = true;
       let priceData = result.data;
 
-      // Yahoo Finance 확장 거래 데이터 가져와서 병합
-      const extResult = await getExtendedHours(symbol);
+      // Yahoo Finance 확장 거래 데이터 병합
       if (extResult.success && extResult.data) {
         priceData = { ...priceData, ...extResult.data };
 

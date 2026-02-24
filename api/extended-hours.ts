@@ -1,7 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 /**
- * Yahoo Finance v7 quote API를 통해 프리마켓 / 애프터마켓 가격을 가져옵니다.
+ * Yahoo Finance v8 chart API를 통해 프리마켓 / 애프터마켓 가격을 가져옵니다.
+ * 가장 최근 체결 캔들의 close 값을 현재 확장시간 가격으로 반환합니다.
  * GET /api/extended-hours?symbol=AAPL
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -13,7 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "symbol is required" });
   }
 
-  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}&fields=preMarketPrice,preMarketChange,preMarketChangePercent,preMarketTime,postMarketPrice,postMarketChange,postMarketChangePercent,postMarketTime`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d&includePrePost=true`;
 
   try {
     const response = await fetch(url, {

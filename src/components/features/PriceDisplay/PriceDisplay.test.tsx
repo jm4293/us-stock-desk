@@ -24,15 +24,15 @@ describe("PriceDisplay", () => {
 
   it("상승 시 양수 변동을 표시한다", () => {
     render(<PriceDisplay price={mockPrice} />);
-    expect(screen.getByText("+$2.50")).toBeInTheDocument();
-    expect(screen.getByText("+1.39%")).toBeInTheDocument();
+    expect(screen.getAllByText("+$2.50")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("+1.39%")[0]).toBeInTheDocument();
   });
 
   it("하락 시 음수 변동을 표시한다", () => {
     const downPrice: StockPrice = { ...mockPrice, change: -2.5, changePercent: -1.39 };
     render(<PriceDisplay price={downPrice} />);
-    expect(screen.getByText("-$2.50")).toBeInTheDocument();
-    expect(screen.getByText("-1.39%")).toBeInTheDocument();
+    expect(screen.getAllByText("-$2.50")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("-1.39%")[0]).toBeInTheDocument();
   });
 
   it("상승 시 상승 색상 스타일을 적용한다", () => {

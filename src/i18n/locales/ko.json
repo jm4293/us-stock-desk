@@ -2,7 +2,8 @@
   "common": {
     "close": "닫기",
     "cancel": "취소",
-    "done": "완료"
+    "done": "완료",
+    "remove": "제거"
   },
   "header": {
     "addStock": "종목 추가",

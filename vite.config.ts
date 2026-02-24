@@ -142,6 +142,33 @@ function finnhubProxyPlugin(apiKey: string): Plugin {
         }
       });
 
+      // Yahoo Finance Extended Hours Proxy (Match production api/extended-hours.ts)
+      server.middlewares.use("/api/extended-hours", async (req, res) => {
+        const url = new URL(req.url!, "http://localhost");
+        const symbol = url.searchParams.get("symbol") ?? "";
+
+        if (!symbol) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "symbol is required" }));
+          return;
+        }
+
+        try {
+          const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol.toUpperCase()}?interval=1m&range=1d&includePrePost=true`;
+          const response = await fetch(yahooUrl, {
+            headers: { "User-Agent": "Mozilla/5.0" },
+          });
+          const data = await response.json();
+          res.setHeader("Content-Type", "application/json");
+          res.setHeader("Access-Control-Allow-Origin", "*");
+          res.setHeader("Cache-Control", "no-store");
+          res.end(JSON.stringify(data));
+        } catch {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Extended hours proxy error" }));
+        }
+      });
+
       // Yahoo Finance Exchange Rate Proxy (Match production api/exchange-rate.ts)
       server.middlewares.use("/api/exchange-rate", async (_req, res) => {
         res.setHeader("Content-Type", "application/json");

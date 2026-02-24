@@ -19,10 +19,8 @@ interface PriceDisplayProps {
   marketStatus?: "open" | "pre" | "post" | "closed";
   className?: string;
 
-  /** 헤더 통합용 옵션 props (데스크탑/모바일 인라인 레이아웃) */
   companyName?: string;
   symbol?: string;
-  actionNode?: React.ReactNode;
 }
 
 export const PriceDisplay: React.FC<PriceDisplayProps> = ({
@@ -32,7 +30,6 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   className,
   companyName,
   symbol,
-  actionNode,
 }) => {
   const { t } = useTranslation();
   const colorScheme = useColorScheme();
@@ -58,16 +55,13 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
               <p className="text-sm font-medium text-gray-400/80">{symbol}</p>
             )}
           </div>
-          <div className="flex shrink-0 items-start">
-            <div
-              data-testid="price-skeleton"
-              className="flex animate-pulse flex-col items-end space-y-2"
-            >
-              <div className={cn("h-8 w-32 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
-              <div className={cn("h-4 w-24 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
-              <div className={cn("h-3 w-40 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
-            </div>
-            {actionNode && <div className="-mr-2 -mt-1 ml-2">{actionNode}</div>}
+          <div
+            data-testid="price-skeleton"
+            className="flex animate-pulse flex-col items-end space-y-2"
+          >
+            <div className={cn("h-8 w-32 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+            <div className={cn("h-4 w-24 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
+            <div className={cn("h-3 w-40 rounded", isDark ? "bg-white/10" : "bg-black/10")} />
           </div>
         </div>
       </div>
@@ -99,41 +93,18 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
         ? t("stockBox.postMarket")
         : null;
 
-  // closed 상태에서 postMarket 보조 표시
-  const closedPostMarket = price.postMarket;
-  const displayClosedPost = closedPostMarket
-    ? currency === "KRW"
-      ? formatKRW(closedPostMarket.price * exchangeRate)
-      : formatUSD(closedPostMarket.price)
-    : null;
-  const closedPostChange = closedPostMarket
-    ? currency === "KRW"
-      ? formatChangeKRW(closedPostMarket.change * exchangeRate)
-      : formatChangeUSD(closedPostMarket.change)
-    : null;
-  const isClosedPostPositive = closedPostMarket ? closedPostMarket.change >= 0 : true;
-  const closedPostColorClass = isClosedPostPositive ? upClass : downClass;
-
-  // preMarket 보조 표시
-  const preMarket = price.preMarket;
-  const displayPreMarket = preMarket
-    ? currency === "KRW"
-      ? formatKRW(preMarket.price * exchangeRate)
-      : formatUSD(preMarket.price)
-    : null;
-  const preMarketChange = preMarket
-    ? currency === "KRW"
-      ? formatChangeKRW(preMarket.change * exchangeRate)
-      : formatChangeUSD(preMarket.change)
-    : null;
-  const isPreMarketPositive = preMarket ? preMarket.change >= 0 : true;
-  const preMarketColorClass = isPreMarketPositive ? upClass : downClass;
-
-  // 정규장 종가 보조 표시
-  // 메인 가격이 현재 세션에 따라 바뀌므로, 훼손되지 않은 원본 정규장 가격을 하단에 항상 표시합니다.
-  const displayCloseNum = price.regularMarketPrice ?? price.current;
-  const displayClose =
-    currency === "KRW" ? formatKRW(displayCloseNum * exchangeRate) : formatUSD(displayCloseNum);
+  // 정규장 종가 + 종가 기준 변동값/변동률 (pre/post/closed 상태에서만 표시)
+  const regularPrice = price.regularMarketPrice ?? price.current;
+  const regularChange = price.regularMarketChange ?? price.change;
+  const regularChangePercent = price.regularMarketChangePercent ?? price.changePercent;
+  const isRegularPositive = regularChange >= 0;
+  const regularColorClass = isRegularPositive ? upClass : downClass;
+  const displayRegularPrice =
+    currency === "KRW" ? formatKRW(regularPrice * exchangeRate) : formatUSD(regularPrice);
+  const displayRegularChange =
+    currency === "KRW"
+      ? formatChangeKRW(regularChange * exchangeRate)
+      : formatChangeUSD(regularChange);
 
   return (
     <div className={cn(className)}>
@@ -150,84 +121,48 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
           )}
         </div>
 
-        {/* 우측: 가격/변동률 (우측 정렬) + X 버튼 */}
-        <div className="flex shrink-0 items-center">
-          <div className="flex flex-col items-end">
-            <div className={cn("text-2xl font-bold tracking-tight", priceColorClass)}>
-              {displayPrice}
-            </div>
-            <div className="mt-0.5 flex items-center justify-end gap-1.5 text-sm">
-              {sessionLabel && (
-                <span
-                  className={cn(
-                    "rounded px-1.5 py-0.5 text-[10px] font-medium leading-none",
-                    isDark ? "bg-white/10 text-gray-300" : "bg-slate-100 text-slate-500"
-                  )}
-                >
-                  {sessionLabel}
-                </span>
-              )}
-              <span className={priceColorClass}>{displayChange}</span>
-              <span className={priceColorClass}>{formatPercent(price.changePercent)}</span>
-            </div>
+        {/* 우측: 가격/변동률 */}
+        <div className="flex shrink-0 flex-col items-end">
+          <div className={cn("text-2xl font-bold tracking-tight", priceColorClass)}>
+            {displayPrice}
           </div>
-          {/* X 버튼을 가격/변동률 블록의 우측에 고정 */}
-          {actionNode && <div className="-mr-2 -mt-1 ml-2">{actionNode}</div>}
+          <div className="mt-0.5 flex items-center justify-end gap-1.5 text-sm">
+            {sessionLabel && (
+              <span
+                className={cn(
+                  "rounded px-1.5 py-0.5 text-[10px] font-medium leading-none",
+                  isDark ? "bg-white/10 text-gray-300" : "bg-slate-100 text-slate-500"
+                )}
+              >
+                {sessionLabel}
+              </span>
+            )}
+            <span className={priceColorClass}>{displayChange}</span>
+            <span className={priceColorClass}>{formatPercent(price.changePercent)}</span>
+          </div>
         </div>
       </div>
 
       <div className="flex flex-col text-xs">
-        {/* 프리마켓 (pre/post/closed 상태에서 보조 표시) */}
-        {displayPreMarket && (
+        {/* 정규장 종가 + 종가 기준 변동 — 정규장이 아닌 시간(pre/post/closed)에만 표시 */}
+        {marketStatus !== "open" && (
           <div className="flex items-center justify-between">
-            <span className={isDark ? "text-gray-400" : "text-slate-500"}>
-              {t("stockBox.preMarket")}
-            </span>
-            <div className="flex items-center gap-1.5">
-              <span className={cn("font-medium tabular-nums", preMarketColorClass)}>
-                {displayPreMarket}
-              </span>
-              {preMarketChange && (
-                <span className={cn("text-[10px] tabular-nums", preMarketColorClass)}>
-                  {preMarketChange}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* 정규장 종가 — 정규장이 아닌 시간(pre/post/closed)에만 표시 */}
-        {displayClose && marketStatus !== "open" && (
-          <div className="flex items-center gap-2">
             <span className={isDark ? "text-gray-400" : "text-slate-500"}>
               {t("stockBox.regularClose") || "Regular Close"}
             </span>
-            <span
-              className={cn(
-                "font-medium tabular-nums",
-                isDark ? "text-gray-300" : "text-slate-700"
-              )}
-            >
-              {displayClose}
-            </span>
-          </div>
-        )}
-
-        {/* 애프터마켓 */}
-        {displayClosedPost && (
-          <div className="flex items-center justify-between">
-            <span className={isDark ? "text-gray-400" : "text-slate-500"}>
-              {t("stockBox.postMarket")}
-            </span>
             <div className="flex items-center gap-1.5">
-              <span className={cn("font-medium tabular-nums", closedPostColorClass)}>
-                {displayClosedPost}
+              <span
+                className={cn(
+                  "font-medium tabular-nums",
+                  isDark ? "text-gray-300" : "text-slate-700"
+                )}
+              >
+                {displayRegularPrice}
               </span>
-              {closedPostChange && (
-                <span className={cn("text-[10px] tabular-nums", closedPostColorClass)}>
-                  {closedPostChange}
-                </span>
-              )}
+              <span className={cn("tabular-nums", regularColorClass)}>{displayRegularChange}</span>
+              <span className={cn("tabular-nums", regularColorClass)}>
+                {formatPercent(regularChangePercent)}
+              </span>
             </div>
           </div>
         )}

@@ -2,7 +2,8 @@
   "common": {
     "close": "Close",
     "cancel": "Cancel",
-    "done": "Done"
+    "done": "Done",
+    "remove": "Remove"
   },
   "header": {
     "addStock": "Add Stock",

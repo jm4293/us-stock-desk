@@ -54,13 +54,13 @@ describe("StockBox", () => {
 
   it("닫기 버튼을 렌더링한다", () => {
     render(<StockBox {...defaultProps} />);
-    expect(screen.getByRole("button", { name: /닫기/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /제거/i })).toBeInTheDocument();
   });
 
   it("닫기 버튼 클릭 시 onClose가 id와 함께 호출된다", async () => {
     const onClose = vi.fn();
     render(<StockBox {...defaultProps} onClose={onClose} />);
-    await userEvent.click(screen.getByRole("button", { name: /닫기/i }));
+    await userEvent.click(screen.getByRole("button", { name: /제거/i }));
     expect(onClose).toHaveBeenCalledWith("test-id");
   });
 

@@ -168,7 +168,20 @@ export const StockBox: React.FC<StockBoxProps> = ({
       minWidth={300}
       minHeight={showChart ? HEIGHT_WITH_CHART : undefined}
       enableResizing={showChart}
+      className="group"
     >
+      {/* 박스 호버 시 우측 상단에 나타나는 X 버튼 */}
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-label={t("common.remove")}
+        onClick={handleClose}
+        onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+        className="absolute -right-2 -top-2 z-10 h-6 w-6 rounded-full bg-white/10 p-0 text-xs leading-none opacity-0 backdrop-blur-sm transition-opacity duration-150 hover:bg-white/25 group-hover:opacity-100"
+      >
+        ✕
+      </Button>
+
       <div
         data-testid="stock-box"
         role="button"
@@ -186,21 +199,10 @@ export const StockBox: React.FC<StockBoxProps> = ({
         {/* 헤더 및 가격 (PriceDisplay 통합) */}
         <div className={cn("px-4", showChart ? "pb-2 pt-4" : "py-4")}>
           {error ? (
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-white">{companyName}</h3>
-                <p className="text-xs text-gray-400">{symbol}</p>
-                <p className="mt-2 text-sm text-red-400">{error}</p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                aria-label={t("common.close")}
-                onClick={handleClose}
-                onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
-              >
-                ✕
-              </Button>
+            <div>
+              <h3 className="text-lg font-bold text-white">{companyName}</h3>
+              <p className="text-xs text-gray-400">{symbol}</p>
+              <p className="mt-2 text-sm text-red-400">{error}</p>
             </div>
           ) : (
             <PriceDisplay
@@ -209,17 +211,6 @@ export const StockBox: React.FC<StockBoxProps> = ({
               marketStatus={marketStatus}
               companyName={companyName}
               symbol={symbol}
-              actionNode={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label={t("common.close")}
-                  onClick={handleClose}
-                  onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
-                >
-                  ✕
-                </Button>
-              }
             />
           )}
         </div>
