@@ -194,10 +194,12 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
     const intervalSec = CANDLE_INTERVAL_SEC[timeRange];
     const lastCandle = data[data.length - 1];
     const lastCandleTimeSec = Math.floor(lastCandle.time / 1000);
-    // 마지막 API 캔들의 다음 구간 시작 시각
-    const nextCandleTimeSec = lastCandleTimeSec + intervalSec;
 
     const nowSec = Math.floor(Date.now() / 1000);
+
+    // 현재 시각 기준으로 현재 캔들 구간의 시작 시각을 계산
+    // (nowSec을 intervalSec으로 정렬하면 현재 캔들 구간의 시작 시각)
+    const currentCandleTimeSec = Math.floor(nowSec / intervalSec) * intervalSec;
 
     // liveCandleRef 초기화 조건:
     // - 아직 없거나, API data가 업데이트되어 마지막 캔들이 바뀌었을 때 리셋
@@ -205,12 +207,12 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
       liveCandleRef.current = null;
     }
 
-    if (nowSec >= nextCandleTimeSec) {
-      // 새 캔들 구간에 진입했을 때
-      // liveCandleRef가 없거나 이전 구간이면 새로 시작
-      if (!liveCandleRef.current || liveCandleRef.current.timeSec < nextCandleTimeSec) {
+    if (currentCandleTimeSec > lastCandleTimeSec) {
+      // 현재 시각이 마지막 API 캔들보다 이후 구간 → 새 캔들
+      if (!liveCandleRef.current || liveCandleRef.current.timeSec !== currentCandleTimeSec) {
+        // 새 캔들 구간에 처음 진입: open = livePrice
         liveCandleRef.current = {
-          timeSec: nextCandleTimeSec,
+          timeSec: currentCandleTimeSec,
           open: livePrice,
           high: livePrice,
           low: livePrice,
