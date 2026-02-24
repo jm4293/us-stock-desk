@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface ExchangeRateResponse {
   base: string;
@@ -34,12 +34,36 @@ let cachedData: ExchangeRateData | null = null;
 let cacheTime = 0;
 // 프론트엔드 캐시는 1분 (Vercel Edge Cache s-maxage=60 설정과 동일하게 맞춰 불필요한 네트워크 요청 방지)
 const CACHE_DURATION = 60 * 1000;
+// 폴링 간격: 캐시와 동일하게 60초
+const POLLING_INTERVAL = 60 * 1000;
+
+function fetchExchangeRate(): Promise<ExchangeRateData> {
+  return fetch("/api/exchange-rate")
+    .then((r) => r.json())
+    .then((resp: Partial<ExchangeRateResponse> & { rate: number }) => {
+      const rate = resp.rate ?? 1450;
+      const previousClose = resp.previousClose ?? rate;
+      const newData: ExchangeRateData = {
+        rate,
+        previousClose,
+        change: resp.change ?? rate - previousClose,
+        changePercent:
+          resp.changePercent ??
+          (previousClose !== 0 ? ((rate - previousClose) / previousClose) * 100 : 0),
+        dayHigh: resp.dayHigh ?? rate,
+        dayLow: resp.dayLow ?? rate,
+      };
+      cachedData = newData;
+      cacheTime = Date.now();
+      return newData;
+    });
+}
 
 export function useExchangeRate() {
   const [data, setData] = useState<ExchangeRateData>(cachedData ?? DEFAULT_DATA);
   const [loading, setLoading] = useState(!cachedData);
 
-  useEffect(() => {
+  const doFetch = useCallback(() => {
     const now = Date.now();
     if (cachedData && now - cacheTime < CACHE_DURATION) {
       setData(cachedData);
@@ -47,32 +71,23 @@ export function useExchangeRate() {
       return;
     }
 
-    fetch("/api/exchange-rate")
-      .then((r) => r.json())
-      .then((resp: Partial<ExchangeRateResponse> & { rate: number }) => {
-        const rate = resp.rate ?? 1450;
-        const previousClose = resp.previousClose ?? rate;
-        const newData: ExchangeRateData = {
-          rate,
-          previousClose,
-          change: resp.change ?? rate - previousClose,
-          changePercent:
-            resp.changePercent ??
-            (previousClose !== 0 ? ((rate - previousClose) / previousClose) * 100 : 0),
-          dayHigh: resp.dayHigh ?? rate,
-          dayLow: resp.dayLow ?? rate,
-        };
-        cachedData = newData;
-        cacheTime = Date.now();
+    fetchExchangeRate()
+      .then((newData) => {
         setData(newData);
         setLoading(false);
       })
       .catch((error) => {
         console.error("[useExchangeRate] Failed to fetch exchange rate:", error);
-        // 에러 시에도 로딩 해제 (UI 멈춤 방지)
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    doFetch();
+
+    const interval = setInterval(doFetch, POLLING_INTERVAL);
+    return () => clearInterval(interval);
+  }, [doFetch]);
 
   return { rate: data.rate, data, loading };
 }

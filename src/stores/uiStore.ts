@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { useShallow } from "zustand/react/shallow";
 import type { UIState, UIActions } from "@/types/store";
 
 type UIStore = UIState & UIActions;
@@ -54,10 +55,12 @@ export const useIsSearchOpen = () => useUIStore((state) => state.isSearchOpen);
 export const useIsSettingsOpen = () => useUIStore((state) => state.isSettingsOpen);
 export const useIsLoading = () => useUIStore((state) => state.isLoading);
 export const useUIActions = () =>
-  useUIStore((state) => ({
-    openSearch: state.openSearch,
-    closeSearch: state.closeSearch,
-    openSettings: state.openSettings,
-    closeSettings: state.closeSettings,
-    setLoading: state.setLoading,
-  }));
+  useUIStore(
+    useShallow((state) => ({
+      openSearch: state.openSearch,
+      closeSearch: state.closeSearch,
+      openSettings: state.openSettings,
+      closeSettings: state.closeSettings,
+      setLoading: state.setLoading,
+    }))
+  );

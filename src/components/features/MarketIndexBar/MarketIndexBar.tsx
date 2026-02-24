@@ -1,5 +1,6 @@
 import { useExchangeRate } from "@/hooks/useExchangeRate";
 import type { ExchangeRateData } from "@/hooks/useExchangeRate";
+import { useFlashBorder } from "@/hooks/useFlashBorder";
 import { useIndexData } from "@/hooks/useIndexData";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
@@ -21,9 +22,12 @@ import {
   formatPercent,
   formatUSD,
 } from "@/utils/formatters";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { Rnd } from "react-rnd";
+
+/* ─── 공용 포맷터 (매 렌더마다 재생성 방지) ──────────────────── */
+const krwFormatter = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 2 });
 
 /* ─── 데스크톱: Rnd 기반 드래그/리사이즈 가능 박스 ──────────── */
 
@@ -47,41 +51,8 @@ const IndexBox: React.FC<IndexBoxProps> = ({ symbol, label, position, size, zInd
   const currency = useCurrency();
   const { rate: exchangeRate } = useExchangeRate();
 
-  // Flash border animation
-  const prevPriceRef = useRef<number | null>(null);
-  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
-  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const currentPrice = data?.price ?? null;
-
-  useEffect(() => {
-    if (currentPrice === null) return;
-    const prev = prevPriceRef.current;
-    if (prev !== null && prev !== currentPrice) {
-      const direction = currentPrice > prev ? "up" : "down";
-      setFlashDirection(direction);
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-      flashTimerRef.current = setTimeout(() => setFlashDirection(null), 600);
-    }
-    prevPriceRef.current = currentPrice;
-  }, [currentPrice]);
-
-  useEffect(() => {
-    return () => {
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-    };
-  }, []);
-
-  const flashRingClass =
-    flashDirection === "up"
-      ? colorScheme === "kr"
-        ? "outline outline-2 outline-red-500"
-        : "outline outline-2 outline-green-400"
-      : flashDirection === "down"
-        ? colorScheme === "kr"
-          ? "outline outline-2 outline-blue-500"
-          : "outline outline-2 outline-red-500"
-        : null;
+  const { flashDirection, flashRingClass } = useFlashBorder(currentPrice, colorScheme);
 
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-600" : "text-down-us";
@@ -246,41 +217,8 @@ const MobileIndexCard: React.FC<MobileIndexCardProps> = ({ symbol, label }) => {
   const currency = useCurrency();
   const { rate: exchangeRate } = useExchangeRate();
 
-  // Flash border animation
-  const prevPriceRef = useRef<number | null>(null);
-  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
-  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const currentPrice = data?.price ?? null;
-
-  useEffect(() => {
-    if (currentPrice === null) return;
-    const prev = prevPriceRef.current;
-    if (prev !== null && prev !== currentPrice) {
-      const direction = currentPrice > prev ? "up" : "down";
-      setFlashDirection(direction);
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-      flashTimerRef.current = setTimeout(() => setFlashDirection(null), 600);
-    }
-    prevPriceRef.current = currentPrice;
-  }, [currentPrice]);
-
-  useEffect(() => {
-    return () => {
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-    };
-  }, []);
-
-  const flashRingClass =
-    flashDirection === "up"
-      ? colorScheme === "kr"
-        ? "outline outline-2 outline-red-500"
-        : "outline outline-2 outline-green-400"
-      : flashDirection === "down"
-        ? colorScheme === "kr"
-          ? "outline outline-2 outline-blue-500"
-          : "outline outline-2 outline-red-500"
-        : null;
+  const { flashRingClass } = useFlashBorder(currentPrice, colorScheme);
 
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-600" : "text-down-us";
@@ -399,40 +337,7 @@ const ExchangeRateBox: React.FC<ExchangeRateBoxProps> = ({
   const isDark = theme === "dark";
   const colorScheme = useColorScheme();
 
-  // Flash border animation
-  const prevRateRef = useRef<number | null>(null);
-  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
-  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const currentRate = data.rate;
-
-  useEffect(() => {
-    const prev = prevRateRef.current;
-    if (prev !== null && prev !== currentRate) {
-      const direction = currentRate > prev ? "up" : "down";
-      setFlashDirection(direction);
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-      flashTimerRef.current = setTimeout(() => setFlashDirection(null), 600);
-    }
-    prevRateRef.current = currentRate;
-  }, [currentRate]);
-
-  useEffect(() => {
-    return () => {
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-    };
-  }, []);
-
-  const flashRingClass =
-    flashDirection === "up"
-      ? colorScheme === "kr"
-        ? "outline outline-2 outline-red-500"
-        : "outline outline-2 outline-green-400"
-      : flashDirection === "down"
-        ? colorScheme === "kr"
-          ? "outline outline-2 outline-blue-500"
-          : "outline outline-2 outline-red-500"
-        : null;
+  const { flashDirection, flashRingClass } = useFlashBorder(data.rate, colorScheme);
 
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-600" : "text-down-us";
@@ -440,7 +345,6 @@ const ExchangeRateBox: React.FC<ExchangeRateBoxProps> = ({
   const isPositive = data.change >= 0;
   const priceColorClass = isPositive ? upClass : downClass;
 
-  const krwFormatter = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 2 });
   const displayRate = `₩${krwFormatter.format(data.rate)}`;
   const displayChange = isPositive
     ? `+₩${krwFormatter.format(data.change)}`
@@ -580,40 +484,7 @@ const MobileExchangeRateCard: React.FC<MobileExchangeRateCardProps> = ({ data, l
   const isDark = theme === "dark";
   const colorScheme = useColorScheme();
 
-  // Flash border animation
-  const prevRateRef = useRef<number | null>(null);
-  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
-  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const currentRate = data.rate;
-
-  useEffect(() => {
-    const prev = prevRateRef.current;
-    if (prev !== null && prev !== currentRate) {
-      const direction = currentRate > prev ? "up" : "down";
-      setFlashDirection(direction);
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-      flashTimerRef.current = setTimeout(() => setFlashDirection(null), 600);
-    }
-    prevRateRef.current = currentRate;
-  }, [currentRate]);
-
-  useEffect(() => {
-    return () => {
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-    };
-  }, []);
-
-  const flashRingClass =
-    flashDirection === "up"
-      ? colorScheme === "kr"
-        ? "outline outline-2 outline-red-500"
-        : "outline outline-2 outline-green-400"
-      : flashDirection === "down"
-        ? colorScheme === "kr"
-          ? "outline outline-2 outline-blue-500"
-          : "outline outline-2 outline-red-500"
-        : null;
+  const { flashRingClass } = useFlashBorder(data.rate, colorScheme);
 
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-600" : "text-down-us";
@@ -621,7 +492,6 @@ const MobileExchangeRateCard: React.FC<MobileExchangeRateCardProps> = ({ data, l
   const isPositive = data.change >= 0;
   const priceColorClass = isPositive ? upClass : downClass;
 
-  const krwFormatter = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 2 });
   const displayRate = `₩${krwFormatter.format(data.rate)}`;
   const displayChange = isPositive
     ? `+₩${krwFormatter.format(data.change)}`

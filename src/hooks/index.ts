@@ -8,3 +8,4 @@ export { useIsMobile } from "./useIsMobile";
 export { useNetworkStatus } from "./useNetworkStatus";
 export { useWakeLock } from "./useWakeLock";
 export { useFullscreen } from "./useFullscreen";
+export { useFlashBorder } from "./useFlashBorder";

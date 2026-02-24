@@ -1,4 +1,5 @@
 import { StockChart } from "@/components/features";
+import { useFlashBorder } from "@/hooks/useFlashBorder";
 import { useMarketStatus, useMobileStockCard } from "@/hooks";
 import type { ChartTimeRange } from "@/types/stock";
 import { cn } from "@/utils/cn";
@@ -11,7 +12,7 @@ import {
 } from "@/utils/formatters";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const TIME_RANGES: ChartTimeRange[] = ["1m", "5m", "10m", "1h", "1D"];
@@ -50,40 +51,8 @@ export const MobileStockCard: React.FC<MobileStockCardProps> = ({
   const price = rawPrice?.current ? rawPrice : null;
   const isLoading = priceState.status === "loading" || priceState.status === "idle" || !price;
 
-  const prevPriceRef = useRef<number | null>(null);
-  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
-  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const currentPrice = price?.current ?? null;
-
-  useEffect(() => {
-    if (currentPrice === null) return;
-    const prev = prevPriceRef.current;
-    if (prev !== null && prev !== currentPrice) {
-      const direction = currentPrice > prev ? "up" : "down";
-      setFlashDirection(direction);
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-      flashTimerRef.current = setTimeout(() => setFlashDirection(null), 600);
-    }
-    prevPriceRef.current = currentPrice;
-  }, [currentPrice]);
-
-  useEffect(() => {
-    return () => {
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-    };
-  }, []);
-
-  const flashRingClass =
-    flashDirection === "up"
-      ? colorScheme === "kr"
-        ? "outline outline-2 outline-red-500"
-        : "outline outline-2 outline-green-400"
-      : flashDirection === "down"
-        ? colorScheme === "kr"
-          ? "outline outline-2 outline-blue-500"
-          : "outline outline-2 outline-red-500"
-        : null;
+  const { flashRingClass } = useFlashBorder(currentPrice, colorScheme);
 
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";
   const downClass = colorScheme === "kr" ? "text-blue-600" : "text-down-us";

@@ -5,6 +5,8 @@ import type { MarketStatus } from "@/types/stock";
 import { cn } from "@/utils/cn";
 import { memo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { MarketTooltipDesktop } from "./MarketTooltipDesktop";
+import { MarketTooltipMobile } from "./MarketTooltipMobile";
 
 interface HeaderProps {
   onAddStock: () => void;
@@ -19,8 +21,6 @@ const STATUS_COLORS: Record<MarketStatus, string> = {
   closed: "bg-gray-500",
 };
 
-import { MarketTooltipDesktop } from "./MarketTooltipDesktop";
-import { MarketTooltipMobile } from "./MarketTooltipMobile";
 export const Header = memo(function Header({ onAddStock, onOpenSettings, className }: HeaderProps) {
   const { t } = useTranslation();
   const isMobile = useIsMobile();

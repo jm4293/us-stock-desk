@@ -3,6 +3,7 @@ import type { SettingsActions, SettingsState } from "@/types/store";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { useShallow } from "zustand/react/shallow";
 
 type SettingsStore = SettingsState & SettingsActions;
 
@@ -129,14 +130,16 @@ export const useShowIndexSP500 = () => useSettingsStore((state) => state.showInd
 export const useShowIndexNASDAQ = () => useSettingsStore((state) => state.showIndexNASDAQ);
 export const useShowExchangeRate = () => useSettingsStore((state) => state.showExchangeRate);
 export const useSettingsActions = () =>
-  useSettingsStore((state) => ({
-    setTheme: state.setTheme,
-    setLanguage: state.setLanguage,
-    setColorScheme: state.setColorScheme,
-    setCurrency: state.setCurrency,
-    setShowChart: state.setShowChart,
-    setShowIndexDJI: state.setShowIndexDJI,
-    setShowIndexSP500: state.setShowIndexSP500,
-    setShowIndexNASDAQ: state.setShowIndexNASDAQ,
-    setShowExchangeRate: state.setShowExchangeRate,
-  }));
+  useSettingsStore(
+    useShallow((state) => ({
+      setTheme: state.setTheme,
+      setLanguage: state.setLanguage,
+      setColorScheme: state.setColorScheme,
+      setCurrency: state.setCurrency,
+      setShowChart: state.setShowChart,
+      setShowIndexDJI: state.setShowIndexDJI,
+      setShowIndexSP500: state.setShowIndexSP500,
+      setShowIndexNASDAQ: state.setShowIndexNASDAQ,
+      setShowExchangeRate: state.setShowExchangeRate,
+    }))
+  );

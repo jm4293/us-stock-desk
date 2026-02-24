@@ -23,7 +23,6 @@ function App() {
   const showToast = useShowToast();
   const isMobile = useIsMobile();
 
-  const stocks = useStockStore((state) => state.stocks);
   const removeStock = useStockStore((state) => state.removeStock);
 
   const openSearch = useUIStore((state) => state.openSearch);
@@ -51,7 +50,7 @@ function App() {
   }, [language]);
 
   const handleRemoveStock = (id: string) => {
-    const stock = stocks.find((s) => s.id === id);
+    const stock = useStockStore.getState().stocks.find((s) => s.id === id);
 
     removeStock(id);
 

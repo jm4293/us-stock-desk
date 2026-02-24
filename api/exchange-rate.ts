@@ -47,6 +47,7 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
       dayHigh: 1450,
       dayLow: 1450,
       timestamp: Date.now(),
+      stale: true,
     });
   }
 }
