@@ -5,7 +5,6 @@ import { useIndexData } from "@/hooks/useIndexData";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   useColorScheme,
-  useCurrency,
   useIndexStore,
   useShowExchangeRate,
   useShowIndexDJI,
@@ -15,13 +14,7 @@ import {
 } from "@/stores";
 import type { IndexSymbol, Position, Size } from "@/types/stock";
 import { cn } from "@/utils/cn";
-import {
-  formatChangeKRW,
-  formatChangeUSD,
-  formatKRW,
-  formatPercent,
-  formatUSD,
-} from "@/utils/formatters";
+import { formatChangeIndex, formatIndex, formatPercent } from "@/utils/formatters";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Rnd } from "react-rnd";
@@ -48,8 +41,6 @@ const IndexBox: React.FC<IndexBoxProps> = ({ symbol, label, position, size, zInd
   const theme = useTheme();
   const isDark = theme === "dark";
   const colorScheme = useColorScheme();
-  const currency = useCurrency();
-  const { rate: exchangeRate } = useExchangeRate();
 
   const currentPrice = data?.price ?? null;
   const { flashDirection, flashRingClass } = useFlashBorder(currentPrice, colorScheme);
@@ -60,26 +51,10 @@ const IndexBox: React.FC<IndexBoxProps> = ({ symbol, label, position, size, zInd
   const isPositive = data ? data.change >= 0 : true;
   const priceColorClass = isPositive ? upClass : downClass;
 
-  const displayPrice = data
-    ? currency === "KRW"
-      ? formatKRW(data.price * exchangeRate)
-      : formatUSD(data.price)
-    : null;
-  const displayChange = data
-    ? currency === "KRW"
-      ? formatChangeKRW(data.change * exchangeRate)
-      : formatChangeUSD(data.change)
-    : null;
-  const displayHigh = data
-    ? currency === "KRW"
-      ? formatKRW(data.dayHigh * exchangeRate)
-      : formatUSD(data.dayHigh)
-    : null;
-  const displayLow = data
-    ? currency === "KRW"
-      ? formatKRW(data.dayLow * exchangeRate)
-      : formatUSD(data.dayLow)
-    : null;
+  const displayPrice = data ? formatIndex(data.price) : null;
+  const displayChange = data ? formatChangeIndex(data.change) : null;
+  const displayHigh = data ? formatIndex(data.dayHigh) : null;
+  const displayLow = data ? formatIndex(data.dayLow) : null;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -214,8 +189,6 @@ const MobileIndexCard: React.FC<MobileIndexCardProps> = ({ symbol, label }) => {
   const theme = useTheme();
   const isDark = theme === "dark";
   const colorScheme = useColorScheme();
-  const currency = useCurrency();
-  const { rate: exchangeRate } = useExchangeRate();
 
   const currentPrice = data?.price ?? null;
   const { flashRingClass } = useFlashBorder(currentPrice, colorScheme);
@@ -227,27 +200,11 @@ const MobileIndexCard: React.FC<MobileIndexCardProps> = ({ symbol, label }) => {
   const priceColorClass = isPositive ? upClass : downClass;
   const isLoading = loading || !data;
 
-  const displayPrice = data
-    ? currency === "KRW"
-      ? formatKRW(data.price * exchangeRate)
-      : formatUSD(data.price)
-    : null;
-  const displayChange = data
-    ? currency === "KRW"
-      ? formatChangeKRW(data.change * exchangeRate)
-      : formatChangeUSD(data.change)
-    : null;
+  const displayPrice = data ? formatIndex(data.price) : null;
+  const displayChange = data ? formatChangeIndex(data.change) : null;
   const displayPercent = data ? formatPercent(data.changePercent) : null;
-  const displayHigh = data
-    ? currency === "KRW"
-      ? formatKRW(data.dayHigh * exchangeRate)
-      : formatUSD(data.dayHigh)
-    : null;
-  const displayLow = data
-    ? currency === "KRW"
-      ? formatKRW(data.dayLow * exchangeRate)
-      : formatUSD(data.dayLow)
-    : null;
+  const displayHigh = data ? formatIndex(data.dayHigh) : null;
+  const displayLow = data ? formatIndex(data.dayLow) : null;
 
   return (
     <div
