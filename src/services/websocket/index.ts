@@ -1,1 +1,2 @@
-export * from "./stockSocket";
+export * from "./stock-socket";
+export * from "./yahoo-socket";

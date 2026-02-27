@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // WebSocket 상수 정의 (글로벌 모킹 전에)
 const WS_OPEN = 1;
@@ -45,12 +45,12 @@ describe("stockSocket", () => {
   });
 
   it("subscribe 함수가 존재한다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     expect(typeof stockSocket.subscribe).toBe("function");
   });
 
   it("subscribe는 unsubscribe 함수를 반환한다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     const callback = vi.fn();
     const unsubscribe = stockSocket.subscribe("AAPL", callback);
     expect(typeof unsubscribe).toBe("function");
@@ -58,12 +58,12 @@ describe("stockSocket", () => {
   });
 
   it("disconnect 함수가 존재한다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     expect(typeof stockSocket.disconnect).toBe("function");
   });
 
   it("여러 심볼을 구독할 수 있다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     const cb1 = vi.fn();
     const cb2 = vi.fn();
     const unsub1 = stockSocket.subscribe("AAPL", cb1);
@@ -74,7 +74,7 @@ describe("stockSocket", () => {
   });
 
   it("구독 해제 후 콜백이 더 이상 호출되지 않는다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     const callback = vi.fn();
     const unsubscribe = stockSocket.subscribe("AAPL", callback);
     unsubscribe();
@@ -84,19 +84,19 @@ describe("stockSocket", () => {
   });
 
   it("disconnect를 호출하면 연결이 닫힌다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     stockSocket.subscribe("AAPL", vi.fn());
     stockSocket.disconnect();
     expect(mockWsInstance.close).toHaveBeenCalled();
   });
 
   it("isConnected 속성이 존재한다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     expect(typeof stockSocket.isConnected).toBe("boolean");
   });
 
   it("같은 심볼에 여러 콜백을 구독할 수 있다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     const cb1 = vi.fn();
     const cb2 = vi.fn();
     const unsub1 = stockSocket.subscribe("AAPL", cb1);
@@ -109,7 +109,7 @@ describe("stockSocket", () => {
   });
 
   it("onmessage 핸들러가 trade 데이터를 콜백에 전달한다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     const callback = vi.fn();
     stockSocket.subscribe("AAPL", callback);
 
@@ -127,7 +127,7 @@ describe("stockSocket", () => {
   });
 
   it("잘못된 JSON 메시지는 무시한다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     const callback = vi.fn();
     stockSocket.subscribe("AAPL", callback);
 
@@ -139,7 +139,7 @@ describe("stockSocket", () => {
   it("WebSocket onopen 콜백이 실행되면 resubscribeAll이 호출된다", async () => {
     // readyState를 CONNECTING으로 설정하여 connect()가 실행되도록
     mockWsInstance.readyState = 0; // CONNECTING
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     stockSocket.subscribe("AAPL", vi.fn());
 
     // onopen 트리거 - 이미 구독된 종목을 재구독함
@@ -152,7 +152,7 @@ describe("stockSocket", () => {
   });
 
   it("WebSocket onclose 콜백이 실행되어도 에러 없이 처리된다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     stockSocket.subscribe("AAPL", vi.fn());
 
     expect(() => mockWsInstance.onclose?.(new CloseEvent("close"))).not.toThrow();
@@ -160,7 +160,7 @@ describe("stockSocket", () => {
   });
 
   it("WebSocket onerror 콜백이 실행되어도 에러 없이 처리된다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     stockSocket.subscribe("AAPL", vi.fn());
 
     expect(() => mockWsInstance.onerror?.(new Event("error"))).not.toThrow();
@@ -168,7 +168,7 @@ describe("stockSocket", () => {
   });
 
   it("trade 타입이 아닌 메시지는 무시한다", async () => {
-    const { stockSocket } = await import("./stockSocket");
+    const { stockSocket } = await import("./stock-socket");
     const callback = vi.fn();
     stockSocket.subscribe("AAPL", callback);
 

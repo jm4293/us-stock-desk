@@ -1,18 +1,18 @@
-import { NetworkOfflineBanner, SearchModal, SettingsModal } from "@/components/features";
+import { useEffect } from "react";
 import {
   BackgroundGradient,
   DesktopLayout,
   Header,
   MobileLayout,
   SplashScreen,
-} from "@/components/layout";
-import { ToastContainer } from "@/components/ui/Toast";
+  ToastContainer,
+} from "@/components";
+import { NetworkOfflineBanner, SearchModal, SettingsModal } from "@/features";
 import { useIsMobile, useWakeLock } from "@/hooks";
 import i18n from "@/i18n";
-import { stockSocket } from "@/services/websocket";
+import { stockSocket } from "@/services";
 import { useSettingsStore, useShowToast, useStockStore, useUIStore } from "@/stores";
-import { cn } from "@/utils/cn";
-import { useEffect } from "react";
+import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
 
 function App() {

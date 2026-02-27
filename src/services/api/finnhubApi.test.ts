@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { mapQuoteToStockPrice, mapCandleToChartData, getQuote, finnhubApi } from "./finnhubApi";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { finnhubApi, getQuote, mapCandleToChartData, mapQuoteToStockPrice } from "./fetch-finnhub";
 
 describe("finnhubApi 유틸 함수", () => {
   describe("mapQuoteToStockPrice", () => {

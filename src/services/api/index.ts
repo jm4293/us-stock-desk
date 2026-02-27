@@ -1,1 +1,2 @@
-export * from "./finnhubApi";
+export * from "./fetch-finnhub";
+export * from "./fetch-yahoo-chart";

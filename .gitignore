@@ -58,3 +58,8 @@ Thumbs.DB
 # Lock files (keep only one)
 # yarn.lock
 # pnpm-lock.yaml
+
+# AI Assistants
+.agent
+.agents
+.claude
