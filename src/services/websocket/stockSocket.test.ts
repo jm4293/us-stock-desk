@@ -3,45 +3,45 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // WebSocket 상수 정의 (글로벌 모킹 전에)
 const WS_OPEN = 1;
 
-describe("stockSocket", () => {
-  let mockWsInstance: {
-    send: ReturnType<typeof vi.fn>;
-    close: ReturnType<typeof vi.fn>;
-    addEventListener: ReturnType<typeof vi.fn>;
-    removeEventListener: ReturnType<typeof vi.fn>;
-    readyState: number;
-    onopen: ((ev: Event) => void) | null;
-    onmessage: ((ev: MessageEvent) => void) | null;
-    onclose: ((ev: CloseEvent) => void) | null;
-    onerror: ((ev: Event) => void) | null;
-  };
+const mockWsInstance: any = {
+  send: vi.fn(),
+  close: vi.fn(),
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+  readyState: WS_OPEN,
+  onopen: null,
+  onmessage: null,
+  onclose: null,
+  onerror: null,
+};
 
+class MockWebSocket {
+  static OPEN = 1;
+  static CLOSED = 3;
+  static CLOSING = 2;
+  static CONNECTING = 0;
+  constructor() {
+    return mockWsInstance as any;
+  }
+}
+vi.stubGlobal("WebSocket", MockWebSocket);
+
+describe("stockSocket", () => {
   beforeEach(async () => {
     vi.resetModules();
-    mockWsInstance = {
-      send: vi.fn(),
-      close: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      readyState: WS_OPEN,
-      onopen: null,
-      onmessage: null,
-      onclose: null,
-      onerror: null,
-    };
-
-    const MockWebSocket = vi
-      .fn()
-      .mockImplementation(() => mockWsInstance) as unknown as typeof WebSocket;
-    (MockWebSocket as unknown as Record<string, number>).OPEN = WS_OPEN;
-    (MockWebSocket as unknown as Record<string, number>).CLOSED = 3;
-    (MockWebSocket as unknown as Record<string, number>).CLOSING = 2;
-    (MockWebSocket as unknown as Record<string, number>).CONNECTING = 0;
-    global.WebSocket = MockWebSocket;
+    mockWsInstance.send.mockClear();
+    mockWsInstance.close.mockClear();
+    mockWsInstance.addEventListener.mockClear();
+    mockWsInstance.removeEventListener.mockClear();
+    mockWsInstance.readyState = WS_OPEN;
+    mockWsInstance.onopen = null;
+    mockWsInstance.onmessage = null;
+    mockWsInstance.onclose = null;
+    mockWsInstance.onerror = null;
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   it("subscribe 함수가 존재한다", async () => {

@@ -1,11 +1,17 @@
-import React, { useRef, useState } from "react";
-import { StockChart } from "@/features";
+import React, { lazy, Suspense, useRef, useState } from "react";
 import { useFlashBorder, useMarketStatus, useMobileStockBox } from "@/hooks";
 import type { ChartTimeRange } from "@/types";
 import { cn, formatChangeKRW, formatChangeUSD, formatKRW, formatPercent, formatUSD } from "@/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
+
+// 차트 컴포넌트 lazy loading (번들 크기 최적화)
+const StockChart = lazy(() =>
+  import("@/features/stock-chart/stock-chart").then((module) => ({
+    default: module.StockChart,
+  }))
+);
 
 const TIME_RANGES: ChartTimeRange[] = ["1m", "5m", "10m", "1h", "1D"];
 
@@ -339,7 +345,22 @@ export const MobileStockBox: React.FC<MobileStockBoxProps> = ({
             {/* 차트 영역 */}
             <div className="mt-2 h-40">
               {chartState.status === "success" && chartState.data && chartState.data.length > 0 ? (
-                <StockChart data={chartState.data} livePrice={price ? price.current : null} />
+                <Suspense
+                  fallback={
+                    <div className="flex h-full items-center justify-center">
+                      <div
+                        className={cn(
+                          "h-6 w-6 animate-spin rounded-full border-2",
+                          isDark
+                            ? "border-white/20 border-t-white"
+                            : "border-slate-200 border-t-slate-500"
+                        )}
+                      />
+                    </div>
+                  }
+                >
+                  <StockChart data={chartState.data} livePrice={price ? price.current : null} />
+                </Suspense>
               ) : chartState.status === "loading" || chartState.status === "idle" ? (
                 <div className="flex h-full items-center justify-center">
                   <div

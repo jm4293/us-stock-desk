@@ -8,13 +8,13 @@ export const SearchModal: React.FC = () => {
   const { t } = useTranslation();
   const isSearchOpen = useUIStore((state) => state.isSearchOpen);
   const { closeSearch } = useUIActions();
-  const addStock = useStockStore((state) => state.addStock);
   const theme = useTheme();
   const isDark = theme === "dark";
   const showToast = useShowToast();
 
   const handleSearch = (symbol: string, companyName: string) => {
-    addStock(symbol.toUpperCase(), companyName);
+    // getState()로 직접 호출하여 리렌더 방지
+    useStockStore.getState().addStock(symbol.toUpperCase(), companyName);
     closeSearch();
     showToast(t("toast.stockAdded", { symbol: symbol.toUpperCase() }), "success");
   };

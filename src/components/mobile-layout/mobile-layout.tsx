@@ -18,7 +18,6 @@ interface MobileLayoutProps {
 
 export function MobileLayout({ onRemoveStock }: MobileLayoutProps) {
   const stocks = useStockStore((state) => state.stocks);
-  const reorderStocks = useStockStore((state) => state.reorderStocks);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -31,7 +30,8 @@ export function MobileLayout({ onRemoveStock }: MobileLayoutProps) {
     const fromIndex = stocks.findIndex((s) => s.id === active.id);
     const toIndex = stocks.findIndex((s) => s.id === over.id);
     if (fromIndex !== -1 && toIndex !== -1) {
-      reorderStocks(fromIndex, toIndex);
+      // getState()로 직접 호출하여 리렌더 방지
+      useStockStore.getState().reorderStocks(fromIndex, toIndex);
     }
   };
 

@@ -1,13 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Button } from "@/components";
 import { STOCK_BOX } from "@/constants";
-import { PriceDisplay, StockChart } from "@/features";
+import { PriceDisplay } from "@/features";
 import { useChartData, useMarketStatus, useStockData } from "@/hooks";
 import { useColorScheme, useShowChart, useTheme } from "@/stores";
 import type { ChartTimeRange, Position, Size } from "@/types";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
 import { Rnd } from "react-rnd";
+
+// 차트 컴포넌트 lazy loading (번들 크기 최적화)
+const StockChart = lazy(() =>
+  import("@/features/stock-chart/stock-chart").then((module) => ({
+    default: module.StockChart,
+  }))
+);
 
 // 차트 표시 여부에 따른 최소/기본 높이
 // 확장시간 보조 행(정규장 종가, 애프터마켓)이 추가될 수 있어 여유 있게 설정
@@ -242,11 +249,19 @@ export const DesktopStockBox: React.FC<StockBoxProps> = ({
 
             <div className="min-h-0 flex-1 px-2 pb-2">
               {chartState.status === "success" && chartState.data.length > 0 ? (
-                <StockChart
-                  data={chartState.data}
-                  livePrice={priceState.status === "success" ? priceState.data.current : null}
-                  timeRange={range}
-                />
+                <Suspense
+                  fallback={
+                    <div className="flex h-full items-center justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                    </div>
+                  }
+                >
+                  <StockChart
+                    data={chartState.data}
+                    livePrice={priceState.status === "success" ? priceState.data.current : null}
+                    timeRange={range}
+                  />
+                </Suspense>
               ) : chartState.status === "loading" || chartState.status === "idle" ? (
                 <div className="flex h-full items-center justify-center">
                   <div className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-white" />

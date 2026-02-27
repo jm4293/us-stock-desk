@@ -1,17 +1,33 @@
 import { EmptyState } from "@/components";
 import { DesktopStockBox, MarketIndexBar } from "@/features";
 import { useStockStore } from "@/stores";
+import { useShallow } from "zustand/react/shallow";
 
 interface DesktopCanvasProps {
   onRemoveStock: (id: string) => void;
 }
 
 export function DesktopLayout({ onRemoveStock }: DesktopCanvasProps) {
-  const stocks = useStockStore((state) => state.stocks);
-  const focusedStockId = useStockStore((state) => state.focusedStockId);
-  const updatePosition = useStockStore((state) => state.updatePosition);
-  const updateSize = useStockStore((state) => state.updateSize);
-  const bringToFront = useStockStore((state) => state.bringToFront);
+  // shallow equality로 배열 내부 객체 변경 시에만 리렌더 (원시 값 구독 최적화)
+  const { stocks, focusedStockId } = useStockStore(
+    useShallow((state) => ({
+      stocks: state.stocks,
+      focusedStockId: state.focusedStockId,
+    }))
+  );
+
+  // 이벤트 핸들러만 사용하는 액션들은 getState()로 호출하여 리렌더 방지
+  const handleFocus = (id: string) => {
+    useStockStore.getState().bringToFront(id);
+  };
+
+  const handlePositionChange = (id: string, position: { x: number; y: number }) => {
+    useStockStore.getState().updatePosition(id, position);
+  };
+
+  const handleSizeChange = (id: string, size: { width: number; height: number }) => {
+    useStockStore.getState().updateSize(id, size);
+  };
 
   return (
     <div id="stock-canvas" className="absolute bottom-0 left-0 right-0 top-[52px] overflow-hidden">
@@ -27,10 +43,10 @@ export function DesktopLayout({ onRemoveStock }: DesktopCanvasProps) {
           size={stock.size}
           zIndex={stock.zIndex}
           focused={focusedStockId === stock.id}
-          onFocus={bringToFront}
+          onFocus={handleFocus}
           onClose={onRemoveStock}
-          onPositionChange={updatePosition}
-          onSizeChange={updateSize}
+          onPositionChange={handlePositionChange}
+          onSizeChange={handleSizeChange}
         />
       ))}
     </div>

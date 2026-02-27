@@ -2,6 +2,16 @@ import "@/i18n";
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
+import WS from "ws";
+
+// WebSocket 폴리필
+const PolyfilledWebSocket = WS as any;
+global.WebSocket = PolyfilledWebSocket;
+globalThis.WebSocket = PolyfilledWebSocket;
+if (typeof window !== "undefined") {
+  (window as any).WebSocket = PolyfilledWebSocket;
+}
+vi.stubGlobal("WebSocket", PolyfilledWebSocket);
 
 // 각 테스트 후 정리
 afterEach(() => {
@@ -30,15 +40,6 @@ Object.defineProperty(global, "localStorage", {
   writable: true,
 });
 
-// WebSocket 모킹
-global.WebSocket = vi.fn().mockImplementation(() => ({
-  send: vi.fn(),
-  close: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  readyState: 0, // CONNECTING — OPEN(1)이면 subscribe 시 즉시 send() 호출되어 오류 발생
-})) as unknown as typeof WebSocket;
-
 // crypto.randomUUID 모킹
 let uuidCounter = 0;
 Object.defineProperty(global, "crypto", {
@@ -48,7 +49,7 @@ Object.defineProperty(global, "crypto", {
   writable: true,
 });
 
-// btoa / atob 모킹 (jsdom에서 지원하지만 명시적으로 확인)
+// btoa / atob 모킹
 if (typeof global.btoa === "undefined") {
   global.btoa = (str: string) => Buffer.from(str, "binary").toString("base64");
 }
@@ -56,7 +57,7 @@ if (typeof global.atob === "undefined") {
   global.atob = (str: string) => Buffer.from(str, "base64").toString("binary");
 }
 
-// window.matchMedia 모킹 (jsdom에서 미지원)
+// window.matchMedia 모킹
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: vi.fn().mockImplementation((query: string) => ({

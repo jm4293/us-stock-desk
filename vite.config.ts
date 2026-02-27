@@ -117,7 +117,7 @@ function finnhubProxyPlugin(apiKey: string): Plugin {
         const to = url.searchParams.get("to") ?? "";
         const q = url.searchParams.get("q") ?? "";
 
-        let finnhubUrl = "";
+        let finnhubUrl;
         if (type === "quote") {
           finnhubUrl = `${BASE}/quote?symbol=${symbol}&token=${apiKey}`;
         } else if (type === "candle") {
@@ -243,17 +243,72 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 3000,
-      open: false,
+      open: true,
+    },
+    esbuild: {
+      // 프로덕션 빌드 시 console, debugger 제거
+      drop: mode === "production" ? ["console", "debugger"] : [],
     },
     build: {
       rollupOptions: {
+        // eval() 경고 무시 (protobufjs 등 일부 라이브러리에서 사용)
+        onwarn(warning, warn) {
+          // eval 경고 무시
+          if (warning.code === "EVAL") return;
+          // 순환 참조 경고는 표시
+          warn(warning);
+        },
         output: {
-          manualChunks: {
-            vendor: ["react", "react-dom"],
-            charts: ["lightweight-charts"],
+          manualChunks(id) {
+            // node_modules가 아니면 기본 처리
+            if (!id.includes("node_modules")) {
+              return undefined;
+            }
+
+            // React 핵심 + scheduler (React 내부 의존성 포함)
+            if (
+              id.includes("/react/") ||
+              id.includes("/react-dom/") ||
+              id.includes("/scheduler/")
+            ) {
+              return "react-vendor";
+            }
+
+            // 차트 라이브러리
+            if (id.includes("/lightweight-charts/")) {
+              return "charts";
+            }
+
+            // 드래그 & 리사이징 (React 의존성 있음)
+            if (id.includes("/react-rnd/")) {
+              return "rnd-vendor";
+            }
+
+            // Zustand + Immer (상태 관리)
+            if (id.includes("/zustand/") || id.includes("/immer/")) {
+              return "store-vendor";
+            }
+
+            // i18n 관련
+            if (id.includes("/i18next/") || id.includes("/react-i18next/")) {
+              return "i18n-vendor";
+            }
+
+            // 유틸리티 (작은 패키지들)
+            if (
+              id.includes("/clsx/") ||
+              id.includes("/tailwind-merge/") ||
+              id.includes("/date-fns/")
+            ) {
+              return "utils-vendor";
+            }
+
+            // 나머지 모든 node_modules는 vendor로
+            return "vendor";
           },
         },
       },
+      chunkSizeWarningLimit: 600, // 경고 임계값을 600KB로 상향 (차트 라이브러리 때문)
     },
   };
 });
