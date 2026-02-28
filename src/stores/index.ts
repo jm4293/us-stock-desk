@@ -1,15 +1,15 @@
 import { useSettingsStore } from "./settings-store";
-import { useStockStore } from "./stock-store";
-import { useUIStore } from "./ui-Store";
+import { useStockBoxStore } from "./stock-box-store";
+import { useUIStore } from "./ui-store";
 
 /**
  * 모든 스토어를 초기화 (개발 중 디버깅용)
  */
 export const resetAllStores = () => {
-  useStockStore.persist.clearStorage();
+  useStockBoxStore.persist.clearStorage();
   useSettingsStore.persist.clearStorage();
 
-  useStockStore.setState({
+  useStockBoxStore.setState({
     stocks: [],
     focusedStockId: null,
     maxZIndex: 0,
@@ -41,14 +41,14 @@ if (import.meta.env.DEV) {
   (window as Window & { resetStores?: typeof resetAllStores; stores?: object }).resetStores =
     resetAllStores;
   (window as Window & { resetStores?: typeof resetAllStores; stores?: object }).stores = {
-    stock: useStockStore,
+    stock: useStockBoxStore,
     settings: useSettingsStore,
     ui: useUIStore,
   };
 }
 
-export * from "./index-store";
 export * from "./settings-store";
-export * from "./stock-store";
+export * from "./stock-box-store";
+export * from "./stock-index-store";
 export * from "./toast-store";
-export * from "./ui-Store";
+export * from "./ui-store";

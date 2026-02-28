@@ -1,6 +1,6 @@
 import React from "react";
 import { useExchangeRate } from "@/hooks";
-import { useColorScheme, useCurrency, useTheme } from "@/stores";
+import { selectColorScheme, selectCurrency, selectTheme, useSettingsStore } from "@/stores";
 import type { StockPrice } from "@/types";
 import { cn, formatChangeKRW, formatChangeUSD, formatKRW, formatPercent, formatUSD } from "@/utils";
 import { useTranslation } from "react-i18next";
@@ -25,10 +25,11 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
   symbol,
 }) => {
   const { t } = useTranslation();
-  const colorScheme = useColorScheme();
-  const currency = useCurrency();
+
   const { rate: exchangeRate } = useExchangeRate();
-  const theme = useTheme();
+  const currency = useSettingsStore(selectCurrency);
+  const colorScheme = useSettingsStore(selectColorScheme);
+  const theme = useSettingsStore(selectTheme);
   const isDark = theme === "dark";
 
   const upClass = colorScheme === "kr" ? "text-up-kr" : "text-up-us";

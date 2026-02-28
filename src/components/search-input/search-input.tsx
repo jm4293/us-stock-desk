@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { TIMING } from "@/constants";
 import { finnhubApi } from "@/services";
-import { useTheme } from "@/stores";
+import { selectTheme, useSettingsStore } from "@/stores";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
 
@@ -29,14 +29,17 @@ interface DropdownRect {
 
 export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className }) => {
   const { t } = useTranslation();
-  const theme = useTheme();
+
+  const theme = useSettingsStore(selectTheme);
   const isDark = theme === "dark";
+
   const [value, setValue] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [dropdownRect, setDropdownRect] = useState<DropdownRect | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);

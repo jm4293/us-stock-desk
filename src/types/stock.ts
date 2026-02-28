@@ -8,17 +8,6 @@ export interface Size {
   height: number;
 }
 
-export interface StockBox {
-  id: string;
-  symbol: string;
-  companyName: string;
-  position: Position;
-  size: Size;
-  zIndex: number;
-  created: number;
-  updated: number;
-}
-
 /** 프리마켓 / 애프터마켓 가격 정보 */
 export interface ExtendedHoursPrice {
   price: number;
@@ -60,24 +49,4 @@ export interface StockChartData {
 
 export type ChartTimeRange = "1m" | "5m" | "10m" | "1h" | "1D";
 export type MarketStatus = "open" | "closed" | "pre" | "post";
-
 export type IndexSymbol = "^DJI" | "^GSPC" | "^IXIC";
-
-export interface MarketIndex {
-  symbol: string;
-  shortName: string;
-  price: number;
-  previousClose: number;
-  change: number;
-  changePercent: number;
-  dayHigh: number;
-  dayLow: number;
-}
-
-export interface IndexBoxData {
-  id: IndexSymbol;
-  label: string;
-  position: Position;
-  size: Size;
-  zIndex: number;
-}

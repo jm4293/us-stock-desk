@@ -1,25 +1,14 @@
-import { memo, useRef, useState } from "react";
-import { KSTClock } from "@/features";
-import { useFullscreen, useIsMobile, useMarketStatus } from "@/hooks";
-import { useTheme } from "@/stores";
-import type { MarketStatus } from "@/types";
+import { memo } from "react";
+import { DesktopMarketStatus, MobileMarketStatus } from "@/components";
+import { useFullscreen, useIsMobile } from "@/hooks";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
-import { MarketTooltipDesktop } from "./market-tooltip-desktop";
-import { MarketTooltipMobile } from "./market-tooltip-mobile";
 
 interface HeaderProps {
   onAddStock: () => void;
   onOpenSettings: () => void;
   className?: string;
 }
-
-const STATUS_COLORS: Record<MarketStatus, string> = {
-  open: "bg-green-500",
-  pre: "bg-yellow-400",
-  post: "bg-blue-400",
-  closed: "bg-gray-500",
-};
 
 // SVG 아이콘들을 컴포넌트 외부로 hoisting (렌더링 성능 최적화)
 const ExitFullscreenIcon = (
@@ -60,72 +49,16 @@ const SettingsIcon = (
 
 export const Header = memo(function Header({ onAddStock, onOpenSettings, className }: HeaderProps) {
   const { t } = useTranslation();
-  const isMobile = useIsMobile();
-  const { status, labelKey, isDST } = useMarketStatus();
+
   const { isFullscreen, toggleFullscreen } = useFullscreen();
-  const theme = useTheme();
-  const isDark = theme === "dark";
-  const [showTooltip, setShowTooltip] = useState(false);
-  const triggerRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   return (
     <header className={cn("glass flex items-center justify-between px-4 py-3", className)}>
       {/* 왼쪽: 로고 + 정보 */}
       <div className="flex min-w-0 items-center gap-3">
         <h1 className="shrink-0 text-base font-bold text-white">US Stock Desk</h1>
-
-        {isMobile ? (
-          /* 모바일: 상태 도트 + KST 시각 (터치 → 툴팁) */
-          <div className="flex items-center gap-2">
-            <div ref={triggerRef}>
-              <button
-                type="button"
-                className="flex items-center gap-2"
-                onClick={() => setShowTooltip((v) => !v)}
-                onBlur={(e) => {
-                  // 툴팁 내부 클릭이 아닐 때만 닫기
-                  if (!e.relatedTarget) setShowTooltip(false);
-                }}
-                aria-label={t(labelKey)}
-                aria-expanded={showTooltip}
-              >
-                <span className={cn("h-2 w-2 shrink-0 rounded-full", STATUS_COLORS[status])} />
-              </button>
-            </div>
-            {/* KSTClock만 초마다 리렌더링 */}
-            <span className="text-xs font-medium tabular-nums text-gray-300">
-              <KSTClock mobileOnly />
-            </span>
-            {showTooltip && (
-              <MarketTooltipMobile isDST={isDST} isDark={isDark} anchorEl={triggerRef.current} />
-            )}
-          </div>
-        ) : (
-          /* 데스크톱: 거래시간 + 한국시각 */
-          <>
-            {/* 거래시간 + 한국시각 (hover → 툴팁) */}
-            <div className="flex items-center gap-2 text-sm">
-              <div
-                ref={triggerRef}
-                className="flex cursor-default items-center gap-1.5"
-                onMouseEnter={() => setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-              >
-                <span className={cn("h-2 w-2 shrink-0 rounded-full", STATUS_COLORS[status])} />
-                <span className="text-gray-300">{t(labelKey)}</span>
-              </div>
-
-              {showTooltip && (
-                <MarketTooltipDesktop isDST={isDST} isDark={isDark} anchorEl={triggerRef.current} />
-              )}
-
-              <span className="text-gray-600">|</span>
-
-              {/* KSTClock만 초마다 리렌더링 */}
-              <KSTClock />
-            </div>
-          </>
-        )}
+        {isMobile ? <MobileMarketStatus /> : <DesktopMarketStatus />}
       </div>
 
       {/* 오른쪽: 버튼 */}

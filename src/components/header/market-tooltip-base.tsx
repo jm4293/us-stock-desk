@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
-import type { MarketTooltipBaseProps, TooltipPos } from "./types";
+import type { MarketTooltipBaseProps } from "./types";
+
+interface TooltipPos {
+  top: number;
+  left: number;
+}
 
 const TOOLTIP_WIDTH = 288; // px (w-72)
 

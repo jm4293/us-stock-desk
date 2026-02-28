@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { useSettingsStore } from "@/stores";
+import { selectTheme, useSettingsStore } from "@/stores";
 import { cn } from "@/utils";
 import { gsap } from "gsap";
 import { useTranslation } from "react-i18next";
 
 export const SplashScreen = () => {
   const { t } = useTranslation();
+
   const [isDone, setIsDone] = useState(false);
 
-  const theme = useSettingsStore((state) => state.theme);
+  const theme = useSettingsStore(selectTheme);
+  const isDark = theme === "dark";
 
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
@@ -17,8 +19,6 @@ export const SplashScreen = () => {
   const subtitleRef = useRef<HTMLParagraphElement>(null);
   const loaderRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
-
-  const isDark = theme === "dark";
 
   useEffect(() => {
     const tl = gsap.timeline({
@@ -52,10 +52,11 @@ export const SplashScreen = () => {
     return () => {
       tl.kill();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (isDone) return null;
+  if (isDone) {
+    return null;
+  }
 
   return createPortal(
     <div

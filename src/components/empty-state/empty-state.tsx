@@ -1,10 +1,11 @@
-import { useSettingsStore } from "@/stores";
+import { selectTheme, useSettingsStore } from "@/stores";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
 
 export function EmptyState() {
   const { t } = useTranslation();
-  const theme = useSettingsStore((state) => state.theme);
+
+  const theme = useSettingsStore(selectTheme);
   const isDark = theme === "dark";
 
   return (

@@ -1,20 +1,29 @@
 import React from "react";
 import { Modal, SearchInput } from "@/components";
-import { useShowToast, useStockStore, useTheme, useUIActions, useUIStore } from "@/stores";
+import {
+  selectCloseSearch,
+  selectIsSearchOpen,
+  selectShowToast,
+  selectTheme,
+  useSettingsStore,
+  useStockBoxStore,
+  useToastStore,
+  useUIStore,
+} from "@/stores";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
 
 export const SearchModal: React.FC = () => {
   const { t } = useTranslation();
-  const isSearchOpen = useUIStore((state) => state.isSearchOpen);
-  const { closeSearch } = useUIActions();
-  const theme = useTheme();
+
+  const showToast = useToastStore(selectShowToast);
+  const isSearchOpen = useUIStore(selectIsSearchOpen);
+  const closeSearch = useUIStore(selectCloseSearch);
+  const theme = useSettingsStore(selectTheme);
   const isDark = theme === "dark";
-  const showToast = useShowToast();
 
   const handleSearch = (symbol: string, companyName: string) => {
-    // getState()로 직접 호출하여 리렌더 방지
-    useStockStore.getState().addStock(symbol.toUpperCase(), companyName);
+    useStockBoxStore.getState().addStock(symbol.toUpperCase(), companyName);
     closeSearch();
     showToast(t("toast.stockAdded", { symbol: symbol.toUpperCase() }), "success");
   };

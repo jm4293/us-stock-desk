@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useColorScheme, useTheme } from "@/stores";
+import { selectColorScheme, selectTheme, useSettingsStore } from "@/stores";
 import type { ChartTimeRange, StockChartData } from "@/types";
 import {
   type CandlestickData,
@@ -40,8 +40,8 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
     low: number;
   } | null>(null);
 
-  const colorScheme = useColorScheme();
-  const theme = useTheme();
+  const colorScheme = useSettingsStore(selectColorScheme);
+  const theme = useSettingsStore(selectTheme);
   const isDark = theme === "dark";
 
   const upColor = colorScheme === "kr" ? "#ef4444" : "#089981";

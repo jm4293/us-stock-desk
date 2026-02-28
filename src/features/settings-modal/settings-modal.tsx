@@ -1,50 +1,108 @@
 import React from "react";
 import { Modal, SettingOptionButton } from "@/components";
 import {
-  useColorScheme,
-  useCurrency,
-  useLanguage,
-  useSettingsActions,
-  useShowChart,
-  useShowExchangeRate,
-  useShowIndexDJI,
-  useShowIndexNASDAQ,
-  useShowIndexSP500,
-  useShowToast,
-  useTheme,
-  useUIActions,
+  selectCloseSettings,
+  selectColorScheme,
+  selectCurrency,
+  selectIsSettingsOpen,
+  selectLanguage,
+  selectSetColorScheme,
+  selectSetCurrency,
+  selectSetLanguage,
+  selectSetShowChart,
+  selectSetShowExchangeRate,
+  selectSetShowIndexDJI,
+  selectSetShowIndexNASDAQ,
+  selectSetShowIndexSP500,
+  selectSetTheme,
+  selectShowChart,
+  selectShowExchangeRate,
+  selectShowIndexDJI,
+  selectShowIndexNASDAQ,
+  selectShowIndexSP500,
+  selectShowToast,
+  selectTheme,
+  useSettingsStore,
+  useToastStore,
   useUIStore,
 } from "@/stores";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
 
+const colorSchemeOptions = [
+  { value: "kr", labelKey: "settings.kr", descKey: "settings.krDesc" },
+  { value: "us", labelKey: "settings.us", descKey: "settings.usDesc" },
+] as const;
+
+const themeOptions = [
+  { value: "dark", labelKey: "settings.dark" },
+  { value: "light", labelKey: "settings.light" },
+] as const;
+
+const languageOptions = [
+  { value: "ko", labelKey: "settings.krLang" },
+  { value: "en", labelKey: "settings.usLang" },
+] as const;
+
+const currencyOptions = [
+  { value: "KRW", labelKey: "settings.krw" },
+  { value: "USD", labelKey: "settings.usd" },
+] as const;
+
+const marketIndexOptions = [
+  { value: "dji", labelKey: "settings.indexDJI", show: "showIndexDJI", setter: "setShowIndexDJI" },
+  {
+    value: "sp500",
+    labelKey: "settings.indexSP500",
+    show: "showIndexSP500",
+    setter: "setShowIndexSP500",
+  },
+  {
+    value: "nasdaq",
+    labelKey: "settings.indexNASDAQ",
+    show: "showIndexNASDAQ",
+    setter: "setShowIndexNASDAQ",
+  },
+] as const;
+
+const showExchangeRateOptions = [
+  { value: true, labelKey: "settings.on" },
+  { value: false, labelKey: "settings.off" },
+] as const;
+
+const showChartOptions = [
+  { value: true, labelKey: "settings.on" },
+  { value: false, labelKey: "settings.off" },
+] as const;
+
 export const SettingsModal: React.FC = () => {
   const { t } = useTranslation();
-  const isSettingsOpen = useUIStore((state) => state.isSettingsOpen);
-  const { closeSettings } = useUIActions();
-  const {
-    setColorScheme,
-    setTheme,
-    setLanguage,
-    setCurrency,
-    setShowChart,
-    setShowIndexDJI,
-    setShowIndexSP500,
-    setShowIndexNASDAQ,
-    setShowExchangeRate,
-  } = useSettingsActions();
-  const colorScheme = useColorScheme();
-  const theme = useTheme();
-  const language = useLanguage();
-  const currency = useCurrency();
-  const showChart = useShowChart();
-  const showIndexDJI = useShowIndexDJI();
-  const showIndexSP500 = useShowIndexSP500();
-  const showIndexNASDAQ = useShowIndexNASDAQ();
-  const showExchangeRate = useShowExchangeRate();
-  const showToast = useShowToast();
 
+  const isSettingsOpen = useUIStore(selectIsSettingsOpen);
+  const closeSettings = useUIStore(selectCloseSettings);
+
+  const language = useSettingsStore(selectLanguage);
+  const currency = useSettingsStore(selectCurrency);
+  const showChart = useSettingsStore(selectShowChart);
+  const showIndexDJI = useSettingsStore(selectShowIndexDJI);
+  const showIndexSP500 = useSettingsStore(selectShowIndexSP500);
+  const showIndexNASDAQ = useSettingsStore(selectShowIndexNASDAQ);
+  const showExchangeRate = useSettingsStore(selectShowExchangeRate);
+  const colorScheme = useSettingsStore(selectColorScheme);
+  const theme = useSettingsStore(selectTheme);
   const isDark = theme === "dark";
+
+  const setColorScheme = useSettingsStore(selectSetColorScheme);
+  const setTheme = useSettingsStore(selectSetTheme);
+  const setLanguage = useSettingsStore(selectSetLanguage);
+  const setCurrency = useSettingsStore(selectSetCurrency);
+  const setShowChart = useSettingsStore(selectSetShowChart);
+  const setShowIndexDJI = useSettingsStore(selectSetShowIndexDJI);
+  const setShowIndexSP500 = useSettingsStore(selectSetShowIndexSP500);
+  const setShowIndexNASDAQ = useSettingsStore(selectSetShowIndexNASDAQ);
+  const setShowExchangeRate = useSettingsStore(selectSetShowExchangeRate);
+
+  const showToast = useToastStore(selectShowToast);
 
   const handleSetting = (fn: () => void, message: string) => {
     fn();
@@ -66,34 +124,23 @@ export const SettingsModal: React.FC = () => {
           {t("settings.candleColor")}
         </h3>
         <div className="flex gap-2">
-          <SettingOptionButton
-            isActive={colorScheme === "kr"}
-            isDark={isDark}
-            className="p-3 text-left"
-            onClick={() =>
-              handleSetting(
-                () => setColorScheme("kr"),
-                t("toast.colorSchemeChanged", { value: t("settings.kr") })
-              )
-            }
-          >
-            <div className="text-sm font-medium">{t("settings.kr")}</div>
-            <div className="mt-1 text-xs opacity-70">{t("settings.krDesc")}</div>
-          </SettingOptionButton>
-          <SettingOptionButton
-            isActive={colorScheme === "us"}
-            isDark={isDark}
-            className="p-3 text-left"
-            onClick={() =>
-              handleSetting(
-                () => setColorScheme("us"),
-                t("toast.colorSchemeChanged", { value: t("settings.us") })
-              )
-            }
-          >
-            <div className="text-sm font-medium">{t("settings.us")}</div>
-            <div className="mt-1 text-xs opacity-70">{t("settings.usDesc")}</div>
-          </SettingOptionButton>
+          {colorSchemeOptions.map((option) => (
+            <SettingOptionButton
+              key={option.value}
+              isActive={colorScheme === option.value}
+              isDark={isDark}
+              className="p-3 text-left"
+              onClick={() =>
+                handleSetting(
+                  () => setColorScheme(option.value),
+                  t("toast.colorSchemeChanged", { value: t(option.labelKey) })
+                )
+              }
+            >
+              <div className="text-sm font-medium">{t(option.labelKey)}</div>
+              <div className="mt-1 text-xs opacity-70">{t(option.descKey)}</div>
+            </SettingOptionButton>
+          ))}
         </div>
       </section>
 
@@ -103,22 +150,22 @@ export const SettingsModal: React.FC = () => {
           {t("settings.theme")}
         </h3>
         <div className="flex gap-2">
-          {(["dark", "light"] as const).map((t_val) => (
+          {themeOptions.map((option) => (
             <SettingOptionButton
-              key={t_val}
-              isActive={theme === t_val}
+              key={option.value}
+              isActive={theme === option.value}
               isDark={isDark}
               className="p-2 text-sm"
               onClick={() =>
                 handleSetting(
-                  () => setTheme(t_val),
+                  () => setTheme(option.value),
                   t("toast.themeChanged", {
-                    value: t_val === "dark" ? t("settings.dark") : t("settings.light"),
+                    value: t(option.labelKey),
                   })
                 )
               }
             >
-              {t_val === "dark" ? t("settings.dark") : t("settings.light")}
+              {t(option.labelKey)}
             </SettingOptionButton>
           ))}
         </div>
@@ -130,20 +177,20 @@ export const SettingsModal: React.FC = () => {
           {t("settings.language")}
         </h3>
         <div className="flex gap-2">
-          {(["ko", "en"] as const).map((l) => (
+          {languageOptions.map((option) => (
             <SettingOptionButton
-              key={l}
-              isActive={language === l}
+              key={option.value}
+              isActive={language === option.value}
               isDark={isDark}
               className="p-2 text-sm"
               onClick={() =>
                 handleSetting(
-                  () => setLanguage(l),
-                  t("toast.languageChanged", { value: l === "ko" ? "한국어" : "English" })
+                  () => setLanguage(option.value),
+                  t("toast.languageChanged", { value: t(option.labelKey) })
                 )
               }
             >
-              {l === "ko" ? "한국어" : "English"}
+              {t(option.labelKey)}
             </SettingOptionButton>
           ))}
         </div>
@@ -155,20 +202,20 @@ export const SettingsModal: React.FC = () => {
           {t("settings.currency")}
         </h3>
         <div className="flex gap-2">
-          {(["USD", "KRW"] as const).map((c) => (
+          {currencyOptions.map((option) => (
             <SettingOptionButton
-              key={c}
-              isActive={currency === c}
+              key={option.value}
+              isActive={currency === option.value}
               isDark={isDark}
               className="p-2 text-sm"
               onClick={() =>
                 handleSetting(
-                  () => setCurrency(c),
-                  t("toast.currencyChanged", { value: c === "USD" ? "USD ($)" : "KRW (₩)" })
+                  () => setCurrency(option.value),
+                  t("toast.currencyChanged", { value: t(option.labelKey) })
                 )
               }
             >
-              {c === "USD" ? "USD ($)" : "KRW (₩)"}
+              {t(option.labelKey)}
             </SettingOptionButton>
           ))}
         </div>
@@ -180,67 +227,64 @@ export const SettingsModal: React.FC = () => {
           {t("settings.marketIndex")}
         </h3>
         <div className="flex flex-col gap-2">
-          {(
-            [
-              {
-                label: t("settings.indexDJI"),
-                show: showIndexDJI,
-                onToggle: setShowIndexDJI,
-                name: "settings.indexDJI",
-              },
-              {
-                label: t("settings.indexSP500"),
-                show: showIndexSP500,
-                onToggle: setShowIndexSP500,
-                name: "settings.indexSP500",
-              },
-              {
-                label: t("settings.indexNASDAQ"),
-                show: showIndexNASDAQ,
-                onToggle: setShowIndexNASDAQ,
-                name: "settings.indexNASDAQ",
-              },
-            ] as const
-          ).map(({ label, show, onToggle, name }) => (
-            <div key={label} className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "w-20 shrink-0 text-xs font-medium",
-                  isDark ? "text-gray-300" : "text-slate-600"
-                )}
-              >
-                {label}
-              </span>
-              <div className="flex flex-1 gap-1">
-                <SettingOptionButton
-                  isActive={show}
-                  isDark={isDark}
-                  className="flex-1 py-1 text-xs"
-                  onClick={() =>
-                    handleSetting(
-                      () => onToggle(true),
-                      t("toast.indexChanged", { name: t(name), value: t("settings.indexOn") })
-                    )
-                  }
+          {marketIndexOptions.map(({ labelKey }) => {
+            const show =
+              labelKey === "settings.indexDJI"
+                ? showIndexDJI
+                : labelKey === "settings.indexSP500"
+                  ? showIndexSP500
+                  : showIndexNASDAQ;
+            const onToggle =
+              labelKey === "settings.indexDJI"
+                ? setShowIndexDJI
+                : labelKey === "settings.indexSP500"
+                  ? setShowIndexSP500
+                  : setShowIndexNASDAQ;
+
+            return (
+              <div key={labelKey} className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    "w-20 shrink-0 text-xs font-medium",
+                    isDark ? "text-gray-300" : "text-slate-600"
+                  )}
                 >
-                  {t("settings.indexOn")}
-                </SettingOptionButton>
-                <SettingOptionButton
-                  isActive={!show}
-                  isDark={isDark}
-                  className="flex-1 py-1 text-xs"
-                  onClick={() =>
-                    handleSetting(
-                      () => onToggle(false),
-                      t("toast.indexChanged", { name: t(name), value: t("settings.indexOff") })
-                    )
-                  }
-                >
-                  {t("settings.indexOff")}
-                </SettingOptionButton>
+                  {t(labelKey)}
+                </span>
+                <div className="flex flex-1 gap-1">
+                  <SettingOptionButton
+                    isActive={show}
+                    isDark={isDark}
+                    className="flex-1 py-1 text-xs"
+                    onClick={() =>
+                      handleSetting(
+                        () => onToggle(true),
+                        t("toast.indexChanged", { name: t(labelKey), value: t("settings.indexOn") })
+                      )
+                    }
+                  >
+                    {t("settings.indexOn")}
+                  </SettingOptionButton>
+                  <SettingOptionButton
+                    isActive={!show}
+                    isDark={isDark}
+                    className="flex-1 py-1 text-xs"
+                    onClick={() =>
+                      handleSetting(
+                        () => onToggle(false),
+                        t("toast.indexChanged", {
+                          name: t(labelKey),
+                          value: t("settings.indexOff"),
+                        })
+                      )
+                    }
+                  >
+                    {t("settings.indexOff")}
+                  </SettingOptionButton>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -260,32 +304,22 @@ export const SettingsModal: React.FC = () => {
               {t("settings.exchangeRateLabel")}
             </span>
             <div className="flex flex-1 gap-1">
-              <SettingOptionButton
-                isActive={showExchangeRate}
-                isDark={isDark}
-                className="flex-1 py-1 text-xs"
-                onClick={() =>
-                  handleSetting(
-                    () => setShowExchangeRate(true),
-                    t("toast.exchangeRateChanged", { value: t("settings.indexOn") })
-                  )
-                }
-              >
-                {t("settings.indexOn")}
-              </SettingOptionButton>
-              <SettingOptionButton
-                isActive={!showExchangeRate}
-                isDark={isDark}
-                className="flex-1 py-1 text-xs"
-                onClick={() =>
-                  handleSetting(
-                    () => setShowExchangeRate(false),
-                    t("toast.exchangeRateChanged", { value: t("settings.indexOff") })
-                  )
-                }
-              >
-                {t("settings.indexOff")}
-              </SettingOptionButton>
+              {showExchangeRateOptions.map(({ value, labelKey }) => (
+                <SettingOptionButton
+                  key={String(value)}
+                  isActive={showExchangeRate === value}
+                  isDark={isDark}
+                  className="flex-1 py-1 text-xs"
+                  onClick={() =>
+                    handleSetting(
+                      () => setShowExchangeRate(value),
+                      t("toast.exchangeRateChanged", { value: t(labelKey) })
+                    )
+                  }
+                >
+                  {t(labelKey)}
+                </SettingOptionButton>
+              ))}
             </div>
           </div>
         </div>
@@ -307,32 +341,22 @@ export const SettingsModal: React.FC = () => {
               {t("settings.chartLabel")}
             </span>
             <div className="flex flex-1 gap-1">
-              <SettingOptionButton
-                isActive={showChart}
-                isDark={isDark}
-                className="flex-1 py-1 text-xs"
-                onClick={() =>
-                  handleSetting(
-                    () => setShowChart(true),
-                    t("toast.chartChanged", { value: t("settings.chartOn") })
-                  )
-                }
-              >
-                {t("settings.chartOn")}
-              </SettingOptionButton>
-              <SettingOptionButton
-                isActive={!showChart}
-                isDark={isDark}
-                className="flex-1 py-1 text-xs"
-                onClick={() =>
-                  handleSetting(
-                    () => setShowChart(false),
-                    t("toast.chartChanged", { value: t("settings.chartOff") })
-                  )
-                }
-              >
-                {t("settings.chartOff")}
-              </SettingOptionButton>
+              {showChartOptions.map(({ value, labelKey }) => (
+                <SettingOptionButton
+                  key={String(value)}
+                  isActive={showChart === value}
+                  isDark={isDark}
+                  className="flex-1 py-1 text-xs"
+                  onClick={() =>
+                    handleSetting(
+                      () => setShowChart(value),
+                      t("toast.chartChanged", { value: t(labelKey) })
+                    )
+                  }
+                >
+                  {t(labelKey)}
+                </SettingOptionButton>
+              ))}
             </div>
           </div>
         </div>

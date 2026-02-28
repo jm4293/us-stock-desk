@@ -3,7 +3,7 @@ import { Button } from "@/components";
 import { STOCK_BOX } from "@/constants";
 import { PriceDisplay } from "@/features";
 import { useChartData, useMarketStatus, useStockData } from "@/hooks";
-import { useColorScheme, useShowChart, useTheme } from "@/stores";
+import { selectColorScheme, selectShowChart, selectTheme, useSettingsStore } from "@/stores";
 import type { ChartTimeRange, Position, Size } from "@/types";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
@@ -55,18 +55,20 @@ export const DesktopStockBox: React.FC<StockBoxProps> = ({
   onSizeChange,
 }) => {
   const { t } = useTranslation();
+
   const [range, setRange] = useState<ChartTimeRange>("1m");
+  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
+
   const { state: priceState } = useStockData(symbol);
   const { state: chartState } = useChartData(symbol, range);
-  const showChart = useShowChart();
-  const theme = useTheme();
-  const isDark = theme === "dark";
-  const colorScheme = useColorScheme();
   const { status: marketStatus } = useMarketStatus();
-  const isMounted = useRef(false);
+  const showChart = useSettingsStore(selectShowChart);
+  const colorScheme = useSettingsStore(selectColorScheme);
+  const theme = useSettingsStore(selectTheme);
+  const isDark = theme === "dark";
 
+  const isMounted = useRef(false);
   const prevPriceRef = useRef<number | null>(null);
-  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentPrice = priceState.status === "success" ? priceState.data.current : null;

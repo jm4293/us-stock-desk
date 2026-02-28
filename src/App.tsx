@@ -1,65 +1,37 @@
-import { useEffect } from "react";
-import {
-  BackgroundGradient,
-  DesktopLayout,
-  Header,
-  MobileLayout,
-  SplashScreen,
-  ToastContainer,
-} from "@/components";
-import { NetworkOfflineBanner, SearchModal, SettingsModal } from "@/features";
-import { useIsMobile, useWakeLock } from "@/hooks";
-import i18n from "@/i18n";
-import { stockSocket } from "@/services";
-import { useSettingsStore, useShowToast, useStockStore, useUIStore } from "@/stores";
+import { DesktopLayout, Header, MobileLayout, ToastContainer } from "@/components";
+import { SearchModal, SettingsModal } from "@/features";
+import { useAppInit, useApplyTheme, useIsMobile, useLanguage, useWakeLock } from "@/hooks";
+import { selectShowToast, useStockBoxStore, useToastStore, useUIStore } from "@/stores";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
 
 function App() {
   const { t } = useTranslation();
 
+  useAppInit();
+  useLanguage();
   useWakeLock();
-
-  const showToast = useShowToast();
+  const showToast = useToastStore(selectShowToast);
   const isMobile = useIsMobile();
-
-  const removeStock = useStockStore((state) => state.removeStock);
-
-  const openSearch = useUIStore((state) => state.openSearch);
-  const openSettings = useUIStore((state) => state.openSettings);
-
-  const theme = useSettingsStore((state) => state.theme);
-  const language = useSettingsStore((state) => state.language);
-
-  // WebSocket 초기화 (앱 시작 시 1회)
-  useEffect(() => {
-    const apiKey = import.meta.env.VITE_FINNHUB_API_KEY as string;
-    stockSocket.init(apiKey);
-  }, []);
-
-  // 테마 클래스 적용
-  useEffect(() => {
-    const root = document.documentElement;
-    root.classList.toggle("dark", theme === "dark");
-    root.classList.toggle("light", theme === "light");
-  }, [theme]);
-
-  // 언어 동기화
-  useEffect(() => {
-    i18n.changeLanguage(language);
-  }, [language]);
+  const theme = useApplyTheme();
+  const isDark = theme === "dark";
 
   const handleRemoveStock = (id: string) => {
-    const stock = useStockStore.getState().stocks.find((s) => s.id === id);
-
-    removeStock(id);
+    const stock = useStockBoxStore.getState().stocks.find((s) => s.id === id);
+    useStockBoxStore.getState().removeStock(id);
 
     if (stock) {
       showToast(t("toast.stockRemoved", { symbol: stock.symbol }), "info");
     }
   };
 
-  const isDark = theme === "dark";
+  const handleOpenSearch = () => {
+    useUIStore.getState().openSearch();
+  };
+
+  const handleOpenSettings = () => {
+    useUIStore.getState().openSettings();
+  };
 
   return (
     <div
@@ -68,32 +40,20 @@ function App() {
         isDark ? "bg-gray-950" : "bg-slate-100"
       )}
     >
-      {/* 배경 그라디언트 */}
-      <BackgroundGradient />
+      <Header
+        className="relative z-50"
+        onAddStock={handleOpenSearch}
+        onOpenSettings={handleOpenSettings}
+      />
 
-      {/* 스플래시 화면 (React Portal을 사용하여 독립적으로 렌더링됨) */}
-      <SplashScreen />
-
-      {/* 네트워크 오프라인 배너 */}
-      <NetworkOfflineBanner />
-
-      {/* 헤더 */}
-      <Header className="relative z-50" onAddStock={openSearch} onOpenSettings={openSettings} />
-
-      {/* 레이아웃 (모바일 / 데스크톱) */}
       {isMobile ? (
         <MobileLayout onRemoveStock={handleRemoveStock} />
       ) : (
         <DesktopLayout onRemoveStock={handleRemoveStock} />
       )}
 
-      {/* 검색 모달 — 항상 최상단 */}
       <SearchModal />
-
-      {/* 설정 모달 — 항상 최상단 */}
       <SettingsModal />
-
-      {/* 토스트 알림 */}
       <ToastContainer />
     </div>
   );

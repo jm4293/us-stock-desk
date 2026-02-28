@@ -2,7 +2,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { API_ENDPOINTS } from "@/constants";
 import { useMarketStatus } from "@/hooks";
 import { yahooSocket, type YahooTradeData } from "@/services";
-import type { IndexSymbol, MarketIndex } from "@/types";
+import type { IndexSymbol } from "@/types";
+
+interface MarketIndex {
+  symbol: string;
+  shortName: string;
+  price: number;
+  previousClose: number;
+  change: number;
+  changePercent: number;
+  dayHigh: number;
+  dayLow: number;
+}
 
 const INDEX_POLLING_INTERVAL = 60_000; // 60초
 

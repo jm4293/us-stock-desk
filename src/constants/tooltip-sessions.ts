@@ -1,4 +1,9 @@
-import { SessionItem } from "@/components";
+type SessionItem = {
+  key: "pre" | "open" | "post" | "closed";
+  color: string;
+  etKey: string;
+  kstKey: string;
+};
 
 export function TooltipSessions(isDST: boolean): SessionItem[] {
   const dst = isDST ? "EDT" : "EST";

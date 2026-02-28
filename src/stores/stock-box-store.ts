@@ -1,9 +1,35 @@
 import { STOCK_BOX, STORAGE_KEYS } from "@/constants";
-import type { Position, Size, StockActions, StockBox, StockState } from "@/types";
+import type { Position, Size } from "@/types";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { useShallow } from "zustand/react/shallow";
+
+interface StockBox {
+  id: string;
+  symbol: string;
+  companyName: string;
+  position: Position;
+  size: Size;
+  zIndex: number;
+  created: number;
+  updated: number;
+}
+
+interface StockState {
+  stocks: StockBox[];
+  focusedStockId: string | null;
+  maxZIndex: number;
+}
+
+interface StockActions {
+  addStock: (symbol: string, companyName: string) => void;
+  removeStock: (id: string) => void;
+  updatePosition: (id: string, position: Position) => void;
+  updateSize: (id: string, size: Size) => void;
+  setFocused: (id: string | null) => void;
+  bringToFront: (id: string) => void;
+  reorderStocks: (fromIndex: number, toIndex: number) => void;
+}
 
 type StockStore = StockState & StockActions;
 
@@ -13,7 +39,7 @@ const DEFAULT_STOCKS = {
   maxZIndex: 0 as number,
 };
 
-export const useStockStore = create<StockStore>()(
+export const useStockBoxStore = create<StockStore>()(
   devtools(
     persist(
       immer((set) => ({
@@ -130,17 +156,16 @@ export const useStockStore = create<StockStore>()(
   )
 );
 
-// Selectors (성능 최적화)
-export const useStocks = () => useStockStore((state) => state.stocks);
-export const useFocusedStockId = () => useStockStore((state) => state.focusedStockId);
-export const useStockActions = () =>
-  useStockStore(
-    useShallow((state) => ({
-      addStock: state.addStock,
-      removeStock: state.removeStock,
-      updatePosition: state.updatePosition,
-      updateSize: state.updateSize,
-      setFocused: state.setFocused,
-      bringToFront: state.bringToFront,
-    }))
-  );
+// Selectors - State
+export const selectStocks = (state: StockStore) => state.stocks;
+export const selectFocusedStockId = (state: StockStore) => state.focusedStockId;
+export const selectMaxZIndex = (state: StockStore) => state.maxZIndex;
+
+// Selectors - Actions
+export const selectAddStock = (state: StockStore) => state.addStock;
+export const selectRemoveStock = (state: StockStore) => state.removeStock;
+export const selectUpdatePosition = (state: StockStore) => state.updatePosition;
+export const selectUpdateSize = (state: StockStore) => state.updateSize;
+export const selectSetFocused = (state: StockStore) => state.setFocused;
+export const selectBringToFront = (state: StockStore) => state.bringToFront;
+export const selectReorderStocks = (state: StockStore) => state.reorderStocks;

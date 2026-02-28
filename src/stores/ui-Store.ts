@@ -1,8 +1,20 @@
-import type { UIActions, UIState } from "@/types";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { useShallow } from "zustand/react/shallow";
+
+interface UIState {
+  isSearchOpen: boolean;
+  isSettingsOpen: boolean;
+  isLoading: boolean;
+}
+
+interface UIActions {
+  openSearch: () => void;
+  closeSearch: () => void;
+  openSettings: () => void;
+  closeSettings: () => void;
+  setLoading: (loading: boolean) => void;
+}
 
 type UIStore = UIState & UIActions;
 
@@ -50,17 +62,14 @@ export const useUIStore = create<UIStore>()(
   )
 );
 
-// Selectors
-export const useIsSearchOpen = () => useUIStore((state) => state.isSearchOpen);
-export const useIsSettingsOpen = () => useUIStore((state) => state.isSettingsOpen);
-export const useIsLoading = () => useUIStore((state) => state.isLoading);
-export const useUIActions = () =>
-  useUIStore(
-    useShallow((state) => ({
-      openSearch: state.openSearch,
-      closeSearch: state.closeSearch,
-      openSettings: state.openSettings,
-      closeSettings: state.closeSettings,
-      setLoading: state.setLoading,
-    }))
-  );
+// Selectors - State
+export const selectIsSearchOpen = (state: UIStore) => state.isSearchOpen;
+export const selectIsSettingsOpen = (state: UIStore) => state.isSettingsOpen;
+export const selectIsLoading = (state: UIStore) => state.isLoading;
+
+// Selectors - Actions
+export const selectOpenSearch = (state: UIStore) => state.openSearch;
+export const selectCloseSearch = (state: UIStore) => state.closeSearch;
+export const selectOpenSettings = (state: UIStore) => state.openSettings;
+export const selectCloseSettings = (state: UIStore) => state.closeSettings;
+export const selectSetLoading = (state: UIStore) => state.setLoading;

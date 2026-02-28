@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { useTheme, useToastStore } from "@/stores";
+import {
+  selectRemoveToast,
+  selectTheme,
+  selectToasts,
+  useSettingsStore,
+  useToastStore,
+} from "@/stores";
 import { cn } from "@/utils";
 
 interface ToastItemProps {
@@ -62,10 +68,10 @@ const TYPE_COLORS = {
 };
 
 const ToastItem: React.FC<ToastItemProps> = ({ id, message, type, onRemove }) => {
-  const theme = useTheme();
-  const [visible, setVisible] = useState(false);
-
+  const theme = useSettingsStore(selectTheme);
   const isDark = theme === "dark";
+
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     // 마운트 직후 visible true → 슬라이드 인
@@ -104,8 +110,8 @@ const ToastItem: React.FC<ToastItemProps> = ({ id, message, type, onRemove }) =>
 };
 
 export const ToastContainer: React.FC = () => {
-  const toasts = useToastStore((state) => state.toasts);
-  const removeToast = useToastStore((state) => state.removeToast);
+  const toasts = useToastStore(selectToasts);
+  const removeToast = useToastStore(selectRemoveToast);
 
   if (toasts.length === 0) return null;
 

@@ -1,6 +1,6 @@
 import { EmptyState } from "@/components";
-import { MarketIndexBar, MobileStockBox } from "@/features";
-import { useStockStore } from "@/stores";
+import { MarketIndexExchangeContainer, MobileStockBox } from "@/features";
+import { selectStocks, useStockBoxStore } from "@/stores";
 import {
   closestCenter,
   DndContext,
@@ -17,7 +17,7 @@ interface MobileLayoutProps {
 }
 
 export function MobileLayout({ onRemoveStock }: MobileLayoutProps) {
-  const stocks = useStockStore((state) => state.stocks);
+  const stocks = useStockBoxStore(selectStocks);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -27,17 +27,18 @@ export function MobileLayout({ onRemoveStock }: MobileLayoutProps) {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
+
     const fromIndex = stocks.findIndex((s) => s.id === active.id);
     const toIndex = stocks.findIndex((s) => s.id === over.id);
+
     if (fromIndex !== -1 && toIndex !== -1) {
-      // getState()로 직접 호출하여 리렌더 방지
-      useStockStore.getState().reorderStocks(fromIndex, toIndex);
+      useStockBoxStore.getState().reorderStocks(fromIndex, toIndex);
     }
   };
 
   return (
     <div className="absolute bottom-0 left-0 right-0 top-[52px] overflow-y-auto">
-      <MarketIndexBar />
+      <MarketIndexExchangeContainer />
       {stocks.length === 0 ? (
         <EmptyState />
       ) : (

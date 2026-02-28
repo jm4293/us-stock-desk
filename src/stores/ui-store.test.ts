@@ -1,12 +1,16 @@
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-  useIsLoading,
-  useIsSearchOpen,
-  useIsSettingsOpen,
-  useUIActions,
+  selectCloseSearch,
+  selectCloseSettings,
+  selectIsLoading,
+  selectIsSearchOpen,
+  selectIsSettingsOpen,
+  selectOpenSearch,
+  selectOpenSettings,
+  selectSetLoading,
   useUIStore,
-} from "./ui-Store";
+} from "./ui-store";
 
 describe("uiStore", () => {
   beforeEach(() => {
@@ -79,27 +83,32 @@ describe("uiStore 셀렉터", () => {
     });
   });
 
-  it("useIsSearchOpen 셀렉터가 검색 모달 상태를 반환한다", () => {
-    const { result } = renderHook(() => useIsSearchOpen());
+  it("selectIsSearchOpen 셀렉터가 검색 모달 상태를 반환한다", () => {
+    const { result } = renderHook(() => useUIStore(selectIsSearchOpen));
     expect(result.current).toBe(false);
   });
 
-  it("useIsSettingsOpen 셀렉터가 설정 모달 상태를 반환한다", () => {
-    const { result } = renderHook(() => useIsSettingsOpen());
+  it("selectIsSettingsOpen 셀렉터가 설정 모달 상태를 반환한다", () => {
+    const { result } = renderHook(() => useUIStore(selectIsSettingsOpen));
     expect(result.current).toBe(false);
   });
 
-  it("useIsLoading 셀렉터가 로딩 상태를 반환한다", () => {
-    const { result } = renderHook(() => useIsLoading());
+  it("selectIsLoading 셀렉터가 로딩 상태를 반환한다", () => {
+    const { result } = renderHook(() => useUIStore(selectIsLoading));
     expect(result.current).toBe(false);
   });
 
-  it("useUIActions 셀렉터가 액션들을 반환한다", () => {
-    const { result } = renderHook(() => useUIActions());
-    expect(typeof result.current.openSearch).toBe("function");
-    expect(typeof result.current.closeSearch).toBe("function");
-    expect(typeof result.current.openSettings).toBe("function");
-    expect(typeof result.current.closeSettings).toBe("function");
-    expect(typeof result.current.setLoading).toBe("function");
+  it("액션 셀렉터들이 함수를 반환한다", () => {
+    const { result: openSearchResult } = renderHook(() => useUIStore(selectOpenSearch));
+    const { result: closeSearchResult } = renderHook(() => useUIStore(selectCloseSearch));
+    const { result: openSettingsResult } = renderHook(() => useUIStore(selectOpenSettings));
+    const { result: closeSettingsResult } = renderHook(() => useUIStore(selectCloseSettings));
+    const { result: setLoadingResult } = renderHook(() => useUIStore(selectSetLoading));
+
+    expect(typeof openSearchResult.current).toBe("function");
+    expect(typeof closeSearchResult.current).toBe("function");
+    expect(typeof openSettingsResult.current).toBe("function");
+    expect(typeof closeSettingsResult.current).toBe("function");
+    expect(typeof setLoadingResult.current).toBe("function");
   });
 });

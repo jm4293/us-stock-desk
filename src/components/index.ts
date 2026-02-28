@@ -1,4 +1,3 @@
-export * from "./background-gradient";
 export * from "./badge";
 export * from "./button";
 export * from "./desktop-layout";

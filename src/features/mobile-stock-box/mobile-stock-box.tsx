@@ -1,5 +1,18 @@
 import React, { lazy, Suspense, useRef, useState } from "react";
-import { useFlashBorder, useMarketStatus, useMobileStockBox } from "@/hooks";
+import {
+  useChartData,
+  useExchangeRate,
+  useFlashBorder,
+  useMarketStatus,
+  useStockData,
+} from "@/hooks";
+import {
+  selectColorScheme,
+  selectCurrency,
+  selectShowChart,
+  selectTheme,
+  useSettingsStore,
+} from "@/stores";
 import type { ChartTimeRange } from "@/types";
 import { cn, formatChangeKRW, formatChangeUSD, formatKRW, formatPercent, formatUSD } from "@/utils";
 import { useSortable } from "@dnd-kit/sortable";
@@ -29,10 +42,18 @@ export const MobileStockBox: React.FC<MobileStockBoxProps> = ({
   onClose,
 }) => {
   const { t } = useTranslation();
+
   const [range, setRange] = useState<ChartTimeRange>("1m");
-  const { isDark, priceState, chartState, showChart, colorScheme, currency, exchangeRate } =
-    useMobileStockBox(symbol, range);
+
+  const { state: priceState } = useStockData(symbol);
+  const { state: chartState } = useChartData(symbol, range);
   const { status: marketStatus } = useMarketStatus();
+  const { rate: exchangeRate } = useExchangeRate();
+  const showChart = useSettingsStore(selectShowChart);
+  const currency = useSettingsStore(selectCurrency);
+  const colorScheme = useSettingsStore(selectColorScheme);
+  const theme = useSettingsStore(selectTheme);
+  const isDark = theme === "dark";
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id,

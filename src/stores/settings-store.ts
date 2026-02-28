@@ -1,9 +1,31 @@
 import { STORAGE_KEYS } from "@/constants";
-import type { SettingsActions, SettingsState } from "@/types";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { useShallow } from "zustand/react/shallow";
+
+interface SettingsState {
+  theme: "light" | "dark";
+  language: "ko" | "en";
+  colorScheme: "kr" | "us";
+  currency: "USD" | "KRW";
+  showChart: boolean;
+  showIndexDJI: boolean;
+  showIndexSP500: boolean;
+  showIndexNASDAQ: boolean;
+  showExchangeRate: boolean;
+}
+
+interface SettingsActions {
+  setTheme: (theme: "light" | "dark") => void;
+  setLanguage: (lang: "ko" | "en") => void;
+  setColorScheme: (scheme: "kr" | "us") => void;
+  setCurrency: (currency: "USD" | "KRW") => void;
+  setShowChart: (show: boolean) => void;
+  setShowIndexDJI: (show: boolean) => void;
+  setShowIndexSP500: (show: boolean) => void;
+  setShowIndexNASDAQ: (show: boolean) => void;
+  setShowExchangeRate: (show: boolean) => void;
+}
 
 type SettingsStore = SettingsState & SettingsActions;
 
@@ -119,27 +141,24 @@ export const useSettingsStore = create<SettingsStore>()(
   )
 );
 
-// Selectors
-export const useTheme = () => useSettingsStore((state) => state.theme);
-export const useLanguage = () => useSettingsStore((state) => state.language);
-export const useColorScheme = () => useSettingsStore((state) => state.colorScheme);
-export const useCurrency = () => useSettingsStore((state) => state.currency);
-export const useShowChart = () => useSettingsStore((state) => state.showChart);
-export const useShowIndexDJI = () => useSettingsStore((state) => state.showIndexDJI);
-export const useShowIndexSP500 = () => useSettingsStore((state) => state.showIndexSP500);
-export const useShowIndexNASDAQ = () => useSettingsStore((state) => state.showIndexNASDAQ);
-export const useShowExchangeRate = () => useSettingsStore((state) => state.showExchangeRate);
-export const useSettingsActions = () =>
-  useSettingsStore(
-    useShallow((state) => ({
-      setTheme: state.setTheme,
-      setLanguage: state.setLanguage,
-      setColorScheme: state.setColorScheme,
-      setCurrency: state.setCurrency,
-      setShowChart: state.setShowChart,
-      setShowIndexDJI: state.setShowIndexDJI,
-      setShowIndexSP500: state.setShowIndexSP500,
-      setShowIndexNASDAQ: state.setShowIndexNASDAQ,
-      setShowExchangeRate: state.setShowExchangeRate,
-    }))
-  );
+// Selector - State
+export const selectTheme = (state: SettingsStore) => state.theme;
+export const selectLanguage = (state: SettingsStore) => state.language;
+export const selectColorScheme = (state: SettingsStore) => state.colorScheme;
+export const selectCurrency = (state: SettingsStore) => state.currency;
+export const selectShowChart = (state: SettingsStore) => state.showChart;
+export const selectShowIndexDJI = (state: SettingsStore) => state.showIndexDJI;
+export const selectShowIndexSP500 = (state: SettingsStore) => state.showIndexSP500;
+export const selectShowIndexNASDAQ = (state: SettingsStore) => state.showIndexNASDAQ;
+export const selectShowExchangeRate = (state: SettingsStore) => state.showExchangeRate;
+
+// Selector - Actions
+export const selectSetTheme = (state: SettingsStore) => state.setTheme;
+export const selectSetLanguage = (state: SettingsStore) => state.setLanguage;
+export const selectSetColorScheme = (state: SettingsStore) => state.setColorScheme;
+export const selectSetCurrency = (state: SettingsStore) => state.setCurrency;
+export const selectSetShowChart = (state: SettingsStore) => state.setShowChart;
+export const selectSetShowIndexDJI = (state: SettingsStore) => state.setShowIndexDJI;
+export const selectSetShowIndexSP500 = (state: SettingsStore) => state.setShowIndexSP500;
+export const selectSetShowIndexNASDAQ = (state: SettingsStore) => state.setShowIndexNASDAQ;
+export const selectSetShowExchangeRate = (state: SettingsStore) => state.setShowExchangeRate;

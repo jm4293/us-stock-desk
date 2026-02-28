@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks";
-import { useTheme } from "@/stores";
+import { selectTheme, useSettingsStore } from "@/stores";
 import { cn } from "@/utils";
 
 interface ModalProps {
@@ -14,13 +14,14 @@ interface ModalProps {
 
 export const Modal: React.FC<ModalProps> = ({ open, onClose, children, allowOverflow = false }) => {
   const isMobile = useIsMobile();
-  const theme = useTheme();
+
+  const theme = useSettingsStore(selectTheme);
+  const isDark = theme === "dark";
+
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const animFrameRef = useRef<number | null>(null);
-
-  const isDark = theme === "dark";
 
   // visualViewport로 키보드가 올라올 때 실제 뷰포트 높이 추적 (Android 대응)
   useEffect(() => {

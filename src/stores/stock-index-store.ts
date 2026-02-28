@@ -1,8 +1,16 @@
-import { STORAGE_KEYS } from "@/constants";
-import type { IndexBoxData, IndexSymbol, Position, Size } from "@/types";
+import type { IndexSymbol, Position, Size } from "@/types";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { STORAGE_KEYS } from "@/constants/";
+
+interface IndexBoxData {
+  id: IndexSymbol;
+  label: string;
+  position: Position;
+  size: Size;
+  zIndex: number;
+}
 
 const INDEX_BOX_WIDTH = 300;
 const INDEX_BOX_HEIGHT = 200;
@@ -31,17 +39,17 @@ const DEFAULT_INDICES: IndexBoxData[] = [
   },
 ];
 
-interface ExchangeRateBoxLayout {
-  position: Position;
-  size: Size;
-  zIndex: number;
-}
-
 const DEFAULT_EXCHANGE_RATE_BOX: ExchangeRateBoxLayout = {
   position: { x: 980, y: 20 },
   size: { width: INDEX_BOX_WIDTH, height: INDEX_BOX_HEIGHT },
   zIndex: 1,
 };
+
+interface ExchangeRateBoxLayout {
+  position: Position;
+  size: Size;
+  zIndex: number;
+}
 
 interface IndexState {
   indices: IndexBoxData[];
@@ -60,7 +68,7 @@ interface IndexActions {
 
 type IndexStore = IndexState & IndexActions;
 
-export const useIndexStore = create<IndexStore>()(
+export const useStockIndexStore = create<IndexStore>()(
   devtools(
     persist(
       immer((set) => ({
@@ -141,3 +149,17 @@ export const useIndexStore = create<IndexStore>()(
     { name: "IndexStore", enabled: import.meta.env.DEV }
   )
 );
+
+// Selectors - State
+export const selectIndices = (state: IndexStore) => state.indices;
+export const selectExchangeRateBox = (state: IndexStore) => state.exchangeRateBox;
+export const selectIndexMaxZIndex = (state: IndexStore) => state.maxZIndex;
+
+// Selectors - Actions
+export const selectIndexUpdatePosition = (state: IndexStore) => state.updatePosition;
+export const selectIndexUpdateSize = (state: IndexStore) => state.updateSize;
+export const selectIndexBringToFront = (state: IndexStore) => state.bringToFront;
+export const selectUpdateExchangeRatePosition = (state: IndexStore) =>
+  state.updateExchangeRatePosition;
+export const selectUpdateExchangeRateSize = (state: IndexStore) => state.updateExchangeRateSize;
+export const selectBringExchangeRateToFront = (state: IndexStore) => state.bringExchangeRateToFront;
