@@ -15,10 +15,13 @@ Zustand를 사용해 애플리케이션의 전역 상태를 관리합니다.
 
 ### ✅ 작업 대상
 
-- `src/stores/` - 모든 Zustand 스토어
-  - `stockStore.ts` - 주식 박스 상태
-  - `settingsStore.ts` - 설정 상태
-  - `uiStore.ts` - UI 상태
+- `src/stores/` - 모든 Zustand 스토어 (kebab-case 파일명)
+  - `stock-box-store.ts` - 주식 박스 상태
+  - `settings-store.ts` - 설정 상태
+  - `ui-store.ts` - UI 상태
+  - `toast-store.ts` - 토스트 상태
+  - `stock-index-store.ts` - 주요 지수 상태
+  - `index.ts` - Barrel export
 
 ### ❌ 작업 제외
 
@@ -28,16 +31,17 @@ Zustand를 사용해 애플리케이션의 전역 상태를 관리합니다.
 
 ## 📚 필수 읽기 문서
 
-1. **ADVANCED_TECH_STACK.md** - Zustand 가이드 (필독!)
-2. **CLAUDE.md** - 프로젝트 이해
-3. **PROJECT_REQUIREMENTS.md** - 상태 요구사항
+1. **docs/architecture/tech-stack.md** - Zustand 가이드 (필독!)
+2. **docs/architecture/import-conventions.md** - Import 규칙 (Barrel 패턴)
+3. **CLAUDE.md** - 프로젝트 이해
+4. **docs/requirements.md** - 상태 요구사항
 
 ## 🔧 작업 순서
 
-### 1단계: Stock Store (주식 박스 상태)
+### 1단계: Stock Box Store (주식 박스 상태)
 
 ```typescript
-// src/stores/stockStore.ts
+// src/stores/stock-box-store.ts
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -162,10 +166,10 @@ export const useStockStore = create<StockStore>()(
 );
 
 // Selectors (성능 최적화)
-export const useStocks = () => useStockStore((state) => state.stocks);
-export const useFocusedStockId = () => useStockStore((state) => state.focusedStockId);
-export const useStockActions = () =>
-  useStockStore((state) => ({
+export const useStocks = () => useStockBoxStore((state) => state.stocks);
+export const useFocusedStockId = () => useStockBoxStore((state) => state.focusedStockId);
+export const useStockBoxActions = () =>
+  useStockBoxStore((state) => ({
     addStock: state.addStock,
     removeStock: state.removeStock,
     updatePosition: state.updatePosition,
@@ -178,7 +182,7 @@ export const useStockActions = () =>
 ### 2단계: Settings Store (설정 상태)
 
 ```typescript
-// src/stores/settingsStore.ts
+// src/stores/settings-store.ts
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -258,7 +262,7 @@ export const useSettingsActions = () =>
 ### 3단계: UI Store (UI 상태)
 
 ```typescript
-// src/stores/uiStore.ts
+// src/stores/ui-store.ts
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
@@ -394,23 +398,25 @@ export const useUiActions = () =>
   }));
 ```
 
-### 4단계: Store 초기화 유틸리티
+### 4단계: Store Barrel Export
 
 ```typescript
 // src/stores/index.ts
-import { useStockStore } from "./stockStore";
-import { useSettingsStore } from "./settingsStore";
-import { useUiStore } from "./uiStore";
+import { useStockBoxStore } from "./stock-box-store";
+import { useSettingsStore } from "./settings-store";
+import { useUIStore } from "./ui-store";
+import { useToastStore } from "./toast-store";
+import { useStockIndexStore } from "./stock-index-store";
 
 /**
  * 모든 스토어를 초기화 (개발 중 디버깅용)
  */
 export const resetAllStores = () => {
-  useStockStore.persist.clearStorage();
+  useStockBoxStore.persist.clearStorage();
   useSettingsStore.persist.clearStorage();
 
   // 상태 리셋
-  useStockStore.setState({
+  useStockBoxStore.setState({
     stocks: [],
     focusedStockId: null,
     maxZIndex: 0,
@@ -423,7 +429,7 @@ export const resetAllStores = () => {
     currency: "USD",
   });
 
-  useUiStore.setState({
+  useUIStore.setState({
     modal: { isOpen: false, type: null },
     toasts: [],
     isLoading: false,
@@ -437,40 +443,49 @@ export const resetAllStores = () => {
 if (import.meta.env.DEV) {
   (window as any).resetStores = resetAllStores;
   (window as any).stores = {
-    stock: useStockStore,
+    stockBox: useStockBoxStore,
     settings: useSettingsStore,
-    ui: useUiStore,
+    ui: useUIStore,
+    toast: useToastStore,
+    stockIndex: useStockIndexStore,
   };
 }
 
-export * from "./stockStore";
-export * from "./settingsStore";
-export * from "./uiStore";
+// Barrel exports
+export * from "./stock-box-store";
+export * from "./settings-store";
+export * from "./ui-store";
+export * from "./toast-store";
+export * from "./stock-index-store";
 ```
 
 ## ✅ 완료 체크리스트
 
-### 스토어 생성
+### 스토어 생성 (kebab-case 파일명)
 
-- [ ] `src/stores/stockStore.ts` 생성
+- [ ] `src/stores/stock-box-store.ts` 생성
   - [ ] State 정의
   - [ ] Actions 구현
   - [ ] Persist 설정 (Base64 인코딩)
   - [ ] DevTools 연동
   - [ ] Selectors 정의
-- [ ] `src/stores/settingsStore.ts` 생성
+- [ ] `src/stores/settings-store.ts` 생성
   - [ ] State 정의
   - [ ] Actions 구현
   - [ ] Persist 설정
   - [ ] 테마 DOM 업데이트 로직
-- [ ] `src/stores/uiStore.ts` 생성
+- [ ] `src/stores/ui-store.ts` 생성
   - [ ] Modal 상태
-  - [ ] Toast 상태
   - [ ] Loading 상태
   - [ ] Sidebar 상태
-- [ ] `src/stores/index.ts` 생성
+- [ ] `src/stores/toast-store.ts` 생성
+  - [ ] Toast 상태 및 Actions
+- [ ] `src/stores/stock-index-store.ts` 생성
+  - [ ] 주요 지수 상태 (S&P 500, NASDAQ 등)
+- [ ] `src/stores/index.ts` 생성 (Barrel export)
   - [ ] resetAllStores 함수
   - [ ] 개발용 window 노출
+  - [ ] export * from 모든 스토어
 
 ### 검증
 

@@ -1,8 +1,10 @@
-# US Stock Desk - TDD, Storybook, Atomic Design 가이드
+# US Stock Desk - TDD, Storybook, Components/Features 가이드
 
 ## 📋 개요
 
 이 문서는 US Stock Desk 프로젝트의 개발 방법론, 컴포넌트 개발 전략, 그리고 다국어 지원에 대한 가이드입니다.
+
+**중요**: 이 프로젝트는 **Atomic Design 패턴 대신 Components/Features 패턴**을 사용합니다.
 
 ---
 
@@ -35,9 +37,9 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ### vitest.config.ts
 
 ```ts
-import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -68,14 +70,16 @@ afterEach(() => {
 
 ### 테스트 예시
 
-#### Atom 컴포넌트 테스트
+#### Component 테스트 (기본 UI)
 
 ```tsx
-// src/components/atoms/Button/Button.test.tsx
-import { describe, it, expect, vi } from "vitest";
+// src/components/button/button.test.tsx (kebab-case 파일명)
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Button } from "./Button";
+import { describe, expect, it, vi } from "vitest";
+import { Button } from "./button";
+
+// 같은 디렉터리에서 import
 
 describe("Button", () => {
   it("renders with text", () => {
@@ -95,29 +99,86 @@ describe("Button", () => {
     render(<Button disabled>Click me</Button>);
     expect(screen.getByText("Click me")).toBeDisabled();
   });
+
+  it("applies variant styles correctly", () => {
+    const { rerender } = render(<Button variant="primary">Primary</Button>);
+    expect(screen.getByText("Primary")).toHaveClass("bg-blue-500");
+
+    rerender(<Button variant="secondary">Secondary</Button>);
+    expect(screen.getByText("Secondary")).toHaveClass("bg-gray-500");
+  });
+});
+```
+
+#### Feature 테스트 (완전한 기능 모듈)
+
+```tsx
+// src/features/price-display/price-display.test.tsx
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import { PriceDisplay } from "./price-display";
+
+describe("PriceDisplay", () => {
+  it("renders price correctly", () => {
+    render(<PriceDisplay price={150.25} change={2.5} changePercent={1.69} />);
+    expect(screen.getByText("$150.25")).toBeInTheDocument();
+  });
+
+  it("shows up arrow for positive change", () => {
+    render(<PriceDisplay price={150} change={2.5} changePercent={1.69} />);
+    expect(screen.getByText(/↑/)).toBeInTheDocument();
+  });
+
+  it("shows down arrow for negative change", () => {
+    render(<PriceDisplay price={150} change={-2.5} changePercent={-1.69} />);
+    expect(screen.getByText(/↓/)).toBeInTheDocument();
+  });
+
+  it("applies Korean color scheme", () => {
+    render(<PriceDisplay price={150} change={2.5} changePercent={1.69} colorScheme="kr" />);
+    // 한국식: 빨강 상승
+    expect(screen.getByText(/2.5/)).toHaveClass("text-up-kr");
+  });
 });
 ```
 
 #### Hook 테스트
 
 ```tsx
-// src/hooks/useStockData.test.ts
-import { describe, it, expect, vi } from "vitest";
+// src/hooks/use-stock-data.test.ts (kebab-case 파일명)
 import { renderHook, waitFor } from "@testing-library/react";
-import { useStockData } from "./useStockData";
+import { describe, expect, it, vi } from "vitest";
+import { useStockData } from "./use-stock-data";
 
 describe("useStockData", () => {
+  it("initial state is loading", () => {
+    const { result } = renderHook(() => useStockData("AAPL"));
+    expect(result.current.state.status).toBe("loading");
+  });
+
   it("fetches stock data successfully", async () => {
     const { result } = renderHook(() => useStockData("AAPL"));
 
-    expect(result.current.loading).toBe(true);
-
     await waitFor(() => {
-      expect(result.current.loading).toBe(false);
+      expect(result.current.state.status).toBe("success");
     });
 
-    expect(result.current.data).toBeDefined();
-    expect(result.current.error).toBeNull();
+    if (result.current.state.status === "success") {
+      expect(result.current.state.data).toBeDefined();
+      expect(result.current.state.data.symbol).toBe("AAPL");
+    }
+  });
+
+  it("handles error state", async () => {
+    const { result } = renderHook(() => useStockData("INVALID"));
+
+    await waitFor(() => {
+      expect(result.current.state.status).toBe("error");
+    });
+
+    if (result.current.state.status === "error") {
+      expect(result.current.state.error).toBeDefined();
+    }
   });
 });
 ```
@@ -207,15 +268,15 @@ export default preview;
 
 ### Story 작성 예시
 
-#### Atom 컴포넌트 Story
+#### Component Story (기본 UI)
 
 ```tsx
-// src/components/atoms/Button/Button.stories.tsx
+// src/components/button/button.stories.tsx (kebab-case 파일명)
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "./Button";
+import { Button } from "./button";
 
 const meta: Meta<typeof Button> = {
-  title: "Atoms/Button",
+  title: "Components/Button", // Components 카테고리
   component: Button,
   tags: ["autodocs"],
   argTypes: {
@@ -253,32 +314,105 @@ export const Disabled: Story = {
     disabled: true,
   },
 };
+
+export const Loading: Story = {
+  args: {
+    children: "Loading...",
+    isLoading: true,
+  },
+};
 ```
 
-#### Organism 컴포넌트 Story
+#### Feature Story (완전한 기능 모듈)
 
 ```tsx
-// src/components/organisms/Header/Header.stories.tsx
+// src/features/price-display/price-display.stories.tsx
 import type { Meta, StoryObj } from "@storybook/react";
-import { Header } from "./Header";
+import { PriceDisplay } from "./price-display";
 
-const meta: Meta<typeof Header> = {
-  title: "Organisms/Header",
-  component: Header,
+const meta: Meta<typeof PriceDisplay> = {
+  title: "Features/PriceDisplay", // Features 카테고리
+  component: PriceDisplay,
   tags: ["autodocs"],
   parameters: {
-    layout: "fullscreen",
+    layout: "centered",
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof Header>;
+type Story = StoryObj<typeof PriceDisplay>;
 
-export const Default: Story = {};
+export const PositiveChange: Story = {
+  args: {
+    price: 150.25,
+    change: 2.5,
+    changePercent: 1.69,
+    colorScheme: "kr", // 한국식 (빨강↑)
+  },
+};
 
-export const DarkMode: Story = {
+export const NegativeChange: Story = {
+  args: {
+    price: 147.75,
+    change: -2.5,
+    changePercent: -1.66,
+    colorScheme: "kr", // 한국식 (파랑↓)
+  },
+};
+
+export const USColorScheme: Story = {
+  args: {
+    price: 150.25,
+    change: 2.5,
+    changePercent: 1.69,
+    colorScheme: "us", // 미국식 (초록↑)
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    loading: true,
+  },
+};
+```
+
+#### Feature Story with Hooks (복잡한 기능)
+
+```tsx
+// src/features/desktop-stock-box/desktop-stock-box.stories.tsx
+import type { Meta, StoryObj } from "@storybook/react";
+import { DesktopStockBox } from "./desktop-stock-box";
+
+const meta: Meta<typeof DesktopStockBox> = {
+  title: "Features/DesktopStockBox",
+  component: DesktopStockBox,
+  tags: ["autodocs"],
   parameters: {
-    backgrounds: { default: "dark" },
+    layout: "fullscreen",
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export default meta;
+type Story = StoryObj<typeof DesktopStockBox>;
+
+export const Default: Story = {
+  args: {
+    symbol: "AAPL",
+    focused: false,
+  },
+};
+
+export const Focused: Story = {
+  args: {
+    symbol: "AAPL",
+    focused: true,
   },
 };
 ```
@@ -296,28 +430,53 @@ export const DarkMode: Story = {
 
 ---
 
-## ⚛️ Atomic Design Pattern
+## 🧩 Components vs Features 패턴
+
+**이 프로젝트는 Atomic Design 대신 Components/Features 패턴을 사용합니다.**
 
 ### 구조
 
 ```
-components/
-├── atoms/          # 기본 단위 (Button, Input, Icon 등)
-├── molecules/      # 원자 조합 (SearchInput, PriceDisplay 등)
-├── organisms/      # 분자 조합 (Header, StockBox 등)
-├── templates/      # 페이지 레이아웃
-└── pages/          # 완성된 페이지
+src/
+├── components/        # 기본 UI 빌딩 블록
+│   ├── button/
+│   ├── input/
+│   ├── modal/
+│   └── index.ts      # Barrel export
+│
+├── features/          # 완전한 기능 모듈
+│   ├── desktop-stock-box/
+│   ├── price-display/
+│   ├── stock-chart/
+│   └── index.ts      # Barrel export
+│
+└── hooks/             # 비즈니스 로직
+    ├── use-stock-data.ts
+    ├── use-chart-data.ts
+    └── index.ts       # Barrel export
 ```
 
-### 1. Atoms (원자)
+### 1. Components (기본 UI 빌딩 블록)
 
-가장 작은 단위의 컴포넌트. 더 이상 분해할 수 없는 기본 요소.
+재사용 가능한 단순 컴포넌트. 비즈니스 로직 최소화.
+
+**파일 구조:**
+
+```
+component-name/
+├── component-name.tsx        # 메인 컴포넌트 (kebab-case)
+├── component-name.test.tsx   # 테스트
+├── component-name.stories.tsx # Storybook
+└── index.ts                   # Barrel export
+```
+
+**예시:**
 
 ```tsx
-// src/components/atoms/Button/Button.tsx
-import { cn } from "@/utils/cn";
+// src/components/button/button.tsx
+import { cn } from "@/utils/cn/cn";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends React.ComponentPropsWithRef<"button"> {
   variant?: "primary" | "secondary" | "ghost";
   size?: "sm" | "md" | "lg";
 }
@@ -332,11 +491,11 @@ export const Button = ({
   return (
     <button
       className={cn(
-        "glass rounded-lg transition-all",
-        variant === "primary" && "bg-blue-500 hover:bg-blue-600",
-        variant === "secondary" && "bg-gray-500 hover:bg-gray-600",
+        "rounded-lg font-medium transition-colors",
+        variant === "primary" && "bg-blue-500 text-white hover:bg-blue-600",
+        variant === "secondary" && "bg-gray-500 text-white hover:bg-gray-600",
         variant === "ghost" && "bg-transparent hover:bg-white/10",
-        size === "sm" && "px-2 py-1 text-sm",
+        size === "sm" && "px-3 py-1.5 text-sm",
         size === "md" && "px-4 py-2",
         size === "lg" && "px-6 py-3 text-lg",
         className
@@ -347,82 +506,121 @@ export const Button = ({
     </button>
   );
 };
+
+Button.displayName = "Button";
 ```
 
-### 2. Molecules (분자)
+```ts
+// src/components/button/index.ts
+export * from "./button";
+```
 
-여러 Atom을 조합한 컴포넌트.
+```ts
+// src/components/index.ts
+export * from "./button";
+export * from "./input";
+export * from "./modal";
+// ... 모든 컴포넌트
+```
+
+### 2. Features (완전한 기능 모듈)
+
+Hook과 Store를 사용하여 비즈니스 로직을 통합한 완전한 기능 단위.
+
+**파일 구조:**
+
+```
+feature-name/
+├── feature-name.tsx          # 메인 피처 (kebab-case)
+├── feature-name.test.tsx     # 테스트
+├── feature-name.stories.tsx  # Storybook
+└── index.ts                   # Barrel export
+```
+
+**예시:**
 
 ```tsx
-// src/components/molecules/PriceDisplay/PriceDisplay.tsx
-import { useTranslation } from "react-i18next";
-import { cn } from "@/utils/cn";
+// src/features/price-display/price-display.tsx
+import { useSettingsStore } from "@/stores";
+import { cn } from "@/utils/cn/cn";
 
 interface PriceDisplayProps {
   price: number;
   change: number;
   changePercent: number;
-  colorScheme: "kr" | "us";
+  loading?: boolean;
 }
 
-export const PriceDisplay = ({ price, change, changePercent, colorScheme }: PriceDisplayProps) => {
-  const { t } = useTranslation();
+export const PriceDisplay = ({ price, change, changePercent, loading }: PriceDisplayProps) => {
+  // Store에서 color scheme 가져오기
+  const colorScheme = useSettingsStore((state) => state.colorScheme);
   const isUp = change > 0;
+  const isDown = change < 0;
+
+  if (loading) {
+    return <div className="animate-pulse">Loading...</div>;
+  }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       <div className="text-3xl font-bold">${price.toFixed(2)}</div>
       <div
         className={cn(
-          "text-sm font-medium",
+          "text-lg font-semibold transition-colors",
           colorScheme === "kr" && {
             "text-up-kr": isUp,
-            "text-down-kr": !isUp,
+            "text-down-kr": isDown,
           },
           colorScheme === "us" && {
             "text-up-us": isUp,
-            "text-down-us": !isUp,
+            "text-down-us": isDown,
           }
         )}
       >
-        {isUp ? "+" : ""}
+        {isUp && "↑"}
+        {isDown && "↓"}
         {change.toFixed(2)} ({changePercent.toFixed(2)}%)
       </div>
     </div>
   );
 };
+
+PriceDisplay.displayName = "PriceDisplay";
 ```
 
-### 3. Organisms (유기체)
+### 3. Features with Hooks (복잡한 기능)
 
-여러 Molecule과 Atom을 조합한 복잡한 컴포넌트.
+Hook을 사용하여 비즈니스 로직을 분리한 Feature.
 
 ```tsx
-// src/components/organisms/StockBox/StockBox.tsx
+// src/features/desktop-stock-box/desktop-stock-box.tsx
+import { Button } from "@/components";
+import { PriceDisplay } from "@/features";
+import { useStockData } from "@/hooks";
 import { Rnd } from "react-rnd";
-import { useStockBox } from "@/hooks/useStockBox";
-import { PriceDisplay } from "@/components/molecules/PriceDisplay";
-import { Button } from "@/components/atoms/Button";
-import { cn } from "@/utils/cn";
+import { cn } from "@/utils/cn/cn";
 
-interface StockBoxProps {
+interface DesktopStockBoxProps {
   symbol: string;
   focused?: boolean;
   onFocus?: () => void;
   onDelete?: () => void;
 }
 
-export const StockBox = ({ symbol, focused, onFocus, onDelete }: StockBoxProps) => {
-  const { data, loading, position, size, handleDragStop, handleResizeStop } = useStockBox(symbol);
+export const DesktopStockBox = ({ symbol, focused, onFocus, onDelete }: DesktopStockBoxProps) => {
+  // Hook에서 비즈니스 로직 가져오기
+  const { state } = useStockData(symbol);
 
-  if (loading) return <div>Loading...</div>;
+  if (state.status === "loading") {
+    return <div className="glass rounded-xl p-4">Loading...</div>;
+  }
+
+  if (state.status === "error") {
+    return <div className="glass rounded-xl p-4 text-red-500">Error: {state.error}</div>;
+  }
 
   return (
     <Rnd
-      position={position}
-      size={size}
-      onDragStop={handleDragStop}
-      onResizeStop={handleResizeStop}
       className={cn(
         "glass rounded-xl p-4",
         focused && "z-50 shadow-2xl",
@@ -454,8 +652,8 @@ export const StockBox = ({ symbol, focused, onFocus, onDelete }: StockBoxProps) 
 
 ```tsx
 // src/components/templates/MainLayout/MainLayout.tsx
-import { Header } from "@/components/organisms/Header";
 import { ReactNode } from "react";
+import { Header } from "@/components/organisms/Header";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -477,8 +675,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
 ```tsx
 // src/components/pages/MainPage/MainPage.tsx
-import { MainLayout } from "@/components/templates/MainLayout";
 import { StockBox } from "@/components/organisms/StockBox";
+import { MainLayout } from "@/components/templates/MainLayout";
 import { useStocks } from "@/hooks/useStocks";
 
 export const MainPage = () => {
@@ -516,10 +714,10 @@ npm install react-i18next i18next i18next-browser-languagedetector
 
 ```ts
 import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import ko from "./locales/ko.json";
+import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";
+import ko from "./locales/ko.json";
 
 i18n
   .use(LanguageDetector)
@@ -659,8 +857,10 @@ export const Header = () => {
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import "./i18n/config";
 import "./styles/globals.css";
-import "./i18n/config"; // i18n 설정 import
+
+// i18n 설정 import
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

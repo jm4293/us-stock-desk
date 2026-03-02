@@ -188,59 +188,108 @@ FINNHUB_API_KEY=your_api_key_here
 #### 8. src/ 폴더 구조
 
 ```bash
-□ src/components/           # UI 컴포넌트
-  □ atoms/                  # 기본 컴포넌트
-  □ molecules/              # 조합 컴포넌트
-  □ organisms/              # 복잡한 컴포넌트
-  □ templates/              # 레이아웃
-  □ pages/                  # 페이지
+□ src/components/           # 기본 UI 컴포넌트 (재사용 가능한 빌딩 블록)
+  □ badge/
+  □ button/
+  □ desktop-layout/
+  □ empty-state/
+  □ header/
+  □ input/
+  □ mobile-layout/
+  □ modal/
+  □ search-input/
+  □ splash-screen/
+  □ toast/
+  □ index.ts               # Barrel export
 
-□ src/hooks/                # Custom Hooks
+□ src/features/            # 기능 모듈 (완전한 기능 단위)
+  □ KST-clock/
+  □ desktop-stock-box/
+  □ market-index-bar/
+  □ mobile-stock-box/
+  □ network-offline-banner/
+  □ price-display/
+  □ search-modal/
+  □ settings-modal/
+  □ stock-chart/
+  □ index.ts               # Barrel export
 
-□ src/stores/               # Zustand 스토어
-  □ stockStore.ts
-  □ settingsStore.ts
-  □ uiStore.ts
+□ src/hooks/               # Custom Hooks (비즈니스 로직)
+  □ use-app-init.ts
+  □ use-apply-theme.ts
+  □ use-chart-data.ts
+  □ use-exchange-rate.ts
+  □ use-flash-border.ts
+  □ use-full-screen.ts
+  □ use-index-data.ts
+  □ use-is-mobile.ts
+  □ use-language.ts
+  □ use-market-status.ts
+  □ use-network-status.ts
+  □ use-stock-data.ts
+  □ use-wake-lock.ts
+  □ index.ts               # Barrel export
 
-□ src/services/             # 외부 서비스
-  □ api/                    # REST API
-    □ finnhub.ts
-    □ exchange.ts
-  □ websocket/              # WebSocket
-    □ stockSocket.ts
-  □ storage/                # LocalStorage
-    □ storage.ts
+□ src/stores/              # Zustand 상태 관리
+  □ stock-box-store.ts     # 주식 박스 상태
+  □ settings-store.ts      # 앱 설정 (테마, 언어, 통화, 색상)
+  □ ui-store.ts           # UI 상태 (모달, 로딩)
+  □ toast-store.ts        # 토스트 알림
+  □ stock-index-store.ts  # 시장 지수
+  □ index.ts              # Barrel export + resetAllStores
 
-□ src/utils/                # 유틸리티
-  □ cn.ts                   # tailwind-merge + clsx
-  □ formatters.ts           # 포맷 함수
+□ src/services/            # 외부 서비스
+  □ api/
+    □ fetch-finnhub.ts    # Finnhub API (실시간 가격)
+    □ fetch-yahoo-chart.ts # Yahoo Finance API (차트 데이터)
+  □ websocket/
+    □ stock-socket.ts     # Stock WebSocket
+    □ yahoo-socket.ts     # Yahoo WebSocket (우선순위)
 
-□ src/types/                # TypeScript 타입
-  □ stock.ts
-  □ api.ts
-  □ store.ts
-  □ common.ts
+□ src/utils/               # 유틸리티 함수
+  □ cn/
+    □ cn.ts               # tailwind-merge + clsx
+  □ date/
+    □ date.ts             # 날짜 포맷팅
+  □ formatters/
+    □ formatters.ts       # 숫자, 가격 포맷팅
+  □ number/
+    □ number.ts           # 숫자 유틸리티
 
-□ src/constants/            # 상수
-  □ api.ts
-  □ app.ts
+□ src/types/               # TypeScript 타입
+  □ chart.ts              # 차트 타입
+  □ market.ts             # 시장 상태 타입
+  □ stock.ts              # 주식 데이터 타입
 
-□ src/styles/               # 글로벌 스타일
-  □ globals.css
-  □ themes.css
+□ src/constants/           # 상수
+  □ chart.ts              # 차트 상수
+  □ colors.ts             # 색상 상수
+  □ storage.ts            # 저장소 키
+  □ stocks.ts             # 주식 심볼, 지수
 
-□ src/assets/               # 정적 파일
-  □ icons/
-  □ images/
+□ src/i18n/                # 국제화
+  □ locales/
+    □ ko.json             # 한국어 번역
+    □ en.json             # 영어 번역
+  □ index.ts              # i18n 설정
 
-□ src/locales/              # i18n 번역 파일
-  □ ko/
-    □ translation.json
-  □ en/
-    □ translation.json
+□ src/styles/              # 글로벌 스타일
+  □ globals.css           # Tailwind + 글로벌 스타일
+  □ themes.css            # 테마 변수
+
+□ src/test/                # 테스트 설정
+  □ setup.ts              # Vitest 설정
 ```
 
 **참고 문서**: [.claude/AGENT_ARCHITECT.md#폴더-구조](.claude/AGENT_ARCHITECT.md)
+
+**중요 변경사항**:
+
+- ✅ Atomic Design 패턴 대신 **Components/Features 패턴** 사용
+- ✅ Components: 기본 UI 빌딩 블록 (Button, Input, Modal 등)
+- ✅ Features: 완전한 기능 모듈 (DesktopStockBox, SearchModal 등)
+- ✅ 모든 레이어에 Barrel export (`index.ts`) 추가
+- ✅ 파일명: `kebab-case` (예: `use-stock-data.ts`, `desktop-stock-box.tsx`)
 
 ---
 
@@ -279,28 +328,35 @@ FINNHUB_API_KEY=your_api_key_here
 1. Architect 🏗️
    → 위의 Phase 1~3 모두 실행
    → 기본 타입 정의
+   → 폴더 구조 생성 (components, features, hooks, stores 등)
 
 2. Styles 🎨
-   → Tailwind 설정
-   → 글로벌 스타일
-   → cn() 유틸리티
+   → Tailwind CSS 100% 설정
+   → 글로벌 스타일 (globals.css, themes.css)
+   → cn() 유틸리티 함수
+   → 커스텀 색상 (up-kr, down-kr, up-us, down-us)
 
 3. State + Services (병렬 가능) 🔄
-   → Zustand 스토어
-   → API 클라이언트
-   → WebSocket
+   → Zustand 스토어 (persist + devtools + immer)
+   → API 클라이언트 (Finnhub, Yahoo Finance)
+   → WebSocket (Yahoo WebSocket 우선, Finnhub 폴백)
+   → Extended Hours Support (Pre-market, Post-market)
 
 4. Test 1차 🧪 (구현 전 — Red)
    → 테스트 먼저 작성 (실패 상태가 정상)
    → Storybook 스토리 먼저 작성
+   → 각 컴포넌트/피처마다 테스트 파일 co-locate
 
-5. Components 🎨 (구현 — Green)
+5. Components & Features 🎨 (구현 — Green)
    → 테스트를 통과하도록 구현
-   → Atomic Design 순서: Atoms → Molecules → Organisms → Templates → Pages
+   → Components: Button, Input, Modal 등 기본 UI 빌딩 블록
+   → Features: DesktopStockBox, SearchModal, StockChart 등 완전한 기능 모듈
+   → 각 파일에 Barrel export (index.ts) 추가
 
 6. Test 2차 🧪 (검증 — Refactor)
    → 전체 테스트 통과 확인
-   → 커버리지 80% 이상 확인
+   → 커버리지 확인
+   → 리팩토링
 ```
 
 ---

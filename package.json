@@ -96,11 +96,10 @@
   "overrides": {
     "path-to-regexp": "^6.3.0",
     "esbuild": "^0.25.0",
-    "serialize-javascript": "^7.0.3",
-    "vite": "$vite"
+    "serialize-javascript": "^7.0.3"
   },
   "engines": {
-    "node": ">=18.0.0",
+    "node": "20.x",
     "npm": ">=9.0.0"
   },
   "lint-staged": {

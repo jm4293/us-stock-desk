@@ -154,9 +154,9 @@ export const StockChart = ({ data }: { data: any[] }) => {
 #### vite.config.ts
 
 ```ts
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
+import { defineConfig } from "vite";
 import { compression } from "vite-plugin-compression";
 
 export default defineConfig({
@@ -275,14 +275,12 @@ export default defineConfig({
 ```tsx
 // ❌ 나쁜 예 - 전체 라이브러리 임포트
 import _ from "lodash";
-import * as Icons from "react-icons/fa";
-
 // ✅ 좋은 예 - 필요한 것만 임포트
 import debounce from "lodash-es/debounce";
-import { FaSearch, FaCog } from "react-icons/fa";
-
 // ❌ 나쁜 예 - 기본 export 사용
 import moment from "moment";
+import * as Icons from "react-icons/fa";
+import { FaCog, FaSearch } from "react-icons/fa";
 
 // ✅ 좋은 예 - 네이티브 API 사용
 const date = new Date();

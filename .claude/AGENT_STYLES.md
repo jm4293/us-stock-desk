@@ -1,40 +1,40 @@
 # 🎨 Agent 2: Styles (스타일 전문가)
 
-> Tailwind CSS + CSS Modules + Glassmorphism 디자인 시스템 구축
+> 100% Tailwind CSS + Glassmorphism 디자인 시스템 구축
 
 ## 🎯 역할
 
 프로젝트의 스타일 시스템을 구축합니다.
 
-- Tailwind CSS 설정
-- CSS Modules 설정
+- Tailwind CSS 100% 설정
 - Glassmorphism 디자인 시스템
 - cn() 유틸리티 함수
-- 글로벌 스타일
+- 글로벌 스타일 (@layer utilities)
 - 다크/라이트 모드
+- ❌ CSS Modules 사용 안 함
 
 ## 📋 작업 범위
 
 ### ✅ 작업 대상
 
-- `tailwind.config.js` - Tailwind 설정
+- `tailwind.config.js` - Tailwind 설정 (커스텀 색상, 애니메이션)
 - `postcss.config.js` - PostCSS 설정
-- `src/styles/globals.css` - 글로벌 스타일
+- `src/styles/globals.css` - 글로벌 스타일 (@layer utilities)
 - `src/styles/themes.css` - 테마 변수
-- `src/utils/cn.ts` - 클래스 병합 유틸리티
-- CSS Modules 예제
+- `src/utils/cn/cn.ts` - 클래스 병합 유틸리티
 
 ### ❌ 작업 제외
 
+- CSS Modules (사용 안 함)
 - 컴포넌트 개발 (Components 에이전트)
 - 비즈니스 로직 (State, Services 에이전트)
 - 테스트 (Test 에이전트)
 
 ## 📚 필수 읽기 문서
 
-1. **CSS_ARCHITECTURE.md** - CSS 전략 (필독!)
+1. **docs/architecture/css.md** - CSS 전략 (필독! 100% Tailwind)
 2. **CLAUDE.md** - 프로젝트 이해
-3. **PROJECT_REQUIREMENTS.md** - 디자인 요구사항
+3. **docs/requirements.md** - 디자인 요구사항
 
 ## 🔧 작업 순서
 
@@ -360,8 +360,8 @@ export default {
 ### 3단계: cn() 유틸리티 함수
 
 ```typescript
-// src/utils/cn.ts
-import { clsx, type ClassValue } from "clsx";
+// src/utils/cn/cn.ts
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 /**
@@ -377,43 +377,9 @@ export function cn(...inputs: ClassValue[]) {
 }
 ```
 
-### 4단계: CSS Modules 예제
-
-```css
-/* src/components/StockBox/StockBox.module.css */
-.stockBox {
-  /* 복잡한 애니메이션이나 Tailwind으로 표현 어려운 스타일만 */
-  animation: var(--stock-box-animation, none);
-}
-
-.stockBox:hover .dragHandle {
-  opacity: 1;
-}
-
-.dragHandle {
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.chartContainer {
-  /* 차트 특수 스타일 */
-  position: relative;
-  isolation: isolate;
-}
-
-@keyframes priceFlash {
-  0%,
-  100% {
-    background-color: transparent;
-  }
-  50% {
-    background-color: rgba(59, 130, 246, 0.1);
-  }
-}
-
-.priceFlash {
-  animation: priceFlash 0.5s ease;
-}
+```typescript
+// src/utils/cn/index.ts
+export * from "./cn";
 ```
 
 ## ✅ 완료 체크리스트
@@ -437,11 +403,8 @@ export function cn(...inputs: ClassValue[]) {
 
 ### 유틸리티
 
-- [ ] `src/utils/cn.ts` 생성
-
-### 예제
-
-- [ ] CSS Modules 예제 작성
+- [ ] `src/utils/cn/cn.ts` 생성
+- [ ] `src/utils/cn/index.ts` 생성 (Barrel export)
 
 ### 검증
 
@@ -499,9 +462,10 @@ xl: 1280px
    - tailwind-merge가 자동으로 충돌 해결
    - 필요하면 CSS 특이성(specificity)으로 해결
 
-2. **Tailwind 우선 사용 (90%)**
-   - 복잡한 애니메이션만 CSS Modules
-   - 단순 스타일은 Tailwind로
+2. **Tailwind 100% 사용**
+   - ❌ CSS Modules 사용 안 함
+   - ✅ 모든 스타일은 Tailwind로 작성
+   - 복잡한 스타일은 `@layer utilities`로 정의
 
 3. **cn() 함수 활용**
 
@@ -516,8 +480,12 @@ xl: 1280px
 4. **다크 모드 고려**
    ```tsx
    // 항상 다크 모드 클래스 함께 정의
-   className = "bg-white dark:bg-gray-800";
+   className={cn("bg-white dark:bg-gray-900", "text-gray-900 dark:text-white")}
    ```
+
+5. **파일 명명 규칙**
+   - kebab-case 사용: `cn.ts`, `formatters.ts`
+   - 폴더 구조: `utils/cn/cn.ts` + `utils/cn/index.ts`
 
 ## 🤝 다음 에이전트에게 전달
 

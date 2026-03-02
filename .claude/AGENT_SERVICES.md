@@ -6,23 +6,24 @@
 
 외부 서비스와의 통신을 담당합니다.
 
-- Finnhub API 연동
-- WebSocket 실시간 데이터
-- REST API Polling (백업)
-- LocalStorage 유틸리티
+- Yahoo Finance WebSocket (실시간 가격 - 우선순위)
+- Finnhub API (백업 - REST Polling)
+- Yahoo Finance Chart API (차트 OHLCV 데이터)
+- Extended Hours 지원 (pre-market, post-market)
 - 환율 API
+- REST API Polling (백업)
 
 ## 📋 작업 범위
 
 ### ✅ 작업 대상
 
-- `src/services/api/` - REST API
-  - `finnhub.ts` - Finnhub API 클라이언트
-  - `exchange.ts` - 환율 API
-- `src/services/websocket/` - WebSocket
-  - `stockSocket.ts` - 실시간 주식 데이터
-- `src/services/storage/` - LocalStorage
-  - `storage.ts` - 암호화 스토리지 유틸
+- `src/services/api/` - REST API (kebab-case 파일명)
+  - `fetch-finnhub.ts` - Finnhub API 클라이언트 (백업)
+  - `fetch-yahoo-chart.ts` - Yahoo Chart API (OHLCV 데이터)
+  - `fetch-exchange-rate.ts` - 환율 API
+- `src/services/websocket/` - WebSocket (kebab-case 파일명)
+  - `yahoo-socket.ts` - Yahoo WebSocket (실시간 가격 - 우선순위)
+  - `stock-socket.ts` - Finnhub WebSocket (백업)
 - `api/` - Vercel Serverless Functions
   - `stock-proxy.ts` - 주식 데이터 프록시
   - `exchange-rate.ts` - 환율 프록시
@@ -35,16 +36,117 @@
 
 ## 📚 필수 읽기 문서
 
-1. **API_KEY_STRATEGY.md** - API 키 관리 전략 (필독!)
-2. **PROJECT_REQUIREMENTS.md** - API 요구사항
-3. **CLAUDE.md** - 프로젝트 이해
+1. **docs/architecture/tech-stack.md** - Extended Hours, Yahoo WebSocket (필독!)
+2. **docs/architecture/import-conventions.md** - Services는 개별 파일 직접 import
+3. **docs/requirements.md** - API 요구사항
+4. **CLAUDE.md** - 프로젝트 이해
 
 ## 🔧 작업 순서
 
-### 1단계: Finnhub API 클라이언트
+### 1단계: Yahoo WebSocket (실시간 가격 - 우선순위)
 
 ```typescript
-// src/services/api/finnhub.ts
+// src/services/websocket/yahoo-socket.ts
+/**
+ * Yahoo Finance WebSocket - 실시간 가격 (우선순위)
+ * 무료, API 키 불필요, Extended Hours 지원
+ */
+class YahooSocket {
+  private ws: WebSocket | null = null;
+  private subscribers: Map<string, Set<(data: any) => void>> = new Map();
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 3000;
+
+  connect() {
+    if (this.ws?.readyState === WebSocket.OPEN) return;
+
+    this.ws = new WebSocket("wss://streamer.finance.yahoo.com/");
+
+    this.ws.onopen = () => {
+      console.log("Yahoo WebSocket connected");
+      this.reconnectAttempts = 0;
+
+      // 구독 중인 심볼 재등록
+      this.subscribers.forEach((_, symbol) => {
+        this.subscribeSymbol(symbol);
+      });
+    };
+
+    this.ws.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        if (message.id && message.price) {
+          const callbacks = this.subscribers.get(message.id);
+          if (callbacks) {
+            callbacks.forEach((callback) => callback(message));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to parse Yahoo WebSocket message:", error);
+      }
+    };
+
+    this.ws.onclose = () => {
+      console.log("Yahoo WebSocket disconnected");
+      this.ws = null;
+
+      // 재연결 시도
+      if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        this.reconnectAttempts++;
+        setTimeout(() => this.connect(), this.reconnectDelay);
+      }
+    };
+  }
+
+  subscribe(symbol: string, callback: (data: any) => void) {
+    if (!this.subscribers.has(symbol)) {
+      this.subscribers.set(symbol, new Set());
+      this.subscribeSymbol(symbol);
+    }
+
+    this.subscribers.get(symbol)!.add(callback);
+
+    return () => {
+      const callbacks = this.subscribers.get(symbol);
+      if (callbacks) {
+        callbacks.delete(callback);
+        if (callbacks.size === 0) {
+          this.subscribers.delete(symbol);
+          this.unsubscribeSymbol(symbol);
+        }
+      }
+    };
+  }
+
+  private subscribeSymbol(symbol: string) {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ subscribe: [symbol] }));
+    }
+  }
+
+  private unsubscribeSymbol(symbol: string) {
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify({ unsubscribe: [symbol] }));
+    }
+  }
+
+  disconnect() {
+    if (this.ws) {
+      this.ws.close();
+      this.ws = null;
+    }
+    this.subscribers.clear();
+  }
+}
+
+export const yahooSocket = new YahooSocket();
+```
+
+### 2단계: Finnhub API 클라이언트 (백업)
+
+```typescript
+// src/services/api/fetch-finnhub.ts
 import type { FinnhubQuote, FinnhubCandle } from "@/types/api";
 import { API_ENDPOINTS } from "@/constants/api";
 
@@ -146,10 +248,64 @@ class FinnhubApi {
 export const finnhubApi = new FinnhubApi();
 ```
 
-### 2단계: 환율 API
+### 3단계: Yahoo Chart API (OHLCV 데이터)
 
 ```typescript
-// src/services/api/exchange.ts
+// src/services/api/fetch-yahoo-chart.ts
+/**
+ * Yahoo Finance Chart API - 무료 OHLCV 데이터
+ */
+interface YahooChartData {
+  timestamp: number[];
+  open: number[];
+  high: number[];
+  low: number[];
+  close: number[];
+  volume: number[];
+}
+
+class YahooChartApi {
+  private baseUrl = "https://query1.finance.yahoo.com/v8/finance/chart";
+
+  async getChartData(
+    symbol: string,
+    range: string = "1d",
+    interval: string = "1m"
+  ): Promise<YahooChartData> {
+    try {
+      const response = await fetch(
+        `${this.baseUrl}/${symbol}?range=${range}&interval=${interval}&includePrePost=true`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const result = data.chart.result[0];
+
+      return {
+        timestamp: result.timestamp,
+        open: result.indicators.quote[0].open,
+        high: result.indicators.quote[0].high,
+        low: result.indicators.quote[0].low,
+        close: result.indicators.quote[0].close,
+        volume: result.indicators.quote[0].volume,
+      };
+    } catch (error) {
+      console.error("Failed to fetch Yahoo chart data:", error);
+      throw error;
+    }
+  }
+}
+
+export const yahooChartApi = new YahooChartApi();
+```
+
+### 4단계: 환율 API
+
+```typescript
+// src/services/api/fetch-exchange-rate.ts
 interface ExchangeRate {
   rate: number;
   timestamp: number;
@@ -219,10 +375,10 @@ class ExchangeApi {
 export const exchangeApi = new ExchangeApi();
 ```
 
-### 3단계: WebSocket 클라이언트
+### 5단계: Finnhub WebSocket (백업)
 
 ```typescript
-// src/services/websocket/stockSocket.ts
+// src/services/websocket/stock-socket.ts
 import { WEBSOCKET_URL, MAX_RECONNECT_ATTEMPTS, RECONNECT_DELAY } from "@/constants/api";
 
 type MessageCallback = (data: any) => void;
@@ -376,9 +532,57 @@ class StockSocket {
 export const stockSocket = new StockSocket();
 ```
 
-### 4단계: LocalStorage 유틸리티
+### 6단계: Extended Hours 지원
 
 ```typescript
+// src/services/api/fetch-finnhub.ts에 추가
+
+/**
+ * Extended Hours 시장 상태 확인
+ */
+export interface MarketHours {
+  status: "open" | "closed" | "pre-market" | "post-market";
+  nextOpen: number;
+  nextClose: number;
+}
+
+export function getMarketStatus(): MarketHours {
+  const now = new Date();
+  const hours = now.getUTCHours();
+  const minutes = now.getUTCMinutes();
+  const dayOfWeek = now.getUTCDay();
+
+  // 주말
+  if (dayOfWeek === 0 || dayOfWeek === 6) {
+    return { status: "closed", nextOpen: 0, nextClose: 0 };
+  }
+
+  // UTC 기준 시간
+  // 정규장: 14:30 - 21:00 (EST 9:30 AM - 4:00 PM)
+  // Pre-market: 09:00 - 14:30 (EST 4:00 AM - 9:30 AM)
+  // Post-market: 21:00 - 01:00 (EST 4:00 PM - 8:00 PM)
+
+  const currentMinutes = hours * 60 + minutes;
+
+  if (currentMinutes >= 570 && currentMinutes < 870) {
+    // 09:00 - 14:30
+    return { status: "pre-market", nextOpen: 870, nextClose: 1260 };
+  } else if (currentMinutes >= 870 && currentMinutes < 1260) {
+    // 14:30 - 21:00
+    return { status: "open", nextOpen: 870, nextClose: 1260 };
+  } else if (currentMinutes >= 1260 || currentMinutes < 60) {
+    // 21:00 - 01:00
+    return { status: "post-market", nextOpen: 870, nextClose: 1260 };
+  } else {
+    return { status: "closed", nextOpen: 570, nextClose: 60 };
+  }
+}
+```
+
+### 7단계: LocalStorage 유틸리티 (Optional, Zustand persist 사용 권장)
+
+```typescript
+// Note: Zustand persist를 사용하므로 별도 storage 유틸은 선택사항
 // src/services/storage/storage.ts
 /**
  * LocalStorage 암호화 유틸리티
@@ -554,29 +758,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 ## ✅ 완료 체크리스트
 
-### API 레이어
+### API 레이어 (kebab-case 파일명)
 
-- [ ] `src/services/api/finnhub.ts` 생성
+- [ ] `src/services/api/fetch-finnhub.ts` 생성 (백업)
   - [ ] getQuote 메서드
   - [ ] getCandles 메서드
   - [ ] searchSymbol 메서드
-- [ ] `src/services/api/exchange.ts` 생성
+  - [ ] getMarketStatus 함수 (Extended Hours)
+- [ ] `src/services/api/fetch-yahoo-chart.ts` 생성
+  - [ ] getChartData 메서드 (OHLCV)
+  - [ ] includePrePost=true (Extended Hours)
+- [ ] `src/services/api/fetch-exchange-rate.ts` 생성
   - [ ] getRate 메서드
   - [ ] 캐시 로직
 
-### WebSocket
+### WebSocket (kebab-case 파일명)
 
-- [ ] `src/services/websocket/stockSocket.ts` 생성
+- [ ] `src/services/websocket/yahoo-socket.ts` 생성 (우선순위)
   - [ ] connect 메서드
   - [ ] subscribe 메서드
   - [ ] 재연결 로직
+  - [ ] Extended Hours 지원
+- [ ] `src/services/websocket/stock-socket.ts` 생성 (백업)
+  - [ ] Finnhub WebSocket 연결
+  - [ ] 재연결 로직
   - [ ] 에러 처리
-
-### Storage
-
-- [ ] `src/services/storage/storage.ts` 생성
-  - [ ] set/get 메서드
-  - [ ] Base64 인코딩/디코딩
 
 ### Serverless Functions
 

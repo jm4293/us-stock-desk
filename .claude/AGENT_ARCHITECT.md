@@ -53,29 +53,53 @@
 
 ```
 src/
-├── components/           # UI 컴포넌트 (Components 에이전트)
-│   ├── atoms/           # Button, Input, Icon 등
-│   ├── molecules/       # SearchInput, PriceDisplay 등
-│   ├── organisms/       # Header, StockBox 등
-│   ├── templates/       # MainLayout 등
-│   └── pages/           # MainPage, LandingPage 등
+├── components/          # 기본 UI 빌딩 블록 (Components 에이전트)
+│   ├── button/         # Button 컴포넌트
+│   ├── input/          # Input 컴포넌트
+│   ├── modal/          # Modal 컴포넌트
+│   ├── badge/          # Badge 컴포넌트
+│   ├── header/         # Header 컴포넌트
+│   └── index.ts        # Barrel export
+├── features/            # 완전한 기능 모듈 (Components 에이전트)
+│   ├── desktop-stock-box/   # 데스크톱 주식 박스
+│   ├── mobile-stock-box/    # 모바일 주식 박스
+│   ├── price-display/       # 가격 표시
+│   ├── stock-chart/         # 주식 차트
+│   ├── search-modal/        # 검색 모달
+│   ├── settings-modal/      # 설정 모달
+│   └── index.ts        # Barrel export
 ├── hooks/               # Custom Hooks (Components 에이전트)
+│   ├── use-stock-data.ts
+│   ├── use-chart-data.ts
+│   ├── use-is-mobile.ts
+│   └── index.ts        # Barrel export
 ├── stores/              # Zustand 스토어 (State 에이전트)
+│   ├── stock-box-store.ts
+│   ├── settings-store.ts
+│   ├── ui-store.ts
+│   └── index.ts        # Barrel export
 ├── services/            # 외부 서비스 (Services 에이전트)
 │   ├── api/
-│   ├── websocket/
-│   └── storage/
+│   │   ├── fetch-finnhub.ts
+│   │   └── fetch-yahoo-chart.ts
+│   └── websocket/
+│       ├── stock-socket.ts
+│       └── yahoo-socket.ts
 ├── utils/               # 유틸리티 함수
-│   └── cn.ts            # (Styles 에이전트가 작성)
+│   └── cn/
+│       └── cn.ts       # (Styles 에이전트가 작성)
 ├── types/               # ✅ 여기서 작업
 │   ├── stock.ts
+│   ├── chart.ts
 │   ├── api.ts
-│   ├── store.ts
-│   └── common.ts
+│   └── store.ts
 ├── constants/           # ✅ 여기서 작업
 │   ├── api.ts
-│   └── app.ts
+│   ├── chart.ts
+│   └── storage.ts
 ├── styles/              # 글로벌 스타일 (Styles 에이전트)
+│   ├── globals.css
+│   └── themes.css
 ├── App.tsx              # ✅ 여기서 작업 (기본 구조만)
 └── main.tsx             # ✅ 여기서 작업
 ```
@@ -137,6 +161,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "@/components": path.resolve(__dirname, "./src/components"),
+      "@/features": path.resolve(__dirname, "./src/features"),
       "@/hooks": path.resolve(__dirname, "./src/hooks"),
       "@/stores": path.resolve(__dirname, "./src/stores"),
       "@/services": path.resolve(__dirname, "./src/services"),
@@ -163,28 +188,37 @@ export default defineConfig({
 });
 ```
 
-#### 1.3 ESLint 설정
+#### 1.3 ESLint 설정 (Flat Config)
 
 ```javascript
-// .eslintrc.cjs
-module.exports = {
-  root: true,
-  env: { browser: true, es2020: true },
-  extends: [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:jsx-a11y/recommended",
-  ],
-  ignorePatterns: ["dist", ".eslintrc.cjs"],
-  parser: "@typescript-eslint/parser",
-  plugins: ["react-refresh", "jsx-a11y"],
-  rules: {
-    "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
-    "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/no-unused-vars": "error",
-  },
-};
+// eslint.config.js
+import js from "@eslint/js";
+import globals from "globals";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import tseslint from "typescript-eslint";
+
+export default tseslint.config(
+  { ignores: ["dist"] },
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+    plugins: {
+      "react-hooks": reactHooks,
+      "react-refresh": reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-unused-vars": "error",
+    },
+  }
+);
 ```
 
 #### 1.4 Prettier 설정
@@ -251,7 +285,7 @@ export interface StockChartData {
 }
 
 export type ChartTimeRange = "1D" | "1W" | "1M" | "3M" | "6M" | "1Y";
-export type MarketStatus = "open" | "closed" | "pre" | "post";
+export type MarketStatus = "open" | "closed" | "pre-market" | "post-market";
 ```
 
 #### 2.2 API Types
@@ -461,12 +495,12 @@ export default App;
 
 ### 폴더 구조
 
-- [ ] `src/components/` 폴더 생성 (atoms, molecules, organisms, templates, pages)
+- [ ] `src/components/` 폴더 생성 (기본 UI 빌딩 블록)
+- [ ] `src/features/` 폴더 생성 (완전한 기능 모듈)
 - [ ] `src/hooks/` 폴더 생성
 - [ ] `src/stores/` 폴더 생성
 - [ ] `src/services/api/` 폴더 생성
 - [ ] `src/services/websocket/` 폴더 생성
-- [ ] `src/services/storage/` 폴더 생성
 - [ ] `src/utils/` 폴더 생성
 - [ ] `src/types/` 폴더 생성
 - [ ] `src/constants/` 폴더 생성

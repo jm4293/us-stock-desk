@@ -155,8 +155,8 @@ npm install react-hook-form zod @hookform/resolvers
 
 ```tsx
 // src/components/organisms/SearchModal/SearchModal.tsx
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const searchSchema = z.object({
@@ -192,10 +192,10 @@ export const SearchModal = () => {
 
 ```tsx
 // src/components/organisms/SettingsModal/SettingsModal.tsx
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useSettingsStore } from "@/store/useSettingsStore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const settingsSchema = z.object({
   colorScheme: z.enum(["kr", "us"]),
