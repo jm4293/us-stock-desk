@@ -47,6 +47,6 @@ export interface StockChartData {
   volume: number;
 }
 
-export type ChartTimeRange = "1m" | "5m" | "10m" | "1h" | "1D";
+export type ChartTimeRange = "1m" | "10m" | "1h" | "1D";
 export type MarketStatus = "open" | "closed" | "pre" | "post";
 export type IndexSymbol = "^DJI" | "^GSPC" | "^IXIC";

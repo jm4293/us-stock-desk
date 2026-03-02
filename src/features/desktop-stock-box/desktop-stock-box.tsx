@@ -21,7 +21,7 @@ const StockChart = lazy(() =>
 const HEIGHT_WITH_CHART = 300;
 const HEIGHT_WITHOUT_CHART = 200;
 
-const TIME_RANGES: ChartTimeRange[] = ["1m", "5m", "10m", "1h", "1D"];
+const TIME_RANGES: ChartTimeRange[] = ["1m", "10m", "1h", "1D"];
 
 interface StockBoxProps {
   id: string;

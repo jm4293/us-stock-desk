@@ -69,7 +69,6 @@
     "regularClose": "Regular Close",
     "range": {
       "1m": "1m",
-      "5m": "5m",
       "10m": "10m",
       "1h": "1h",
       "1D": "1D"

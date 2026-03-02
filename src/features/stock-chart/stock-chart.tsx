@@ -13,7 +13,6 @@ import {
 // 타임프레임별 캔들 간격 (초)
 const CANDLE_INTERVAL_SEC: Record<ChartTimeRange, number> = {
   "1m": 60,
-  "5m": 300,
   "10m": 600,
   "1h": 3600,
   "1D": 86400,
@@ -39,6 +38,10 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
     high: number;
     low: number;
   } | null>(null);
+
+  // timeRange 변경 추적용 ref
+  const prevTimeRangeRef = useRef<ChartTimeRange>(timeRange);
+  const isChartDataReadyRef = useRef(false);
 
   const colorScheme = useSettingsStore(selectColorScheme);
   const theme = useSettingsStore(selectTheme);
@@ -169,6 +172,16 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
     });
   }, [upColor, downColor, chartTextColor, gridColor, borderColor, crosshairColor]);
 
+  // timeRange 변경 감지
+  useEffect(() => {
+    if (prevTimeRangeRef.current !== timeRange) {
+      // timeRange 변경 시 차트 데이터가 아직 준비되지 않음
+      isChartDataReadyRef.current = false;
+      liveCandleRef.current = null;
+      prevTimeRangeRef.current = timeRange;
+    }
+  }, [timeRange]);
+
   // 데이터 변경 시 시리즈 업데이트 (API 폴링으로 새 데이터 수신)
   useEffect(() => {
     if (!seriesRef.current || data.length === 0) return;
@@ -185,11 +198,22 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
     chartRef.current?.timeScale().fitContent();
     // API 데이터가 갱신되면 liveCandleRef 리셋 → 이후 livePrice effect에서 재초기화
     liveCandleRef.current = null;
+    // 차트 데이터 준비 완료
+    isChartDataReadyRef.current = true;
   }, [data]);
 
   // 라이브 실시간 가격 업데이트
   useEffect(() => {
-    if (!seriesRef.current || !data || data.length === 0 || !livePrice) return;
+    // 차트 데이터가 준비되지 않았으면 라이브 업데이트 중단
+    if (
+      !seriesRef.current ||
+      !data ||
+      data.length === 0 ||
+      !livePrice ||
+      !isChartDataReadyRef.current
+    ) {
+      return;
+    }
 
     const intervalSec = CANDLE_INTERVAL_SEC[timeRange];
     const lastCandle = data[data.length - 1];

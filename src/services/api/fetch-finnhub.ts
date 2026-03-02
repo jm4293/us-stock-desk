@@ -11,7 +11,6 @@ import type {
 
 const CHART_RESOLUTION: Record<ChartTimeRange, string> = {
   "1m": "1",
-  "5m": "5",
   "10m": "15",
   "1h": "60",
   "1D": "D",
@@ -19,7 +18,6 @@ const CHART_RESOLUTION: Record<ChartTimeRange, string> = {
 
 const CHART_DAYS: Record<ChartTimeRange, number> = {
   "1m": 1,
-  "5m": 1,
   "10m": 5,
   "1h": 5,
   "1D": 30,

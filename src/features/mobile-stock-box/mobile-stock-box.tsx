@@ -26,7 +26,7 @@ const StockChart = lazy(() =>
   }))
 );
 
-const TIME_RANGES: ChartTimeRange[] = ["1m", "5m", "10m", "1h", "1D"];
+const TIME_RANGES: ChartTimeRange[] = ["1m", "10m", "1h", "1D"];
 
 interface MobileStockBoxProps {
   id: string;
