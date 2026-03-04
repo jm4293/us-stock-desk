@@ -1,8 +1,8 @@
-# 📈 US Stock Desk
+# 📈 Stock Desk
 
 <div align="center">
 
-![US Stock Desk Banner](https://via.placeholder.com/800x200/1a1a1a/ffffff?text=Stock+Desk)
+![Stock Desk Banner](https://via.placeholder.com/800x200/1a1a1a/ffffff?text=Stock+Desk)
 
 **미국주식을 한눈에, 나만의 실시간 대시보드**
 
@@ -19,7 +19,7 @@
 
 ## 🎯 프로젝트 소개
 
-**US Stock Desk**는 미국주식 투자자를 위한 실시간 모니터링 대시보드입니다.
+**Stock Desk**는 미국주식 투자자를 위한 실시간 모니터링 대시보드입니다.
 
 브라우저만 열면 바로 확인할 수 있으며, 원하는 종목을 자유롭게 배치하고 실시간으로 업데이트되는 시장 정보를 확인할 수 있습니다.
 
@@ -107,7 +107,7 @@
 
 ### 1단계: 바로 시작하기
 
-**[👉 US Stock Desk 열기](https://stock-desk.vercel.app)**
+**[👉 Stock Desk 열기](https://stock-desk.vercel.app)**
 
 클릭하면 바로 사용할 수 있습니다! 회원가입도, 설치도 필요 없습니다.
 
@@ -243,7 +243,7 @@ MIT 라이선스 - 자유롭게 사용하실 수 있습니다.
 
 ## 📜 이용 약관
 
-US Stock Desk는 MIT 라이선스로 제공됩니다.
+Stock Desk는 MIT 라이선스로 제공됩니다.
 자유롭게 사용하실 수 있으며, 투자 판단의 참고 자료로만 활용해주세요.
 
 > ⚠️ **투자 유의사항**: 이 서비스는 정보 제공 목적이며, 투자 권유가 아닙니다.

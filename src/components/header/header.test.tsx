@@ -11,7 +11,7 @@ describe("Header", () => {
 
   it("앱 제목을 렌더링한다", () => {
     render(<Header {...defaultProps} />);
-    expect(screen.getByText("US Stock Desk")).toBeInTheDocument();
+    expect(screen.getByText("Stock Desk")).toBeInTheDocument();
   });
 
   it("종목 추가 버튼을 렌더링한다", () => {

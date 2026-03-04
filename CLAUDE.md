@@ -1,4 +1,4 @@
-# US Stock Desk - Claude AI 개발 가이드
+# Stock Desk - Claude AI 개발 가이드
 
 > 이 문서는 Claude AI가 이 프로젝트를 이해하고 개발할 수 있도록 작성된 가이드입니다.
 
@@ -177,7 +177,7 @@ stock-desk/
 
 ```ts
 // src/utils/cn.ts
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {

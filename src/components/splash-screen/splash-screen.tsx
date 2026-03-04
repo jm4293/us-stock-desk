@@ -127,7 +127,7 @@ export const SplashScreen = () => {
               isDark ? "text-white" : "text-gray-900"
             )}
           >
-            US Stock Desk
+            Stock Desk
           </h1>
           <p
             ref={subtitleRef}

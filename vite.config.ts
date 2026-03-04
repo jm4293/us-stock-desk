@@ -205,7 +205,7 @@ export default defineConfig(({ mode }) => {
       VitePWA({
         registerType: "autoUpdate",
         manifest: {
-          name: "US Stock Desk",
+          name: "Stock Desk",
           short_name: "StockDesk",
           description: "미국주식 실시간 모니터링 대시보드",
           theme_color: "#0f172a",
