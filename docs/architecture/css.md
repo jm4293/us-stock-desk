@@ -1,4 +1,4 @@
-# US Stock Desk - CSS 전략 및 아키텍처 가이드
+# Stock Desk - CSS 전략 및 아키텍처 가이드
 
 ## 🎨 CSS 전략: Tailwind CSS + CSS Modules
 
@@ -88,7 +88,7 @@ export default {
 ### src/utils/cn.ts
 
 ```ts
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 /**
@@ -303,8 +303,8 @@ export const StockBox = ({ symbol }) => {
 
 ```tsx
 // hooks/useStockBox.ts
-import { useStockData } from "./useStockData";
 import { useDragAndResize } from "./useDragAndResize";
+import { useStockData } from "./useStockData";
 import { useStockWebSocket } from "./useStockWebSocket";
 
 export const useStockBox = (symbol: string) => {

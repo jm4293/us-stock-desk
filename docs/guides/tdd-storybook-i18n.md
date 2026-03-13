@@ -1,8 +1,8 @@
-# US Stock Desk - TDD, Storybook, Atomic Design 가이드
+# Stock Desk - TDD, Storybook, Atomic Design 가이드
 
 ## 📋 개요
 
-이 문서는 US Stock Desk 프로젝트의 개발 방법론, 컴포넌트 개발 전략, 그리고 다국어 지원에 대한 가이드입니다.
+이 문서는 Stock Desk 프로젝트의 개발 방법론, 컴포넌트 개발 전략, 그리고 다국어 지원에 대한 가이드입니다.
 
 ---
 
@@ -35,9 +35,9 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom @testing-
 ### vitest.config.ts
 
 ```ts
-import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -72,9 +72,9 @@ afterEach(() => {
 
 ```tsx
 // src/components/atoms/Button/Button.test.tsx
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 import { Button } from "./Button";
 
 describe("Button", () => {
@@ -102,8 +102,8 @@ describe("Button", () => {
 
 ```tsx
 // src/hooks/useStockData.test.ts
-import { describe, it, expect, vi } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import { useStockData } from "./useStockData";
 
 describe("useStockData", () => {
@@ -400,9 +400,9 @@ export const PriceDisplay = ({ price, change, changePercent, colorScheme }: Pric
 ```tsx
 // src/components/organisms/StockBox/StockBox.tsx
 import { Rnd } from "react-rnd";
-import { useStockBox } from "@/hooks/useStockBox";
-import { PriceDisplay } from "@/components/molecules/PriceDisplay";
 import { Button } from "@/components/atoms/Button";
+import { PriceDisplay } from "@/components/molecules/PriceDisplay";
+import { useStockBox } from "@/hooks/useStockBox";
 import { cn } from "@/utils/cn";
 
 interface StockBoxProps {
@@ -454,8 +454,8 @@ export const StockBox = ({ symbol, focused, onFocus, onDelete }: StockBoxProps) 
 
 ```tsx
 // src/components/templates/MainLayout/MainLayout.tsx
-import { Header } from "@/components/organisms/Header";
 import { ReactNode } from "react";
+import { Header } from "@/components/organisms/Header";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -477,8 +477,8 @@ export const MainLayout = ({ children }: MainLayoutProps) => {
 
 ```tsx
 // src/components/pages/MainPage/MainPage.tsx
-import { MainLayout } from "@/components/templates/MainLayout";
 import { StockBox } from "@/components/organisms/StockBox";
+import { MainLayout } from "@/components/templates/MainLayout";
 import { useStocks } from "@/hooks/useStocks";
 
 export const MainPage = () => {
@@ -516,10 +516,10 @@ npm install react-i18next i18next i18next-browser-languagedetector
 
 ```ts
 import i18n from "i18next";
-import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-import ko from "./locales/ko.json";
+import { initReactI18next } from "react-i18next";
 import en from "./locales/en.json";
+import ko from "./locales/ko.json";
 
 i18n
   .use(LanguageDetector)
@@ -659,8 +659,10 @@ export const Header = () => {
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
+import "./i18n/config";
 import "./styles/globals.css";
-import "./i18n/config"; // i18n 설정 import
+
+// i18n 설정 import
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

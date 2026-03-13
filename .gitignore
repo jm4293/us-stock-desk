@@ -59,7 +59,3 @@ Thumbs.DB
 # yarn.lock
 # pnpm-lock.yaml
 
-# AI Assistants
-.agent
-.agents
-.claude

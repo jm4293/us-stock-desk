@@ -1,8 +1,8 @@
-# US Stock Desk - 고급 기술 스택 가이드
+# Stock Desk - 고급 기술 스택 가이드
 
 ## 📋 개요
 
-이 문서는 US Stock Desk 프로젝트의 고급 기술 스택 및 패턴에 대한 가이드입니다.
+이 문서는 Stock Desk 프로젝트의 고급 기술 스택 및 패턴에 대한 가이드입니다.
 
 ---
 
@@ -155,8 +155,8 @@ npm install react-hook-form zod @hookform/resolvers
 
 ```tsx
 // src/components/organisms/SearchModal/SearchModal.tsx
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const searchSchema = z.object({
@@ -192,10 +192,10 @@ export const SearchModal = () => {
 
 ```tsx
 // src/components/organisms/SettingsModal/SettingsModal.tsx
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { useSettingsStore } from "@/store/useSettingsStore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const settingsSchema = z.object({
   colorScheme: z.enum(["kr", "us"]),
@@ -326,7 +326,7 @@ export const LandingPage = () => {
 
   return (
     <div>
-      <h1 ref={titleRef}>US Stock Desk</h1>
+      <h1 ref={titleRef}>Stock Desk</h1>
       <div className="h-2 w-full rounded-full bg-gray-700">
         <div ref={progressRef} className="h-2 w-0 rounded-full bg-blue-500" />
       </div>
