@@ -5,7 +5,7 @@ import { selectTheme, useSettingsStore } from "@/stores";
  * 테마 적용 훅
  * - 테마 변경 시 document.documentElement에 클래스 적용
  */
-export const useApplyTheme = () => {
+export const useApplyTheme = (): "light" | "dark" => {
   const theme = useSettingsStore(selectTheme);
 
   useEffect(() => {

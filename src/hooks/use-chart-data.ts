@@ -40,7 +40,12 @@ function mapYahooToChartData(result: YahooChartResult): StockChartData[] {
     .filter((d) => d.open > 0 && d.close > 0);
 }
 
-export function useChartData(symbol: string, range: ChartTimeRange) {
+interface UseChartDataReturn {
+  state: AsyncState<StockChartData[]>;
+  refetch: () => Promise<void>;
+}
+
+export function useChartData(symbol: string, range: ChartTimeRange): UseChartDataReturn {
   const [state, setState] = useState<AsyncState<StockChartData[]>>({ status: "idle" });
   const hasLoadedRef = useRef(false);
 

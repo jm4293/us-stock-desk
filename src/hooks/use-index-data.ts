@@ -1,25 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { API_ENDPOINTS } from "@/constants";
-import { useMarketStatus } from "@/hooks";
-import { yahooSocket, type YahooTradeData } from "@/services";
+import { fetchIndexQuote, type MarketIndex, yahooSocket, type YahooTradeData } from "@/services";
 import type { IndexSymbol } from "@/types";
-
-interface MarketIndex {
-  symbol: string;
-  shortName: string;
-  price: number;
-  previousClose: number;
-  change: number;
-  changePercent: number;
-  dayHigh: number;
-  dayLow: number;
-}
+import { useMarketStatus } from "@/hooks/use-market-status";
 
 const INDEX_POLLING_INTERVAL = 60_000; // 60초
 
-export function useIndexData(symbol: IndexSymbol) {
+interface UseIndexDataReturn {
+  data: MarketIndex | null;
+  loading: boolean;
+  error: string | null;
+}
+
+export function useIndexData(symbol: IndexSymbol): UseIndexDataReturn {
   const [data, setData] = useState<MarketIndex | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const dataRef = useRef<MarketIndex | null>(null);
   const hasLoadedOnce = useRef(false);
   const { status: marketStatus } = useMarketStatus();
@@ -30,17 +25,14 @@ export function useIndexData(symbol: IndexSymbol) {
     }
 
     try {
-      const response = await fetch(
-        `${API_ENDPOINTS.PROXY_BASE}/index-quote?symbol=${encodeURIComponent(symbol)}`
-      );
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const json = (await response.json()) as MarketIndex;
+      const json = await fetchIndexQuote(symbol);
       hasLoadedOnce.current = true;
       dataRef.current = json;
       setData(json);
+      setError(null);
       setLoading(false);
-    } catch {
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch index data");
       if (!hasLoadedOnce.current) {
         setLoading(false);
       }
@@ -103,5 +95,5 @@ export function useIndexData(symbol: IndexSymbol) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, marketStatus]);
 
-  return { data, loading };
+  return { data, loading, error };
 }

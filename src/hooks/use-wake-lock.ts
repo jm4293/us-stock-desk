@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export function useWakeLock() {
+export function useWakeLock(): void {
   const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   const acquire = async () => {

@@ -3,6 +3,7 @@ import type { Position, Size } from "@/types";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { createEncodedStorage } from "@/utils/storage";
 
 interface StockBox {
   id: string;
@@ -130,23 +131,7 @@ export const useStockBoxStore = create<StockStore>()(
           stocks: state.stocks,
           maxZIndex: state.maxZIndex,
         }),
-        storage: {
-          getItem: (name) => {
-            const str = localStorage.getItem(name);
-            if (!str) return null;
-            try {
-              const decoded = atob(str);
-              return JSON.parse(decoded);
-            } catch {
-              return null;
-            }
-          },
-          setItem: (name, value) => {
-            const encoded = btoa(JSON.stringify(value));
-            localStorage.setItem(name, encoded);
-          },
-          removeItem: (name) => localStorage.removeItem(name),
-        },
+        storage: createEncodedStorage(),
       }
     ),
     {

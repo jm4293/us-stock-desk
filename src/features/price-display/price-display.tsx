@@ -166,13 +166,13 @@ export const PriceDisplay: React.FC<PriceDisplayProps> = ({
           className={cn("mt-0.5 flex gap-3 text-xs", isDark ? "text-gray-400" : "text-slate-500")}
         >
           <span>
-            <span className={`mr-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <span className={cn("mr-1", isDark ? "text-gray-400" : "text-slate-500")}>
               {t("stockBox.high")}
             </span>
             <span className={upClass}>{displayHigh}</span>
           </span>
           <span>
-            <span className={`mr-1 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <span className={cn("mr-1", isDark ? "text-gray-400" : "text-slate-500")}>
               {t("stockBox.low")}
             </span>
             <span className={downClass}>{displayLow}</span>

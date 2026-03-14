@@ -1,6 +1,6 @@
 import React from "react";
-import type { ExchangeRateData } from "@/hooks";
 import { useFlashBorder } from "@/hooks";
+import type { ExchangeRateData } from "@/services";
 import { selectColorScheme, selectTheme, useSettingsStore } from "@/stores";
 import { cn, formatChangeKRW, formatKRW, formatPercent } from "@/utils";
 import { useTranslation } from "react-i18next";

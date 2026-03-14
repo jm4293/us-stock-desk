@@ -2,6 +2,7 @@ import { STORAGE_KEYS } from "@/constants";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
+import { createEncodedStorage } from "@/utils/storage";
 
 interface SettingsState {
   theme: "light" | "dark";
@@ -115,23 +116,7 @@ export const useSettingsStore = create<SettingsStore>()(
           showIndexNASDAQ: state.showIndexNASDAQ,
           showExchangeRate: state.showExchangeRate,
         }),
-        storage: {
-          getItem: (name) => {
-            const str = localStorage.getItem(name);
-            if (!str) return null;
-            try {
-              const decoded = atob(str);
-              return JSON.parse(decoded);
-            } catch {
-              return null;
-            }
-          },
-          setItem: (name, value) => {
-            const encoded = btoa(JSON.stringify(value));
-            localStorage.setItem(name, encoded);
-          },
-          removeItem: (name) => localStorage.removeItem(name),
-        },
+        storage: createEncodedStorage(),
       }
     ),
     {

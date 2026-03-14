@@ -1,8 +1,9 @@
+import { STORAGE_KEYS } from "@/constants";
 import type { IndexSymbol, Position, Size } from "@/types";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { STORAGE_KEYS } from "@/constants/";
+import { createEncodedStorage } from "@/utils/storage";
 
 interface IndexBoxData {
   id: IndexSymbol;
@@ -129,21 +130,7 @@ export const useStockIndexStore = create<IndexStore>()(
           exchangeRateBox: state.exchangeRateBox,
           maxZIndex: state.maxZIndex,
         }),
-        storage: {
-          getItem: (name) => {
-            const str = localStorage.getItem(name);
-            if (!str) return null;
-            try {
-              return JSON.parse(atob(str));
-            } catch {
-              return null;
-            }
-          },
-          setItem: (name, value) => {
-            localStorage.setItem(name, btoa(JSON.stringify(value)));
-          },
-          removeItem: (name) => localStorage.removeItem(name),
-        },
+        storage: createEncodedStorage(),
       }
     ),
     { name: "IndexStore", enabled: import.meta.env.DEV }

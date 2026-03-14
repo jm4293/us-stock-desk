@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
-export function useFullscreen() {
+interface UseFullscreenReturn {
+  isFullscreen: boolean;
+  toggleFullscreen: () => Promise<void>;
+}
+
+export function useFullscreen(): UseFullscreenReturn {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {

@@ -1,10 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { POLLING_INTERVAL } from "@/constants";
-import { useMarketStatus } from "@/hooks";
 import { finnhubApi, getExtendedHours, yahooSocket, type YahooTradeData } from "@/services";
 import type { AsyncState, StockPrice } from "@/types";
+import { useMarketStatus } from "@/hooks/use-market-status";
 
-export function useStockData(symbol: string) {
+interface UseStockDataReturn {
+  state: AsyncState<StockPrice>;
+  refetch: () => Promise<void>;
+  isWebSocket: boolean;
+}
+
+export function useStockData(symbol: string): UseStockDataReturn {
   const [state, setState] = useState<AsyncState<StockPrice>>({ status: "idle" });
 
   // 현재 데이터를 ref로도 보관 → WebSocket 트레이드 수신 시 기존 데이터 병합에 사용

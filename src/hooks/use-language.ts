@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import i18n from "@/i18n";
 import { selectLanguage, useSettingsStore } from "@/stores";
 
-export const useLanguage = () => {
+export const useLanguage = (): "ko" | "en" => {
   const language = useSettingsStore(selectLanguage);
 
   useEffect(() => {
