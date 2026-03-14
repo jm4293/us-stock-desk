@@ -7,18 +7,29 @@
 
 ## [Unreleased]
 
-### Planned
+---
 
-- Architect Agent 실행: 프로젝트 기본 구조 생성
-- Styles Agent 실행: Tailwind CSS 및 디자인 시스템 구축
-- State Agent 실행: Zustand 스토어 구현
-- Services Agent 실행: API 및 WebSocket 레이어 구현
-- Components Agent 실행: UI 컴포넌트 개발 (Atomic Design)
-- Test Agent 실행: 테스트 및 Storybook 스토리 작성
+## [1.0.0] - 2026-03-14
+
+### Added
+
+- 📊 **실시간 주식 모니터링**: WebSocket + Polling 이중화 구조
+- 📈 **전문가급 차트**: Lightweight Charts 연동 (1일~1년 기간)
+- 🖱️ **자유로운 레이아웃**: 드래그 앤 드롭 + 크기 조절
+- 💾 **자동 저장**: LocalStorage 기반 영속성
+- 🌓 **다크/라이트 모드**: 테마 전환
+- 🌏 **다국어 지원**: 한국어/English (i18next)
+- 🎨 **색상 설정**: 한국식/미국식 색상 전환
+- 💱 **환율 정보**: USD, JPY, EUR 실시간 환율
+- 🕐 **시장 시간**: 미국 시장 + 한국 시간 동시 표시
+- ✅ **GitHub Actions CI**: 린트/타입체크/테스트/빌드 자동화
+- ✅ **180개 테스트**: Vitest + React Testing Library
+- 📖 **Storybook**: 컴포넌트 문서화
+- 🔒 **코드 품질 자동화**: Husky + lint-staged + Commitlint
 
 ---
 
-## [2026-02-15] - 프로젝트 설계 및 문서화
+## [0.1.0] - 2026-02-15 - 프로젝트 설계 및 문서화
 
 ### Added
 

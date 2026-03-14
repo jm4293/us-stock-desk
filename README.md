@@ -2,14 +2,15 @@
 
 <div align="center">
 
-![Stock Desk Banner](https://via.placeholder.com/800x200/1a1a1a/ffffff?text=Stock+Desk)
-
 **미국주식을 한눈에, 나만의 실시간 대시보드**
 
 브라우저 시작 페이지를 주식 모니터링 공간으로 바꿔보세요.
 데스크톱 위젯처럼 자유롭게 배치하고, 실시간으로 업데이트되는 주식 정보를 확인하세요.
 
 🆓 **완전 무료** · 🔐 **회원가입 불필요** · 💾 **데이터는 내 브라우저에만**
+
+[![CI](https://github.com/jm4293/us-stock-desk/actions/workflows/ci.yml/badge.svg)](https://github.com/jm4293/us-stock-desk/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [🚀 바로 시작하기](https://stock-desk.vercel.app) · [💡 사용법 보기](#-사용-가이드) · [❓ 자주 묻는 질문](#-자주-묻는-질문)
 
@@ -28,10 +29,6 @@
 - 🔄 **여러 앱을 오가는 번거로움**: 증권 앱, 환율 앱, 시간 확인 등을 한 곳에서 보고 싶었습니다
 - 🖥️ **PC 환경 최적화**: 모바일 중심 앱들은 PC에서 사용하기 불편합니다
 - 🎨 **자유로운 레이아웃**: 중요한 종목은 크게, 참고용은 작게 배치할 수 있으면 좋겠다고 생각했습니다
-
-### 특징
-
-간편한 사용 + 자유로운 배치 + 실시간 업데이트
 
 ---
 
@@ -88,18 +85,15 @@
 </tr>
 </table>
 
-### 💾 영속성 & 편의성
+### 💾 기능 & 편의성
 
 - ✅ **자동 저장**: 브라우저를 껐다 켜도 그대로 유지
 - ✅ **다크/라이트 모드**: 눈이 편한 테마 선택
 - ✅ **다국어 지원**: 한국어, English
 - ✅ **색상 설정**: 한국식(빨강↑/파랑↓) ↔ 미국식(초록↑/빨강↓)
-
-### 💱 부가 정보
-
-- 📈 **환율 정보**: USD, JPY, EUR 실시간 환율
-- 🕐 **시장 시간**: 미국 시장 시간 + 한국 시간 동시 표시
-- 🔔 **개장/휴장 상태**: 현재 거래 가능 여부 확인
+- ✅ **환율 정보**: USD, JPY, EUR 실시간 환율
+- ✅ **시장 시간**: 미국 시장 시간 + 한국 시간 동시 표시
+- ✅ **개장/휴장 상태**: 현재 거래 가능 여부 확인
 
 ---
 
@@ -123,38 +117,11 @@
 - 📏 **크기 조절**: 박스 모서리를 드래그
 - 🗑️ **삭제**: 박스 우측 상단의 X 버튼
 
-완료! 이제 브라우저를 다시 열어도 설정이 그대로 유지됩니다.
-
-: TypeScript 타입 체크 + 테스트 실행
-
-#### 커밋 메시지 형식
-
-```bash
-# 형식: <type>: <subject>
-feat: 새로운 기능 추가
-fix: 버그 수정
-docs: 문서 수정
-style: 코드 포맷팅
-refactor: 코드 리팩토링
-test: 테스트 추가/수정
-chore: 빌드, 패키지 관리
-```
-
-자세한 내용은 [.husky/README.md](.husky/README.md)를 참조하세요.
-
-</details>
-
 ---
 
 ## 📖 사용 가이드
 
-### 종목 추가하기
-
-1. **"+ 종목 추가"** 버튼 클릭
-2. 종목 심볼 검색 (예: AAPL, TSLA, MSFT)
-3. 선택하면 화면에 박스 생성!
-
-### 박스 조작하기
+### 📦 박스 다루기
 
 | 동작              | 방법                   |
 | ----------------- | ---------------------- |
@@ -163,60 +130,13 @@ chore: 빌드, 패키지 관리
 | 🔝 **최상단으로** | 박스 클릭              |
 | 🗑️ **삭제**       | 박스 내 삭제 버튼 클릭 |
 
-### 차트 조작하기
+### 📊 차트 보는 법
 
 | 동작               | 방법                      |
 | ------------------ | ------------------------- |
 | ⬅️➡️ **좌우 이동** | 차트를 마우스로 드래그    |
 | 🔍 **줌 인/아웃**  | 마우스 휠 스크롤          |
 | 📅 **기간 선택**   | 1일, 1주, 1개월, 1년 버튼 |
-
----
-
-## 🤝 기여하기
-
-버그를 발견하셨거나 새로운 기능을 제안하고 싶으시다면 [Issues](https://github.com/jm4293/stock-desk/issues)에 남겨주세요.
-
----
-
-## 📄 라이선스
-
-MIT 라이선스 - 자유롭게 사용하실 수 있습니다.
-
----
-
-<div align="center">
-
-**GitHub**: [@jm4293](https://github.com/jm4293)
-
-<details>
-<summary><b>개발자를 위한 기술 문서</b></summary>
-
-- [PROJECT_REQUIREMENTS.md](./PROJECT_REQUIREMENTS.md) - 전체 요구사항
-- [CSS_ARCHITECTURE.md](./CSS_ARCHITECTURE.md) - CSS 전략
-- [TDD_STORYBOOK_I18N.md](./TDD_STORYBOOK_I18N.md) - 개발 방법론
-- [ADVANCED_TECH_STACK.md](./ADVANCED_TECH_STACK.md) - 고급 기술 스택
-- [BUNDLE_OPTIMIZATION.md](./BUNDLE_OPTIMIZATION.md) - 성능 최적화
-
-</details>
-
-</div>
-📦 박스 다루기
-
-| 하고 싶은 일                 | 방법                          |
-| ---------------------------- | ----------------------------- |
-| 🖱️ **박스 위치 바꾸기**      | 박스 상단을 마우스로 드래그   |
-| 📏 **박스 크기 조절**        | 박스 모서리를 마우스로 드래그 |
-| 🔝 **특정 박스를 맨 앞으로** | 박스 아무 곳이나 클릭         |
-| 🗑️ **박스 삭제**             | 박스 우측 상단의 X 버튼 클릭  |
-
-### 📊 차트 보는 법
-
-| 하고 싶은 일              | 방법                           |
-| ------------------------- | ------------------------------ |
-| ⬅️➡️ **과거 데이터 보기** | 차트를 마우스로 좌우 드래그    |
-| 🔍 **차트 확대/축소**     | 마우스 휠 스크롤               |
-| 📅 **기간 변경**          | 1일, 1주, 1개월, 1년 버튼 클릭 |
 
 ### ⚙️ 설정 변경하기
 
@@ -230,70 +150,6 @@ MIT 라이선스 - 자유롭게 사용하실 수 있습니다.
 ---
 
 ## ❓ 자주 묻는 질문
-
-💬 피드백 & 문의
-
-궁금한 점이나 개선 제안이 있으신가요?
-
-- 🐛 **버그 제보**: [Issues](https://github.com/jm4293/stock-desk/issues)에 남겨주세요
-- 💡 **기능 제안**: [Issues](https://github.com/jm4293/stock-desk/issues)에서 의견을 공유해주세요
-- ⭐ **마음에 드셨나요?**: GitHub에서 Star를 눌러주세요!
-
----
-
-## 📜 이용 약관
-
-Stock Desk는 MIT 라이선스로 제공됩니다.
-자유롭게 사용하실 수 있으며, 투자 판단의 참고 자료로만 활용해주세요.
-
-> ⚠️ **투자 유의사항**: 이 서비스는 정보 제공 목적이며, 투자 권유가 아닙니다.
-> 모든 투자 판단과 책임은 투자자 본인에게 있습니다.
-
----
-
-<div align="center">
-
-**만든 사람**: [@jm4293](https://github.com/jm4293)
-
----
-
-<details>
-<summary><b>🔧 개발자를 위한 정보</b></summary>
-
-<br>
-
-[![React](https://img.shields.io/badge/React-18-61dafb.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6.svg)](https://www.typescriptlang.org/)
-[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black)](https://vercel.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-### 로컬 개발 환경
-
-```bash
-git clone https://github.com/jm4293/stock-desk.git
-cd stock-desk
-npm install
-npm run dev
-```
-
-### 기술 문서
-
-- [CLAUDE.md](./CLAUDE.md) - AI 개발 가이드
-- [docs/](./docs/) - 모든 기술 문서
-  - [getting-started.md](./docs/getting-started.md) - 개발 시작 가이드
-  - [requirements.md](./docs/requirements.md) - 전체 요구사항
-  - [architecture/css.md](./docs/architecture/css.md) - CSS 전략
-  - [architecture/tech-stack.md](./docs/architecture/tech-stack.md) - 기술 스택
-  - [architecture/bundle-optimization.md](./docs/architecture/bundle-optimization.md) - 성능 최적화
-  - [guides/tdd-storybook-i18n.md](./docs/guides/tdd-storybook-i18n.md) - 개발 방법론
-  - [guides/api-key-strategy.md](./docs/guides/api-key-strategy.md) - API 관리
-- [.husky/README.md](.husky/README.md) - Git Hooks 가이드
-
-### 기술 스택
-
-React 18 · TypeScript · Vite · Tailwind CSS · Zustand · Lightweight Charts · Finnhub API
-
-</details>
 
 <details>
 <summary><b>어떤 종목을 볼 수 있나요?</b></summary>
@@ -330,3 +186,80 @@ React 18 · TypeScript · Vite · Tailwind CSS · Zustand · Lightweight Charts 
 3. 홈페이지에 `https://stock-desk.vercel.app` 입력
 
 </details>
+
+---
+
+## 💬 피드백 & 문의
+
+- 🐛 **버그 제보**: [Issues](https://github.com/jm4293/us-stock-desk/issues)에 남겨주세요
+- 💡 **기능 제안**: [Issues](https://github.com/jm4293/us-stock-desk/issues)에서 의견을 공유해주세요
+- ⭐ **마음에 드셨나요?**: GitHub에서 Star를 눌러주세요!
+
+---
+
+## 🤝 기여하기
+
+버그를 발견하셨거나 새로운 기능을 제안하고 싶으시다면 [Issues](https://github.com/jm4293/us-stock-desk/issues)에 남겨주세요.
+
+<details>
+<summary><b>🔧 개발자를 위한 정보</b></summary>
+
+<br>
+
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6.svg)](https://www.typescriptlang.org/)
+[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black)](https://vercel.com)
+
+### 기술 스택
+
+React 19 · TypeScript · Vite · Tailwind CSS · Zustand · Lightweight Charts · Finnhub API
+
+### 로컬 개발 환경
+
+```bash
+git clone https://github.com/jm4293/us-stock-desk.git
+cd us-stock-desk
+npm install
+npm run dev
+```
+
+### 커밋 메시지 형식
+
+```bash
+# 형식: <type>: <subject>
+feat: 새로운 기능 추가
+fix: 버그 수정
+docs: 문서 수정
+style: 코드 포맷팅
+refactor: 코드 리팩토링
+test: 테스트 추가/수정
+chore: 빌드, 패키지 관리
+```
+
+### 기술 문서
+
+- [CLAUDE.md](./CLAUDE.md) - AI 개발 가이드
+- [docs/](./docs/) - 모든 기술 문서
+  - [getting-started.md](./docs/getting-started.md) - 개발 시작 가이드
+  - [requirements.md](./docs/requirements.md) - 전체 요구사항
+  - [architecture/](./docs/architecture/) - 아키텍처 문서
+  - [guides/](./docs/guides/) - 개발 가이드
+
+</details>
+
+---
+
+## 📜 라이선스
+
+MIT 라이선스 - 자유롭게 사용하실 수 있습니다.
+
+> ⚠️ **투자 유의사항**: 이 서비스는 정보 제공 목적이며, 투자 권유가 아닙니다.
+> 모든 투자 판단과 책임은 투자자 본인에게 있습니다.
+
+---
+
+<div align="center">
+
+**만든 사람**: [@jm4293](https://github.com/jm4293)
+
+</div>
