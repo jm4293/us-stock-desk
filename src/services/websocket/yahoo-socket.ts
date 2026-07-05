@@ -73,15 +73,16 @@ class YahooSocket {
   private readonly MAX_RECONNECT_ATTEMPTS = 5;
   private readonly BASE_RECONNECT_DELAY = 1000;
 
-  private connectionFailedCallback: (() => void) | null = null;
+  // close() 호출로 닫은 소켓의 onclose가 재연결을 트리거하지 않도록 구분
+  private intentionalClose = false;
+
+  private connectionFailedCallbacks = new Set<() => void>();
 
   public onConnectionFailed(callback: () => void) {
-    this.connectionFailedCallback = callback;
+    this.connectionFailedCallbacks.add(callback);
     // 반환값으로 unregister 함수 제공
     return () => {
-      if (this.connectionFailedCallback === callback) {
-        this.connectionFailedCallback = null;
-      }
+      this.connectionFailedCallbacks.delete(callback);
     };
   }
 
@@ -93,31 +94,45 @@ class YahooSocket {
       return;
     }
 
+    this.intentionalClose = false;
     this.reconnectAttempts = 0;
     this.connect();
   }
 
   private connect() {
-    try {
-      this.ws = new WebSocket(this.url);
+    if (
+      this.ws &&
+      (this.ws.readyState === WebSocket.OPEN || this.ws.readyState === WebSocket.CONNECTING)
+    ) {
+      return;
+    }
 
-      this.ws.onopen = () => {
+    try {
+      const socket = new WebSocket(this.url);
+      this.ws = socket;
+
+      socket.onopen = () => {
+        if (this.ws !== socket) return;
         console.log("[YahooSocket] Connected to wss://streamer.finance.yahoo.com");
         this.reconnectAttempts = 0;
         this.resubscribeAll();
       };
 
-      this.ws.onmessage = (event) => {
+      socket.onmessage = (event) => {
+        if (this.ws !== socket) return;
         this.handleMessage(event.data);
       };
 
-      this.ws.onerror = (error) => {
+      socket.onerror = (error) => {
         console.error("[YahooSocket] WebSocket Error:", error);
       };
 
-      this.ws.onclose = (event) => {
+      socket.onclose = (event) => {
+        // 교체된(더 이상 현재가 아닌) 소켓의 close 이벤트는 무시
+        if (this.ws !== socket) return;
         console.log(`[YahooSocket] Disconnected (code: ${event.code}). Reason: ${event.reason}`);
         this.ws = null;
+        if (this.intentionalClose) return;
         this.scheduleReconnect();
       };
     } catch (err) {
@@ -135,7 +150,7 @@ class YahooSocket {
       console.warn(
         `[YahooSocket] Reached maximum reconnect attempts (${this.MAX_RECONNECT_ATTEMPTS}). Giving up.`
       );
-      this.connectionFailedCallback?.();
+      this.connectionFailedCallbacks.forEach((cb) => cb());
       return;
     }
 
@@ -180,9 +195,8 @@ class YahooSocket {
       if (callbacks && callbacks.size > 0) {
         callbacks.forEach((cb) => cb(trade));
       }
-    } catch (err) {
+    } catch {
       // Fail silently for bad ticks, or log in debug mode
-      // console.error("[YahooSocket] Failed to decode message", err);
     }
   }
 
@@ -243,14 +257,17 @@ class YahooSocket {
   }
 
   public close() {
+    this.intentionalClose = true;
+
     if (this.reconnectTimer) {
       clearTimeout(this.reconnectTimer);
       this.reconnectTimer = null;
     }
 
     if (this.ws) {
-      this.ws.close();
+      const socket = this.ws;
       this.ws = null;
+      socket.close();
     }
 
     this.subscriptions.clear();

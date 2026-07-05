@@ -13,10 +13,13 @@ class StockSocket {
   private apiKey = "";
   private onErrorCallbacks = new Set<ErrorCallback>();
   private _connectionFailed = false;
+  // disconnect()로 닫은 소켓의 onclose가 재연결을 트리거하지 않도록 구분
+  private intentionalClose = false;
 
   init(apiKey: string) {
     this.apiKey = apiKey;
     this._connectionFailed = false;
+    this.intentionalClose = false;
   }
 
   /** WebSocket 연결 실패 시 호출될 콜백 등록 */
@@ -33,17 +36,21 @@ class StockSocket {
   private connect() {
     if (this.isConnecting || this.ws?.readyState === WebSocket.OPEN) return;
     this.isConnecting = true;
+    this.intentionalClose = false;
 
-    this.ws = new WebSocket(`${WEBSOCKET_URL}?token=${this.apiKey}`);
+    const socket = new WebSocket(`${WEBSOCKET_URL}?token=${this.apiKey}`);
+    this.ws = socket;
 
-    this.ws.onopen = () => {
+    socket.onopen = () => {
+      if (this.ws !== socket) return;
       this.isConnecting = false;
       this.reconnectAttempts = 0;
       this._connectionFailed = false;
       this.resubscribeAll();
     };
 
-    this.ws.onmessage = (event: MessageEvent) => {
+    socket.onmessage = (event: MessageEvent) => {
+      if (this.ws !== socket) return;
       try {
         const message: WebSocketMessage = JSON.parse(event.data as string);
         if (message.type === "trade" && message.data) {
@@ -57,12 +64,17 @@ class StockSocket {
       }
     };
 
-    this.ws.onclose = () => {
+    socket.onclose = () => {
+      // 교체된(더 이상 현재가 아닌) 소켓의 close 이벤트는 무시
+      if (this.ws !== socket) return;
       this.isConnecting = false;
+      this.ws = null;
+      if (this.intentionalClose) return;
       this.scheduleReconnect();
     };
 
-    this.ws.onerror = () => {
+    socket.onerror = () => {
+      if (this.ws !== socket) return;
       this.isConnecting = false;
     };
   }
@@ -115,9 +127,16 @@ class StockSocket {
   }
 
   disconnect() {
-    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
-    this.ws?.close();
-    this.ws = null;
+    this.intentionalClose = true;
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    if (this.ws) {
+      const socket = this.ws;
+      this.ws = null;
+      socket.close();
+    }
     this.subscribers.clear();
     this.reconnectAttempts = 0;
   }
