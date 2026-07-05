@@ -1,12 +1,19 @@
 import { STORAGE_KEYS } from "@/constants";
 import type { PersistStorage, StorageValue } from "zustand/middleware";
 
+// btoa는 Latin-1 범위 밖 문자(한글, 이모지 등)에서 throw하므로 encodeURIComponent를 먼저 적용
 function encode(data: unknown): string {
   return btoa(encodeURIComponent(JSON.stringify(data)));
 }
 
 function decode<T>(encoded: string): T {
-  return JSON.parse(decodeURIComponent(atob(encoded))) as T;
+  const raw = atob(encoded);
+  try {
+    return JSON.parse(decodeURIComponent(raw)) as T;
+  } catch {
+    // 구버전(encodeURIComponent 미적용) 데이터 호환
+    return JSON.parse(raw) as T;
+  }
 }
 
 /**
@@ -16,18 +23,20 @@ function decode<T>(encoded: string): T {
 export function createEncodedStorage<T>(): PersistStorage<T> {
   return {
     getItem: (name): StorageValue<T> | null => {
-      const str = localStorage.getItem(name);
-      if (!str) return null;
       try {
-        const decoded = atob(str);
-        return JSON.parse(decoded) as StorageValue<T>;
+        const str = localStorage.getItem(name);
+        if (!str) return null;
+        return decode<StorageValue<T>>(str);
       } catch {
         return null;
       }
     },
     setItem: (name, value) => {
-      const encoded = btoa(JSON.stringify(value));
-      localStorage.setItem(name, encoded);
+      try {
+        localStorage.setItem(name, encode(value));
+      } catch {
+        // 인코딩 실패, storage full 또는 접근 불가 시 저장 생략 (in-memory 상태는 유지됨)
+      }
     },
     removeItem: (name) => localStorage.removeItem(name),
   };

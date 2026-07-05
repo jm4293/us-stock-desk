@@ -49,8 +49,9 @@ export const useStockBoxStore = create<StockStore>()(
         addStock: (symbol: string, companyName: string) => {
           set((state) => {
             const newZIndex = state.maxZIndex + 1;
-            // maxZIndex는 삭제 후에도 감소하지 않으므로 항상 고유한 오프셋 보장
-            const offset = (newZIndex - 1) * 30;
+            // 계단식 배치 오프셋은 현재 박스 수 기준 (maxZIndex는 포커스 클릭마다 증가해
+            // 기준으로 쓰면 화면 밖에 생성됨), 10개 단위로 순환해 뷰포트 안에 유지
+            const offset = (state.stocks.length % 10) * 30;
             const newStock: StockBox = {
               id: crypto.randomUUID(),
               symbol: symbol.toUpperCase(),
@@ -109,9 +110,12 @@ export const useStockBoxStore = create<StockStore>()(
           set((state) => {
             const stock = state.stocks.find((s) => s.id === id);
             if (stock) {
-              const newZIndex = state.maxZIndex + 1;
-              stock.zIndex = newZIndex;
-              state.maxZIndex = newZIndex;
+              // 이미 최상단이면 maxZIndex를 불필요하게 키우지 않음 (persist되는 값이므로 무한 증가 방지)
+              if (stock.zIndex !== state.maxZIndex || state.maxZIndex === 0) {
+                const newZIndex = state.maxZIndex + 1;
+                stock.zIndex = newZIndex;
+                state.maxZIndex = newZIndex;
+              }
               state.focusedStockId = id;
             }
           });
@@ -120,6 +124,7 @@ export const useStockBoxStore = create<StockStore>()(
         reorderStocks: (fromIndex: number, toIndex: number) => {
           set((state) => {
             const moved = state.stocks.splice(fromIndex, 1)[0];
+            if (!moved) return;
             state.stocks.splice(toIndex, 0, moved);
           });
         },

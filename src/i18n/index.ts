@@ -8,8 +8,15 @@ const savedLanguage = (() => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (!raw) return "ko";
-    const decoded = JSON.parse(atob(raw));
-    return decoded?.state?.language ?? "ko";
+    // 스토리지 코덱(local-storage.ts)과 동일: encodeURIComponent 적용분 우선, 구버전 데이터 호환
+    const decoded = atob(raw);
+    let parsed: { state?: { language?: string } };
+    try {
+      parsed = JSON.parse(decodeURIComponent(decoded));
+    } catch {
+      parsed = JSON.parse(decoded);
+    }
+    return parsed?.state?.language ?? "ko";
   } catch {
     return "ko";
   }
