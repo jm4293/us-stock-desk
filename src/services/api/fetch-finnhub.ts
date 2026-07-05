@@ -76,7 +76,7 @@ export function mapCandleToChartData(candle: FinnhubCandle): StockChartData[] {
 
 export const getQuote = async (symbol: string): Promise<StockPrice> => {
   const response = await fetch(
-    `${API_ENDPOINTS.PROXY_BASE}/stock-proxy?symbol=${symbol}&type=quote`
+    `${API_ENDPOINTS.PROXY_BASE}/stock-proxy?symbol=${encodeURIComponent(symbol)}&type=quote`
   );
   if (!response.ok) {
     throw new Error(`HTTP error: ${response.status}`);
@@ -87,7 +87,9 @@ export const getQuote = async (symbol: string): Promise<StockPrice> => {
 
 export const finnhubApi = {
   getQuote: async (symbol: string): Promise<ApiResponse<StockPrice>> => {
-    const result = await fetchFromProxy<FinnhubQuote>(`/stock-proxy?symbol=${symbol}&type=quote`);
+    const result = await fetchFromProxy<FinnhubQuote>(
+      `/stock-proxy?symbol=${encodeURIComponent(symbol)}&type=quote`
+    );
     if (!result.success || !result.data) {
       return {
         data: null,
@@ -111,7 +113,7 @@ export const finnhubApi = {
     const from = to - CHART_DAYS[range] * 24 * 60 * 60;
     const resolution = CHART_RESOLUTION[range];
     const result = await fetchFromProxy<FinnhubCandle>(
-      `/stock-proxy?symbol=${symbol}&type=candle&resolution=${resolution}&from=${from}&to=${to}`
+      `/stock-proxy?symbol=${encodeURIComponent(symbol)}&type=candle&resolution=${resolution}&from=${from}&to=${to}`
     );
     if (!result.success || !result.data) {
       return {
@@ -201,14 +203,17 @@ function parseYahooV8ExtendedHours(
     }
   }
 
-  const base = previousClose > 0 ? previousClose : ((meta.chartPreviousClose as number) ?? 0);
+  // 프리마켓 변동은 전일 종가 대비, 애프터마켓 변동은 당일 정규장 종가 대비로 계산
+  const preBase = previousClose > 0 ? previousClose : ((meta.chartPreviousClose as number) ?? 0);
+  const regularClose = (meta.regularMarketPrice as number) ?? 0;
+  const postBase = regularClose > 0 ? regularClose : preBase;
 
   const pre: ExtendedHoursPrice | undefined =
     prePrice && prePrice > 0
       ? {
           price: prePrice,
-          change: prePrice - base,
-          changePercent: base > 0 ? ((prePrice - base) / base) * 100 : 0,
+          change: prePrice - preBase,
+          changePercent: preBase > 0 ? ((prePrice - preBase) / preBase) * 100 : 0,
           timestamp: (preTimestamp ?? 0) * 1000,
         }
       : undefined;
@@ -217,8 +222,8 @@ function parseYahooV8ExtendedHours(
     postPrice && postPrice > 0
       ? {
           price: postPrice,
-          change: postPrice - base,
-          changePercent: base > 0 ? ((postPrice - base) / base) * 100 : 0,
+          change: postPrice - postBase,
+          changePercent: postBase > 0 ? ((postPrice - postBase) / postBase) * 100 : 0,
           timestamp: (postTimestamp ?? 0) * 1000,
         }
       : undefined;
@@ -232,7 +237,9 @@ export async function getExtendedHours(
   previousClose = 0
 ): Promise<ApiResponse<Pick<StockPrice, "preMarket" | "postMarket">>> {
   try {
-    const response = await fetch(`${API_ENDPOINTS.PROXY_BASE}/extended-hours?symbol=${symbol}`);
+    const response = await fetch(
+      `${API_ENDPOINTS.PROXY_BASE}/extended-hours?symbol=${encodeURIComponent(symbol)}`
+    );
     if (!response.ok) {
       throw new Error(`HTTP error: ${response.status}`);
     }
