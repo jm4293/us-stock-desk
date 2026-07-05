@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { Button } from "@/components";
 import { STOCK_BOX } from "@/constants";
 import { PriceDisplay } from "@/features";
-import { useChartData, useMarketStatus, useStockData } from "@/hooks";
+import { useChartData, useFlashBorder, useMarketStatus, useStockData } from "@/hooks";
 import { selectColorScheme, selectShowChart, selectTheme, useSettingsStore } from "@/stores";
 import type { ChartTimeRange, Position, Size } from "@/types";
 import { cn } from "@/utils";
@@ -57,7 +57,6 @@ export const DesktopStockBox: React.FC<StockBoxProps> = ({
   const { t } = useTranslation();
 
   const [range, setRange] = useState<ChartTimeRange>("1m");
-  const [flashDirection, setFlashDirection] = useState<"up" | "down" | null>(null);
 
   const { state: priceState } = useStockData(symbol);
   const { state: chartState } = useChartData(symbol, range);
@@ -68,39 +67,10 @@ export const DesktopStockBox: React.FC<StockBoxProps> = ({
   const isDark = theme === "dark";
 
   const isMounted = useRef(false);
-  const prevPriceRef = useRef<number | null>(null);
-  const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentPrice = priceState.status === "success" ? priceState.data.current : null;
 
-  useEffect(() => {
-    if (currentPrice === null) return;
-    const prev = prevPriceRef.current;
-    if (prev !== null && prev !== currentPrice) {
-      const direction = currentPrice > prev ? "up" : "down";
-      setFlashDirection(direction);
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-      flashTimerRef.current = setTimeout(() => setFlashDirection(null), 600);
-    }
-    prevPriceRef.current = currentPrice;
-  }, [currentPrice]);
-
-  useEffect(() => {
-    return () => {
-      if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-    };
-  }, []);
-
-  const flashRingClass =
-    flashDirection === "up"
-      ? colorScheme === "kr"
-        ? "ring-2 ring-red-500"
-        : "ring-2 ring-green-400"
-      : flashDirection === "down"
-        ? colorScheme === "kr"
-          ? "ring-2 ring-blue-500"
-          : "ring-2 ring-red-500"
-        : null;
+  const { flashDirection, flashRingClass } = useFlashBorder(currentPrice, colorScheme);
 
   useEffect(() => {
     if (!isMounted.current) {
