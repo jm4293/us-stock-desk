@@ -19,6 +19,7 @@
   },
   "market": {
     "weekend": "Weekend — Closed",
+    "holiday": "Market Holiday — Closed",
     "pre": "Pre-Market",
     "open": "Regular Hours",
     "post": "After-Hours",
