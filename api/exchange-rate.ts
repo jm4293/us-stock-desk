@@ -37,6 +37,8 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
     });
   } catch (error) {
     console.error("[Exchange Rate Proxy Error]:", error);
+    // fallback 값이 엣지 캐시에 60초간 남아 모든 사용자에게 퍼지지 않도록 캐시 금지
+    res.setHeader("Cache-Control", "no-store");
     return res.status(200).json({
       base: "USD",
       target: "KRW",

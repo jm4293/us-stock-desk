@@ -10,6 +10,8 @@ const RANGE_MAP: Record<string, { interval: string; range: string }> = {
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
   const symbol = String(req.query.symbol ?? "");
   const timeRange = String(req.query.range ?? "1m");
   const config = RANGE_MAP[timeRange] ?? RANGE_MAP["1m"];
@@ -20,11 +22,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const yahooUrl = `${YAHOO_BASE}/${encodeURIComponent(symbol)}?interval=${config.interval}&range=${config.range}`;
 
-  const response = await fetch(yahooUrl, {
-    headers: { "User-Agent": "Mozilla/5.0" },
-  });
-  const data = await response.json();
+  try {
+    const response = await fetch(yahooUrl, {
+      headers: { "User-Agent": "Mozilla/5.0" },
+    });
+    const data = await response.json();
 
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  return res.status(response.status).json(data);
+    return res.status(response.status).json(data);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return res.status(502).json({ error: message });
+  }
 }

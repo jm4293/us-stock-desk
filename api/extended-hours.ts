@@ -6,6 +6,9 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
  * GET /api/extended-hours?symbol=AAPL
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "no-store");
+
   const symbol = String(req.query.symbol ?? "")
     .trim()
     .toUpperCase();
@@ -14,7 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "symbol is required" });
   }
 
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1m&range=1d&includePrePost=true`;
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1m&range=1d&includePrePost=true`;
 
   try {
     const response = await fetch(url, {
@@ -22,11 +25,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
     const data = await response.json();
 
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Cache-Control", "no-store");
     return res.status(response.status).json(data);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    return res.status(500).json({ error: message });
+    return res.status(502).json({ error: message });
   }
 }
