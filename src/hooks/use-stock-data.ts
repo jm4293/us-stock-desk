@@ -28,17 +28,25 @@ export function useStockData(symbol: string): UseStockDataReturn {
   const marketStatusRef = useRef(marketStatus);
   marketStatusRef.current = marketStatus;
 
+  // symbol 변경 후 늦게 도착한 이전 요청의 응답을 무시하기 위한 시퀀스
+  const requestSeqRef = useRef(0);
+
   // ─── Polling: 최초 통신으로 스냅샷 로딩 ───────────────
   const fetchPrice = useCallback(async () => {
+    const requestId = ++requestSeqRef.current;
+
     if (!hasLoadedOnce.current) {
       setState({ status: "loading" });
     }
 
     // Finnhub 종가 + Yahoo 확장시간 가격을 병렬로 호출 → 종가가 먼저 표시되는 깜빡임 방지
-    // Finnhub 결과를 previousClose로 넘겨 change 계산 정확도를 높임
-    const finnhubPromise = finnhubApi.getQuote(symbol);
-    const extPromise = finnhubPromise.then((r) => getExtendedHours(symbol, r.data?.close ?? 0));
-    const [result, extResult] = await Promise.all([finnhubPromise, extPromise]);
+    // 확장시간 변동 기준가는 Yahoo 응답의 meta(chartPreviousClose/regularMarketPrice)에서 가져옴
+    const [result, extResult] = await Promise.all([
+      finnhubApi.getQuote(symbol),
+      getExtendedHours(symbol),
+    ]);
+
+    if (requestId !== requestSeqRef.current) return;
 
     if (result.success && result.data) {
       hasLoadedOnce.current = true;
@@ -139,10 +147,17 @@ export function useStockData(symbol: string): UseStockDataReturn {
   }, [symbol, marketStatus, wsFailedFallback]);
 
   // fallback 중이라도 다시 장이 열리는 시간대가 오면 재도전
+  // 주의: "장이 열리는 시간대로 전환되는 순간"에만 재시도해야 함.
+  // 장중에 wsFailedFallback이 켜질 때마다 즉시 리셋하면 폴링 fallback이 살아남지 못하고
+  // 웹소켓 실패 ↔ 재시도 무한 루프에 빠진다.
+  const prevMarketStatusRef = useRef(marketStatus);
   useEffect(() => {
-    const isTradingHours =
-      marketStatus === "open" || marketStatus === "pre" || marketStatus === "post";
-    if (isTradingHours && wsFailedFallback) {
+    const isTrading = (s: typeof marketStatus) => s === "open" || s === "pre" || s === "post";
+    const wasTradingHours = isTrading(prevMarketStatusRef.current);
+    const isTradingHours = isTrading(marketStatus);
+    prevMarketStatusRef.current = marketStatus;
+
+    if (!wasTradingHours && isTradingHours && wsFailedFallback) {
       yahooSocket.init();
       setWsFailedFallback(false);
     }

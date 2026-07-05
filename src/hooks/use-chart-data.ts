@@ -48,6 +48,8 @@ interface UseChartDataReturn {
 export function useChartData(symbol: string, range: ChartTimeRange): UseChartDataReturn {
   const [state, setState] = useState<AsyncState<StockChartData[]>>({ status: "idle" });
   const hasLoadedRef = useRef(false);
+  // symbol/range 변경 후 늦게 도착한 이전 요청의 응답을 무시하기 위한 시퀀스
+  const requestSeqRef = useRef(0);
 
   // symbol/range 변경 시 이전 데이터 클리어 및 로딩 플래그 초기화
   useEffect(() => {
@@ -56,15 +58,14 @@ export function useChartData(symbol: string, range: ChartTimeRange): UseChartDat
   }, [symbol, range]);
 
   const fetchCandles = useCallback(async () => {
+    const requestId = ++requestSeqRef.current;
     // 최초 로딩만 "loading" 표시, 이후엔 기존 데이터 유지(깜빡임 방지)
     if (!hasLoadedRef.current) {
       setState({ status: "loading" });
     }
     try {
-      const response = await fetchYahooChart(symbol, range);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      const data: YahooChartResponse = await response.json();
+      const data = (await fetchYahooChart(symbol, range)) as YahooChartResponse;
+      if (requestId !== requestSeqRef.current) return;
 
       if (data.chart.error || !data.chart.result) {
         throw new Error(data.chart.error?.description ?? "No data");
@@ -74,6 +75,7 @@ export function useChartData(symbol: string, range: ChartTimeRange): UseChartDat
       hasLoadedRef.current = true;
       setState({ status: "success", data: chartData });
     } catch (error) {
+      if (requestId !== requestSeqRef.current) return;
       if (!hasLoadedRef.current) {
         setState({
           status: "error",

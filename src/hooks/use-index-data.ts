@@ -17,21 +17,27 @@ export function useIndexData(symbol: IndexSymbol): UseIndexDataReturn {
   const [error, setError] = useState<string | null>(null);
   const dataRef = useRef<MarketIndex | null>(null);
   const hasLoadedOnce = useRef(false);
+  // symbol 변경 후 늦게 도착한 이전 요청의 응답을 무시하기 위한 시퀀스
+  const requestSeqRef = useRef(0);
   const { status: marketStatus } = useMarketStatus();
 
   const fetchQuote = useCallback(async () => {
+    const requestId = ++requestSeqRef.current;
+
     if (!hasLoadedOnce.current) {
       setLoading(true);
     }
 
     try {
       const json = await fetchIndexQuote(symbol);
+      if (requestId !== requestSeqRef.current) return;
       hasLoadedOnce.current = true;
       dataRef.current = json;
       setData(json);
       setError(null);
       setLoading(false);
     } catch (err) {
+      if (requestId !== requestSeqRef.current) return;
       setError(err instanceof Error ? err.message : "Failed to fetch index data");
       if (!hasLoadedOnce.current) {
         setLoading(false);
@@ -81,17 +87,19 @@ export function useIndexData(symbol: IndexSymbol): UseIndexDataReturn {
     // 초기 스냅샷 fetch
     fetchQuote();
 
+    // 폴링은 장중에도 안전망으로 유지:
+    // 초기 fetch 실패 시 재시도하고, WebSocket이 불통이어도 스냅샷은 계속 갱신됨
+    const interval = setInterval(fetchQuote, INDEX_POLLING_INTERVAL);
+
     if (isTradingHours) {
       // WebSocket 구독
       const unsubscribe = yahooSocket.subscribe(symbol, handleTrade);
       return () => {
+        clearInterval(interval);
         unsubscribe();
       };
-    } else {
-      // 장 마감 시 폴링
-      const interval = setInterval(fetchQuote, INDEX_POLLING_INTERVAL);
-      return () => clearInterval(interval);
     }
+    return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, marketStatus]);
 
