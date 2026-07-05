@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { KSTClock } from "@/features";
 import { useMarketStatus } from "@/hooks";
 import { selectTheme, useSettingsStore } from "@/stores";
@@ -25,6 +25,18 @@ export function MobileMarketStatus() {
 
   const triggerRef = useRef<HTMLDivElement>(null);
 
+  // 트리거 바깥을 터치/클릭하면 툴팁 닫기
+  // (onBlur의 relatedTarget 검사는 다른 버튼으로 포커스가 이동하면 오히려 툴팁이 열린 채 남는 문제가 있음)
+  useEffect(() => {
+    if (!showTooltip) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      if (triggerRef.current?.contains(e.target as Node)) return;
+      setShowTooltip(false);
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [showTooltip]);
+
   return (
     <div className="flex items-center gap-2">
       <div ref={triggerRef}>
@@ -32,10 +44,6 @@ export function MobileMarketStatus() {
           type="button"
           className="flex items-center gap-2"
           onClick={() => setShowTooltip((v) => !v)}
-          onBlur={(e) => {
-            // 툴팁 내부 클릭이 아닐 때만 닫기
-            if (!e.relatedTarget) setShowTooltip(false);
-          }}
           aria-label={t(labelKey)}
           aria-expanded={showTooltip}
         >

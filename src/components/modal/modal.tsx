@@ -3,6 +3,9 @@ import { useIsMobile } from "@/hooks";
 import { selectTheme, useSettingsStore } from "@/stores";
 import { cn } from "@/utils";
 
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -22,6 +25,7 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, children, allowOver
   const [mounted, setMounted] = useState(false);
   const [viewportHeight, setViewportHeight] = useState<number | null>(null);
   const animFrameRef = useRef<number | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // visualViewport로 키보드가 올라올 때 실제 뷰포트 높이 추적 (Android 대응)
   useEffect(() => {
@@ -43,11 +47,81 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, children, allowOver
       });
     } else {
       setVisible(false);
-      const timer = setTimeout(() => setMounted(false), 700);
+      // 언마운트 지연은 전환 시간과 일치시킴 (데스크톱 300ms / 모바일 700ms)
+      // 길게 잡으면 페이드아웃 후에도 투명한 백드롭이 클릭을 가로챔
+      const timer = setTimeout(() => setMounted(false), isMobile ? 700 : 300);
       return () => clearTimeout(timer);
     }
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+    };
+  }, [open, isMobile]);
+
+  // ESC로 닫기 + Tab 포커스 트랩 + 닫힐 때 이전 포커스 복원
+  // 포커스 위치와 무관하게 동작하도록 document 레벨에서 처리
+  useEffect(() => {
+    if (!open) return;
+
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+
+    // 패널이 마운트 렌더링된 뒤(open → mounted 반영 이후) 초기 포커스 이동
+    let cancelled = false;
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        const panel = panelRef.current;
+        if (!panel || panel.contains(document.activeElement)) return;
+        const focusables = panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+        (focusables[0] ?? panel).focus();
+      });
+    });
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      const panel = panelRef.current;
+      if (!panel) return;
+      const focusables = Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
+      if (focusables.length === 0) {
+        e.preventDefault();
+        panel.focus();
+        return;
+      }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const active = document.activeElement;
+
+      if (e.shiftKey) {
+        if (active === first || !panel.contains(active)) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else if (active === last || !panel.contains(active)) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      document.removeEventListener("keydown", handleKeyDown);
+      previouslyFocused?.focus();
+    };
+  }, [open, onClose]);
+
+  // 모달이 열려 있는 동안 배경 스크롤 잠금
+  useEffect(() => {
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
     };
   }, [open]);
 
@@ -64,13 +138,14 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, children, allowOver
             visible ? "opacity-100" : "opacity-0"
           )}
           onClick={onClose}
-          onKeyDown={(e) => {
-            if (e.key === "Escape") onClose();
-          }}
         />
 
         {/* 패널 — fixed로 하단에서 위로 슬라이드 */}
         <div
+          ref={panelRef}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
           className={cn(
             "fixed bottom-0 left-0 right-0 z-[1001] min-h-[80vh] rounded-t-3xl transition-transform duration-700 ease-in-out will-change-transform",
             isDark ? "glass border-t border-white/10" : "glass border-t border-slate-200",
@@ -104,11 +179,12 @@ export const Modal: React.FC<ModalProps> = ({ open, onClose, children, allowOver
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      onKeyDown={(e) => {
-        if (e.key === "Escape") onClose();
-      }}
     >
       <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        tabIndex={-1}
         className={cn(
           "w-full max-w-sm rounded-2xl p-6 shadow-2xl transition-all duration-300",
           isDark ? "glass" : "glass border border-slate-200",

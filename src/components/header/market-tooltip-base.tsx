@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
@@ -20,15 +20,16 @@ export const MarketTooltipBase = ({
   const { t } = useTranslation();
   const [pos, setPos] = useState<TooltipPos>({ top: 0, left: 0 });
 
-  useEffect(() => {
+  // position: fixed는 뷰포트 기준이므로 scroll 오프셋을 더하지 않음
+  // useLayoutEffect로 첫 페인트 전에 위치를 계산해 (0,0)에서 점프하는 깜빡임 방지
+  useLayoutEffect(() => {
     if (!anchorEl) return;
     const rect = anchorEl.getBoundingClientRect();
     // 뷰포트 오른쪽 끝을 넘지 않도록 left 값 클램프
-    const rawLeft = rect.left + window.scrollX;
     const maxLeft = window.innerWidth - TOOLTIP_WIDTH - 8;
     setPos({
-      top: rect.bottom + window.scrollY + 8,
-      left: Math.min(rawLeft, maxLeft),
+      top: rect.bottom + 8,
+      left: Math.min(rect.left, maxLeft),
     });
   }, [anchorEl]);
 

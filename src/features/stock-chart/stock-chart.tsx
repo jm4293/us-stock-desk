@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useMarketStatus } from "@/hooks";
 import { selectColorScheme, selectTheme, useSettingsStore } from "@/stores";
 import type { ChartTimeRange, StockChartData } from "@/types";
 import {
@@ -46,6 +47,12 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
   const colorScheme = useSettingsStore(selectColorScheme);
   const theme = useSettingsStore(selectTheme);
   const isDark = theme === "dark";
+
+  // 장이 닫혀 있으면 livePrice는 스냅샷일 뿐이므로 벽시계 기준 새 캔들을 만들지 않음
+  // (주말에 마지막 캔들에서 멀리 떨어진 팬텀 캔들이 생기는 것 방지)
+  const { status: marketStatus } = useMarketStatus();
+  const isTradingHours =
+    marketStatus === "open" || marketStatus === "pre" || marketStatus === "post";
 
   const upColor = colorScheme === "kr" ? "#ef4444" : "#089981";
   const downColor = colorScheme === "kr" ? "#2563eb" : "#ef4444";
@@ -231,7 +238,7 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
       liveCandleRef.current = null;
     }
 
-    if (currentCandleTimeSec > lastCandleTimeSec) {
+    if (isTradingHours && currentCandleTimeSec > lastCandleTimeSec) {
       // 현재 시각이 마지막 API 캔들보다 이후 구간 → 새 캔들
       if (!liveCandleRef.current || liveCandleRef.current.timeSec !== currentCandleTimeSec) {
         // 새 캔들 구간에 처음 진입: open = livePrice
@@ -276,7 +283,7 @@ export function StockChart({ data, livePrice, timeRange = "1m" }: StockChartProp
         close: livePrice,
       });
     }
-  }, [data, livePrice, timeRange]);
+  }, [data, livePrice, timeRange, isTradingHours]);
 
   // 차트 영역 드래그 시 부모(Rnd) 드래그 방지
   useEffect(() => {

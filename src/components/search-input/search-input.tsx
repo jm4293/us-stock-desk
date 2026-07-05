@@ -43,6 +43,8 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
   const inputRef = useRef<HTMLInputElement>(null);
   const inputWrapperRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // 빠른 타이핑 시 늦게 도착한 이전 검색 응답이 최신 결과를 덮어쓰지 않도록 하는 시퀀스
+  const searchSeqRef = useRef(0);
 
   useEffect(() => {
     // iOS에서 자동 줌을 피하기 위해 약간 지연 후 포커스
@@ -50,6 +52,13 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
       inputRef.current?.focus();
     }, TIMING.IOS_FOCUS_DELAY);
     return () => clearTimeout(timer);
+  }, []);
+
+  // 언마운트 시 대기 중인 디바운스 취소 (모달 닫힌 뒤 검색 요청/setState 방지)
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, []);
 
   // 드롭다운 위치 계산 (scroll 변화나 resize 시에도 갱신)
@@ -80,9 +89,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
       setShowDropdown(false);
       return;
     }
+    const requestId = ++searchSeqRef.current;
     setIsLoading(true);
     try {
       const res = await finnhubApi.searchSymbol(query);
+      if (requestId !== searchSeqRef.current) return;
       if (res.success && res.data) {
         const data = res.data as FinnhubSearchResponse;
         const items = (data.result ?? [])
@@ -92,7 +103,9 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
         setShowDropdown(items.length > 0);
       }
     } finally {
-      setIsLoading(false);
+      if (requestId === searchSeqRef.current) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -104,7 +117,18 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
     debounceRef.current = setTimeout(() => search(v), TIMING.SEARCH_DEBOUNCE);
   };
 
+  // 선택/검색 확정 시 대기 중인 디바운스와 in-flight 응답을 무효화
+  const cancelPendingSearch = () => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    searchSeqRef.current++;
+    setIsLoading(false);
+  };
+
   const handleSelect = (item: SearchResult) => {
+    cancelPendingSearch();
     onSearch(item.symbol, item.description);
     setValue("");
     setResults([]);
@@ -114,6 +138,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({ onSearch, className })
   const handleDirectSearch = () => {
     const trimmed = value.trim();
     if (!trimmed) return;
+    cancelPendingSearch();
     onSearch(trimmed.toUpperCase(), trimmed.toUpperCase());
     setValue("");
     setResults([]);

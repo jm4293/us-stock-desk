@@ -380,7 +380,11 @@ export const MobileStockBox: React.FC<MobileStockBoxProps> = ({
                     </div>
                   }
                 >
-                  <StockChart data={chartState.data} livePrice={price ? price.current : null} />
+                  <StockChart
+                    data={chartState.data}
+                    livePrice={price ? price.current : null}
+                    timeRange={range}
+                  />
                 </Suspense>
               ) : chartState.status === "loading" || chartState.status === "idle" ? (
                 <div className="flex h-full items-center justify-center">

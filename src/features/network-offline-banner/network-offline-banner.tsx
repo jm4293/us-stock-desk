@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNetworkStatus } from "@/hooks";
 import { cn } from "@/utils";
 import { useTranslation } from "react-i18next";
@@ -10,17 +10,19 @@ export function NetworkOfflineBanner() {
 
   // 다시 온라인이 됐을 때 잠깐 "연결됨" 메시지를 보여주기 위한 상태
   const [showReconnected, setShowReconnected] = useState(false);
-  const [prevOnline, setPrevOnline] = useState(isOnline);
+  const prevOnlineRef = useRef(isOnline);
 
   useEffect(() => {
-    if (!prevOnline && isOnline) {
+    const wasOnline = prevOnlineRef.current;
+    prevOnlineRef.current = isOnline;
+
+    if (!wasOnline && isOnline) {
       // 오프라인 → 온라인 전환 시 2초간 재연결 메시지 표시
       setShowReconnected(true);
       const timer = setTimeout(() => setShowReconnected(false), 2000);
       return () => clearTimeout(timer);
     }
-    setPrevOnline(isOnline);
-  }, [isOnline, prevOnline]);
+  }, [isOnline]);
 
   if (isOnline && !showReconnected) return null;
 
