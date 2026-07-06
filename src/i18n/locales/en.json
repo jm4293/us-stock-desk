@@ -118,5 +118,17 @@
     "indexOff": "Off",
     "exchangeRate": "Exchange Rate (USD/KRW)",
     "exchangeRateLabel": "USD/KRW"
+  },
+  "share": {
+    "title": "Share",
+    "desc": "Copy your current stocks and settings as a link to share across devices or with others.",
+    "includeLayout": "Include position & size",
+    "copyButton": "Copy Share Link",
+    "copied": "Share link copied to clipboard",
+    "copyFailed": "Failed to copy link",
+    "importTitle": "Import Layout",
+    "importDesc": "This link contains {{count}} stocks and settings.",
+    "importWarning": "Importing will replace your current stocks and settings.",
+    "importConfirm": "Import"
   }
 }

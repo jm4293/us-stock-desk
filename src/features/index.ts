@@ -6,4 +6,5 @@ export * from "./network-offline-banner";
 export * from "./price-display";
 export * from "./search-modal";
 export * from "./settings-modal";
+export * from "./share-import-modal";
 export * from "./stock-chart";

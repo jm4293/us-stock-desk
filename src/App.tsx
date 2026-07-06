@@ -1,5 +1,5 @@
 import { DesktopLayout, Header, MobileLayout, ToastContainer } from "@/components";
-import { SearchModal, SettingsModal } from "@/features";
+import { SearchModal, SettingsModal, ShareImportModal } from "@/features";
 import { useAppInit, useApplyTheme, useIsMobile, useLanguage, useWakeLock } from "@/hooks";
 import { selectShowToast, useStockBoxStore, useToastStore, useUIStore } from "@/stores";
 import { cn } from "@/utils";
@@ -54,6 +54,7 @@ function App() {
 
       <SearchModal />
       <SettingsModal />
+      <ShareImportModal />
       <ToastContainer />
     </div>
   );

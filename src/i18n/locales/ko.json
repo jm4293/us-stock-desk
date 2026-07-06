@@ -118,5 +118,17 @@
     "indexOff": "끄기",
     "exchangeRate": "환율 (USD/KRW)",
     "exchangeRateLabel": "달러/원"
+  },
+  "share": {
+    "title": "공유",
+    "desc": "현재 종목과 설정을 링크로 복사해 다른 기기나 사람과 공유할 수 있습니다.",
+    "includeLayout": "위치·크기 포함",
+    "copyButton": "공유 링크 복사",
+    "copied": "공유 링크가 복사되었습니다",
+    "copyFailed": "링크 복사에 실패했습니다",
+    "importTitle": "레이아웃 불러오기",
+    "importDesc": "이 링크에는 종목 {{count}}개와 설정이 담겨 있습니다.",
+    "importWarning": "불러오면 현재 종목과 설정이 대체됩니다.",
+    "importConfirm": "불러오기"
   }
 }

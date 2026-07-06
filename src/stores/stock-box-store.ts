@@ -30,6 +30,9 @@ interface StockActions {
   setFocused: (id: string | null) => void;
   bringToFront: (id: string) => void;
   reorderStocks: (fromIndex: number, toIndex: number) => void;
+  replaceStocks: (
+    items: { symbol: string; companyName: string; position?: Position; size?: Size }[]
+  ) => void;
 }
 
 type StockStore = StockState & StockActions;
@@ -128,6 +131,31 @@ export const useStockBoxStore = create<StockStore>()(
             state.stocks.splice(toIndex, 0, moved);
           });
         },
+
+        // 공유 링크 불러오기: 기존 종목을 전부 대체한다. id는 새로 발급하고,
+        // 위치/크기가 없으면(위치 미포함 공유) 계단식 기본 배치로 채운다.
+        replaceStocks: (items) => {
+          set((state) => {
+            state.stocks = items.map((item, index) => {
+              const offset = (index % 10) * 30;
+              return {
+                id: crypto.randomUUID(),
+                symbol: item.symbol.toUpperCase(),
+                companyName: item.companyName,
+                position: item.position ?? { x: 100 + offset, y: 100 + offset },
+                size: item.size ?? {
+                  width: STOCK_BOX.DEFAULT_WIDTH,
+                  height: STOCK_BOX.DEFAULT_HEIGHT,
+                },
+                zIndex: index + 1,
+                created: Date.now(),
+                updated: Date.now(),
+              };
+            });
+            state.maxZIndex = items.length;
+            state.focusedStockId = null;
+          });
+        },
       })),
       {
         name: STORAGE_KEYS.STOCKS,
@@ -159,3 +187,4 @@ export const selectUpdateSize = (state: StockStore) => state.updateSize;
 export const selectSetFocused = (state: StockStore) => state.setFocused;
 export const selectBringToFront = (state: StockStore) => state.bringToFront;
 export const selectReorderStocks = (state: StockStore) => state.reorderStocks;
+export const selectReplaceStocks = (state: StockStore) => state.replaceStocks;

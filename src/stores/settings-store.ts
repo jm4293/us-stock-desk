@@ -26,6 +26,7 @@ interface SettingsActions {
   setShowIndexSP500: (show: boolean) => void;
   setShowIndexNASDAQ: (show: boolean) => void;
   setShowExchangeRate: (show: boolean) => void;
+  applySettings: (settings: Partial<SettingsState>) => void;
 }
 
 type SettingsStore = SettingsState & SettingsActions;
@@ -101,6 +102,13 @@ export const useSettingsStore = create<SettingsStore>()(
             state.showExchangeRate = show;
           });
         },
+
+        // 공유 링크 불러오기: 검증된 설정 묶음을 한 번에 반영한다.
+        applySettings: (settings) => {
+          set((state) => {
+            Object.assign(state, settings);
+          });
+        },
       })),
       {
         name: STORAGE_KEYS.SETTINGS,
@@ -147,3 +155,4 @@ export const selectSetShowIndexDJI = (state: SettingsStore) => state.setShowInde
 export const selectSetShowIndexSP500 = (state: SettingsStore) => state.setShowIndexSP500;
 export const selectSetShowIndexNASDAQ = (state: SettingsStore) => state.setShowIndexNASDAQ;
 export const selectSetShowExchangeRate = (state: SettingsStore) => state.setShowExchangeRate;
+export const selectApplySettings = (state: SettingsStore) => state.applySettings;

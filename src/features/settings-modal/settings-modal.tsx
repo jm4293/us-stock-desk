@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { Modal, SettingOptionButton } from "@/components";
+import { useCreateShareLink } from "@/hooks";
 import {
   selectCloseSettings,
   selectColorScheme,
@@ -104,9 +105,27 @@ export const SettingsModal: React.FC = () => {
 
   const showToast = useToastStore(selectShowToast);
 
+  const createShareLink = useCreateShareLink();
+  const [includeLayout, setIncludeLayout] = useState(true);
+  const [sharing, setSharing] = useState(false);
+
   const handleSetting = (fn: () => void, message: string) => {
     fn();
     showToast(message, "info");
+  };
+
+  const handleShare = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      const url = await createShareLink(includeLayout);
+      await navigator.clipboard.writeText(url);
+      showToast(t("share.copied"), "success");
+    } catch {
+      showToast(t("share.copyFailed"), "error");
+    } finally {
+      setSharing(false);
+    }
   };
 
   const headingColor = isDark ? "text-white" : "text-slate-800";
@@ -360,6 +379,58 @@ export const SettingsModal: React.FC = () => {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* 공유 */}
+      <section className="mb-5">
+        <h3 className={cn("mb-1 text-sm font-semibold", sectionHeadingColor)}>
+          {t("share.title")}
+        </h3>
+        <p className={cn("mb-3 text-xs", isDark ? "text-gray-400" : "text-slate-400")}>
+          {t("share.desc")}
+        </p>
+
+        <div className="mb-2 flex items-center gap-2">
+          <span
+            className={cn(
+              "w-20 shrink-0 text-xs font-medium",
+              isDark ? "text-gray-300" : "text-slate-600"
+            )}
+          >
+            {t("share.includeLayout")}
+          </span>
+          <div className="flex flex-1 gap-1">
+            <SettingOptionButton
+              isActive={includeLayout}
+              isDark={isDark}
+              className="flex-1 py-1 text-xs"
+              onClick={() => setIncludeLayout(true)}
+            >
+              {t("settings.on")}
+            </SettingOptionButton>
+            <SettingOptionButton
+              isActive={!includeLayout}
+              isDark={isDark}
+              className="flex-1 py-1 text-xs"
+              onClick={() => setIncludeLayout(false)}
+            >
+              {t("settings.off")}
+            </SettingOptionButton>
+          </div>
+        </div>
+
+        <button
+          onClick={handleShare}
+          disabled={sharing}
+          className={cn(
+            "w-full rounded-xl py-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+            isDark
+              ? "bg-white/10 text-white hover:bg-white/20"
+              : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+          )}
+        >
+          {t("share.copyButton")}
+        </button>
       </section>
 
       {/* 완료 버튼 */}
